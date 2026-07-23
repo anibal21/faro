@@ -1,7 +1,8 @@
 # 4. Especificaciones de la API
 
 > Faro **no** expone API HTTP REST al usuario final. El contrato es **Tauri IPC** (commands + events).  
-> Fuente: [`specs/001-eks-log-monitor/contracts/tauri-commands.md`](specs/001-eks-log-monitor/contracts/tauri-commands.md).
+> Fuente: [`specs/001-eks-log-monitor/contracts/tauri-commands.md`](specs/001-eks-log-monitor/contracts/tauri-commands.md).  
+> Sync plan 2026-07-23: splash purge + catálogo session-cache.
 
 **Reglas transversales**
 
@@ -16,7 +17,7 @@
 
 ### `env_list` → `ConnectionInstance[]`
 
-Lista perfiles persistidos.
+Lista perfiles persistidos (durables).
 
 ### `env_upsert`
 
@@ -36,17 +37,24 @@ Marca ambiente activo; invalida sesiones live previas.
 
 ### `env_connect` / `env_disconnect`
 
-Abre o cierra túnel SSH + cliente kube del ambiente activo. Al conectar: lee archivo IAM → token EKS usando `region_name` + `cluster_name`.
+Abre o cierra túnel SSH + cliente kube del ambiente activo. Al conectar: lee archivo IAM → token EKS usando `region_name` + `cluster_name`; hydrate de catálogo a tablas `«session»` (1×). Al desconectar: limpia cache de sesión de ese ambiente.
+
+### `session_purge_ephemeral` (splash)
+
+Durante la ventana mínima de arranque: borra residuos `«session»`/logs efímeros de un cierre sucio. **No** borra `connection_instance`, prefs ni historial ligero. Luego se abre la ventana principal.
 
 ---
 
 ## 4.2. Catálogo (solo lectura)
 
+Tras hydrate, la UI **debe** preferir el cache SQLite de la sesión (`catalog_epoch` actual). Re-list live solo en hydrate / `catalog_refresh`.
+
 | Command | Entrada | Salida |
 |---------|---------|--------|
-| `k8s_list_deployments` | `namespace?` | `DeploymentArtifact[]` |
-| `k8s_list_configmaps` | `namespace?` | `ConfigMapArtifact[]` |
-| `k8s_get_configmap` | `namespace`, `name` | keys/values (truncado seguro si grande/binario) |
+| `k8s_list_deployments` | `namespace?` | `DeploymentArtifact[]` (preferir cache) |
+| `k8s_list_configmaps` | `namespace?` | `ConfigMapArtifact[]` (preferir cache) |
+| `k8s_get_configmap` | `namespace`, `name` | keys/values (truncado; 1ª apertura llena `cached_configmap_entry`) |
+| `catalog_refresh` | — | Nuevo `catalog_epoch`; reemplaza filas session del ambiente activo |
 
 ---
 
@@ -69,7 +77,7 @@ Solo modo UI; el stream continúa.
 | `logs_chunk` | payloads de escritura + identidad de pod + timestamps si hay |
 | `logs_status` | following / idle / error / no pods |
 
-Frontend: Structured agrupa por frontera de escritura; Raw renderiza texto/bytes **sin manipulación**.
+Frontend: Structured agrupa por frontera de escritura; Raw renderiza texto/bytes **sin manipulación**. Buffers en **RAM** (no SQLite).
 
 ---
 
@@ -77,15 +85,21 @@ Frontend: Structured agrupa por frontera de escritura; Raw renderiza texto/bytes
 
 ### `analyze_write_group` (payload: texto del write-group)
 
-Ejecuta reglas Spring Boot locales → `AnalysisFinding[]` (puede ser vacío).
+Ejecuta reglas Spring Boot locales → `AnalysisFinding[]` (puede ser vacío). Opcional: resumen ligero a `analysis_finding_history` (sin cuerpo de stacktrace).
 
 ---
 
-## 4.5. Preferencias
+## 4.5. Preferencias y arranque
 
 ### `prefs_get` / `prefs_set`
 
-Incluye `theme: light | dark`.
+Incluye `theme: light | dark`, `last_active_instance_id`.
+
+### Secuencia de launch
+
+1. Mostrar splash (`01-splash-preparing` intent; BG image en implement).  
+2. `session_purge_ephemeral`.  
+3. Abrir ventana principal (empty o prefs).
 
 ---
 
@@ -104,7 +118,7 @@ requestBody:
           instance_id: { type: string, format: uuid }
 responses:
   "200":
-    description: connected
+    description: connected + catalog hydrated
     content:
       application/json:
         schema:
@@ -112,6 +126,7 @@ responses:
           properties:
             status: { enum: [connected] }
             cluster_name: { type: string }
+            catalog_epoch: { type: string }
   "4xx":
     description: túnel / credenciales / TLS (mensaje sin secretos)
 ```

@@ -30,23 +30,33 @@ Sets active instance; invalidates prior live sessions.
 
 Establish or tear down SSH tunnel + kube client for active instance.  
 On connect: read IAM credentials from `iam_credentials_path` (in memory only) → EKS token; use `region_name` + `cluster_name` (DescribeCluster as needed).  
+On **successful** connect: mint `catalog_epoch`, **hydrate session-cache** tables once (namespaces, Deployments, ConfigMap list stubs) — see [data-model.md](../data-model.md).  
+On disconnect: tear down tunnel/kube and **DELETE session-cache rows** for that `connection_instance_id`.  
+App process exit / shutdown hook: **TRUNCATE/DELETE ALL session-cache tables** (best-effort — may not run on crash/kill).  
+**App startup** (splash, before main window): **MUST** call `session_purge_ephemeral` — delete leftover `«session»` / log-ephemeral rows only; **keep** all durable environments and prefs.  
 Errors: actionable, no secret material in messages.
 
 ---
 
 ## Catalog (read-only)
 
+Catalog UI SHOULD read from SQLite **session cache** after hydrate. Live K8s list is used for hydrate / refresh only (not on every sidebar paint).
+
 ### `k8s_list_deployments` (namespace?)
 
-Returns DeploymentArtifact[].
+Returns DeploymentArtifact[] — prefer cache for current `catalog_epoch`; may trigger hydrate if empty while connected.
 
 ### `k8s_list_configmaps` (namespace?)
 
-Returns ConfigMapArtifact[].
+Returns ConfigMapArtifact[] — same cache policy.
 
 ### `k8s_get_configmap` (namespace, name)
 
-Read-only keys/values (safe truncation for large/binary).
+Read-only keys/values (safe truncation for large/binary). On first open in this epoch, fetch once and write `cached_configmap_entry` (`data_loaded=1`).
+
+### `catalog_refresh`
+
+Re-fetch catalog for the active connected instance: new `catalog_epoch`, replace session-cache rows for that instance. Does not drop durable `connection_instance` rows.
 
 ---
 
@@ -80,8 +90,21 @@ MUST NOT send payload off-machine.
 
 ---
 
-## Preferences
+## Preferences & startup
 
 ### `prefs_get` / `prefs_set`
 
 Includes `theme: light | dark`.
+
+### `session_purge_ephemeral`
+
+Called during **splash** (before main window).  
+**MUST DELETE** all `«session»` / ephemeral tables left from a prior run (dirty exit): `connection_session`, `cached_*` catalog leftovers, and any future log-staging tables.  
+**MUST NOT DELETE** durable rows: `connection_instance` (ambientes), `ui_preferences`, `analysis_finding_history`, `schema_meta`.  
+Returns when purge completes so UI can dismiss splash and open the main window.
+
+### App launch sequence
+
+1. Show minimal splash (`01-splash-preparing.svg` intent).  
+2. `session_purge_ephemeral`.  
+3. Open main window → empty workspace or restore `last_active_instance_id` prefs (environments still present).

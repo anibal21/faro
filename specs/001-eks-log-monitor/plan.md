@@ -1,6 +1,7 @@
 # Implementation Plan: Faro — EKS log monitor via bastion
 
-**Branch**: `feature-entrega1-AERC` (feature id `001-eks-log-monitor`) | **Date**: 2026-07-22 | **Spec**: [spec.md](./spec.md)
+**Date**: 2026-07-23 | **Spec**: [spec.md](./spec.md)  
+**Branch**: `feature-entrega1-AERC` (feature id `001-eks-log-monitor`)
 
 **Input**: Feature specification from `/specs/001-eks-log-monitor/spec.md`
 
@@ -8,7 +9,7 @@
 
 ## Summary
 
-Faro is a **desktop** app (Tauri 2 + React + TypeScript) that lets ops/colleagues browse EKS **Pods (Deployments)** and **ConfigMaps** through an SSH bastion, follow **aggregated live logs** per Deployment in **Structured** (default) or **Raw** (terminal dump) views, and run a **local Spring Boot rules engine** on click of a detected error write-group. Connection **environments** persist in local SQLite as **paths and identifiers only** (PEM path, IAM credentials file path, `region_name`, `cluster_name`, bastion SSH fields)—never PEM/IAM secret contents. New-environment form: PEM + SSH + ruta IAM + región + cluster.
+Faro is a **desktop** app (Tauri 2 + React + TypeScript) that lets ops/colleagues browse EKS **Pods (Deployments)** and **ConfigMaps** through an SSH bastion, follow **aggregated live logs** per Deployment in **Structured** (default) or **Raw** (terminal dump) views, and run a **local Spring Boot rules engine** on click of a detected error write-group. Launch shows a **minimal splash** (brand **Faro** over a **full-bleed background image** — asset deferred to implement / wireframe shows placeholder slot — plus AWS tagline + *…preparando aplicación*) while purging leftover **session/log-ephemeral** SQLite rows; durable environments and prefs are kept. Connection **environments** persist as **paths and identifiers only**. Cluster catalog is **hydrated once per connect** into session-cache tables. New-environment form: PEM + SSH + ruta IAM + región + cluster.
 
 ## Technical Context
 
@@ -16,7 +17,7 @@ Faro is a **desktop** app (Tauri 2 + React + TypeScript) that lets ops/colleague
 
 **Primary Dependencies**: Tauri 2 · React 18+ · Vite · `tauri-plugin-sql` (SQLite) · kube / aws-sdk (Rust) · SSH tunnel with local PEM path · IAM credentials **file path** (read at connect) · local rules engine (patterns, no generative AI)
 
-**Storage**: Local SQLite for connection instances, UI prefs (theme), light analysis history metadata — **not** full log dumps
+**Storage**: Local SQLite in two tiers — (1) **durable**: connection environments (paths/ids only), UI prefs, light analysis history metadata — **kept across sessions**; (2) **session/ephemeral**: catalog leftovers + any log-session residue — purged on splash startup (and disconnect/exit). **Not** full log dumps — see [data-model.md](./data-model.md) + [`docs/architecture/04-sqlite-er.drawio`](../../docs/architecture/04-sqlite-er.drawio)
 
 **Testing**: Vitest (frontend unit) · `cargo test` (Rust) · Playwright or Tauri WebDriver for ≥1 E2E primary flow
 
@@ -28,7 +29,7 @@ Faro is a **desktop** app (Tauri 2 + React + TypeScript) that lets ops/colleague
 
 **Constraints**: Constitution VI — no credential/user-data exfiltration; read-only K8s v1; PEM path + IAM credentials **file path** only (no secret values in DB); `region_name` + `cluster_name` required; no log export in MVP; no buffer-wide Analyze button
 
-**Scale/Scope**: Single-user desktop; multiple saved environments; one **active** cluster session at a time; multiple concurrent log windows; MVP screens = empty / env loaded / Structured / Raw (+ theme toggle)
+**Scale/Scope**: Single-user desktop; splash then main window; multiple saved environments; one **active** cluster session at a time; multiple concurrent log windows; MVP screens = splash / empty / env loaded / Structured / Raw (+ theme toggle)
 
 ## Constitution Check
 
@@ -46,7 +47,7 @@ Verify against `.specify/memory/constitution.md` (Faro v1.1.0+):
 - [x] Desktop demonstrable; public URL not required
 - [x] AI4Devs docs sync planned (`2`/`3`/`4` after plan; `6` after tasks)
 
-**Post-design re-check (Phase 1):** PASS — contracts are local Tauri command/event surfaces only; no SaaS egress; wireframes do not imply credential upload or export.
+**Post-design re-check (Phase 1):** PASS — splash purge is ephemeral-only (connections kept); contracts are local Tauri IPC only; no SaaS egress; no full log dumps in SQLite; wireframes include splash + renumbered 02–06.
 
 ## Project Structure
 
@@ -62,10 +63,12 @@ specs/001-eks-log-monitor/
 │   ├── tauri-commands.md
 │   └── ui-ia.md
 ├── wireframes/
-│   ├── 01-empty-workspace.svg
-│   ├── 02-environment-loaded.svg
-│   ├── 03-logs-structured.svg
-│   └── 04-logs-raw.svg
+│   ├── 01-splash-preparing.svg
+│   ├── 02-empty-workspace.svg
+│   ├── 03-new-environment-modal.svg
+│   ├── 04-environment-loaded.svg
+│   ├── 05-configmaps-raw-tabs.svg
+│   └── 06-structured-finding-detail.svg
 ├── checklists/
 └── tasks.md              # NOT created by /speckit-plan
 ```
@@ -106,12 +109,12 @@ apps/faro/                    # or repo-root app after scaffold
 
 ## Phase 0 & Phase 1 Outputs
 
-- [research.md](./research.md) — stack, multi-env UX, Raw/Structured, theme
-- [data-model.md](./data-model.md) — entities and validation
+- [research.md](./research.md) — stack, multi-env UX, Raw/Structured, theme, **session catalog cache**
+- [data-model.md](./data-model.md) — ER/UML entities, durable vs session tiers, validation
 - [contracts/](./contracts/) — Tauri commands + UI IA
-- [quickstart.md](./quickstart.md) — validation scenarios
+- [quickstart.md](./quickstart.md) — validation scenarios (incl. cache lifecycle)
 - [wireframes/](./wireframes/) — UI SVG mockups (iterating; sign-off pending)
-- [docs/architecture/](../../docs/architecture/) — draw.io + SVG (system context, components, sequence)
+- [docs/architecture/](../../docs/architecture/) — draw.io + SVG (system context, components, sequence, **SQLite ER**)
 
 ## Architecture diagrams (draw.io)
 
@@ -120,6 +123,7 @@ apps/faro/                    # or repo-root app after scaffold
 | 1 | System context (user → Faro → bastion → EKS) | [`01-system-context.drawio`](../../docs/architecture/01-system-context.drawio) | [`01-system-context.svg`](../../docs/architecture/01-system-context.svg) |
 | 2 | Internal components (UI · IPC · Rust · SQLite · externos) | [`02-components.drawio`](../../docs/architecture/02-components.drawio) | [`02-components.svg`](../../docs/architecture/02-components.svg) |
 | 3 | Connection / logs / analyze sequence | [`03-connection-sequence.drawio`](../../docs/architecture/03-connection-sequence.drawio) | [`03-connection-sequence.svg`](../../docs/architecture/03-connection-sequence.svg) |
+| 4 | SQLite ER (durable + session cache) | [`04-sqlite-er.drawio`](../../docs/architecture/04-sqlite-er.drawio) | [`04-sqlite-er.svg`](../../docs/architecture/04-sqlite-er.svg) |
 
 **Edit:** open `.drawio` in [diagrams.net](https://app.diagrams.net/) or Draw.io VS Code/Cursor extension; re-export SVG after changes.  
 **Contrast:** diagrams use fixed white page/canvas, solid fills, dark text (`#0F172A`), and `labelBackgroundColor=#FFFFFF` on edge labels so they stay readable in editor dark or light theme.
@@ -128,10 +132,14 @@ apps/faro/                    # or repo-root app after scaffold
 
 | # | Screen | File |
 |---|--------|------|
-| 1 | Empty workspace + Ambiente menu | `wireframes/01-empty-workspace.svg` |
-| 2 | Environment loaded (Pods catalog) | `wireframes/02-environment-loaded.svg` |
-| 3 | Logs Structured + findings panel | `wireframes/03-logs-structured.svg` |
-| 4 | Logs Raw (native terminal) | `wireframes/04-logs-raw.svg` |
+| 1 | Splash / preparando (BG image slot + purge sesión) | `wireframes/01-splash-preparing.svg` |
+| 2 | Empty workspace + Ambiente menu | `wireframes/02-empty-workspace.svg` |
+| 3 | New environment modal | `wireframes/03-new-environment-modal.svg` |
+| 4 | Environment loaded (Pods catalog) | `wireframes/04-environment-loaded.svg` |
+| 5 | ConfigMaps Raw tabs | `wireframes/05-configmaps-raw-tabs.svg` |
+| 6 | Structured finding detail | `wireframes/06-structured-finding-detail.svg` |
+
+**Startup:** Splash shows brand Faro over a **background-image slot** (asset deferred to implement), tagline *Herramienta de monitoreo infraestructura para ambiente AWS*, and *…preparando aplicación* while `session_purge_ephemeral` runs. Only ephemeral session/log residue is deleted; **durable** `connection_instance` / prefs / light history are kept. Then main window opens (empty or last prefs).
 
 **Menus (IA):**
 

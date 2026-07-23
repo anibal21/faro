@@ -1,0 +1,122 @@
+<mxfile host="app.diagrams.net" agent="Faro Spec Kit" version="22.1.0" type="device">
+  <diagram id="faro-sqlite-er" name="SQLite ER">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="canvas" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="1560" height="1060" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="Faro — Modelo ER SQLite (durable + session cache)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2A4A;strokeColor=#1B2A4A;fontColor=#FFFFFF;align=left;verticalAlign=middle;fontStyle=1;fontSize=18;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="24" width="620" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend" value="durable = sobrevive reinicio&#xa;session = purge en splash / disconnect&#xa;Hydrate: 1x por env_connect (catalog_epoch)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;fontColor=#0F172A;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="670" y="24" width="380" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="durBox" value="DURABLE (persiste entre reinicios)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#047857;verticalAlign=top;fontStyle=1;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontColor=#064E3B;" vertex="1" parent="1">
+          <mxGeometry x="30" y="110" width="740" height="420" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ci" value="durable ConnectionInstance&#xa;---------------&#xa;id PK&#xa;name UK&#xa;bastion_host&#xa;ssh_port&#xa;ssh_user&#xa;pem_path (path only)&#xa;iam_credentials_path&#xa;region_name&#xa;cluster_name&#xa;namespace_default?&#xa;sort_order?&#xa;is_favorite&#xa;notes?&#xa;created_at / updated_at" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="50" y="145" width="200" height="280" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ui" value="durable UiPreferences&#xa;---------------&#xa;key PK&#xa;value&#xa;updated_at&#xa;---------------&#xa;theme&#xa;last_active_instance_id&#xa;sidebar_width_px?&#xa;default_component_type?" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="280" y="145" width="210" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="hist" value="durable AnalysisFindingHistory&#xa;---------------&#xa;id PK&#xa;connection_instance_id FK&#xa;namespace&#xa;artifact_name&#xa;artifact_kind&#xa;severity&#xa;rule_id&#xa;explanation_summary&#xa;recommendation_summary&#xa;created_at&#xa;(no full stacktrace body)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="520" y="145" width="230" height="220" as="geometry" />
+        </mxCell>
+
+        <mxCell id="meta" value="durable SchemaMeta&#xa;---------------&#xa;key PK&#xa;value&#xa;(schema_version)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="280" y="370" width="210" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sessBox" value="SESSION CACHE (purge en splash — regenerar en proxima conexion)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#B45309;verticalAlign=top;fontStyle=1;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontColor=#78350F;" vertex="1" parent="1">
+          <mxGeometry x="30" y="560" width="1520" height="480" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cs" value="session ConnectionSession&#xa;---------------&#xa;id PK&#xa;connection_instance_id FK&#xa;status&#xa;connected_at&#xa;last_catalog_refresh_at?&#xa;last_error_code?&#xa;last_error_message?&#xa;catalog_epoch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="50" y="600" width="220" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cns" value="session CachedNamespace&#xa;---------------&#xa;id PK&#xa;connection_instance_id FK&#xa;catalog_epoch&#xa;name&#xa;fetched_at" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="300" y="600" width="200" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cdep" value="session CachedDeployment&#xa;---------------&#xa;id PK&#xa;connection_instance_id FK&#xa;catalog_epoch&#xa;namespace&#xa;name&#xa;replica_count&#xa;ready_replicas&#xa;available&#xa;labels_json?&#xa;fetched_at" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="530" y="600" width="210" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cpod" value="session CachedPodReplica&#xa;---------------&#xa;id PK&#xa;cached_deployment_id FK&#xa;pod_name&#xa;phase&#xa;node_name?&#xa;container_names_json&#xa;fetched_at" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="770" y="600" width="210" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ccm" value="session CachedConfigMap&#xa;---------------&#xa;id PK&#xa;connection_instance_id FK&#xa;catalog_epoch&#xa;namespace&#xa;name&#xa;key_count&#xa;data_loaded&#xa;fetched_at" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="600" width="210" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cce" value="session CachedConfigMapEntry&#xa;---------------&#xa;id PK&#xa;cached_configmap_id FK&#xa;key_name&#xa;value_text? (trunc)&#xa;is_truncated&#xa;is_binary&#xa;byte_length" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=10;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="600" width="220" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="note" value="NOT in SQLite: LogWindow buffer, LogWriteGroup, AnalysisFinding (full), SSH/kube clients, tokens" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#B91C1C;fontColor=#0F172A;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="960" width="680" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="1..*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#047857;strokeWidth=2;fontColor=#0F172A;fontSize=11;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=ERmany;startArrow=ERone;exitX=1;exitY=0.35;entryX=0;entryY=0.35;" edge="1" parent="1" source="ci" target="hist">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e2" value="opens" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#B45309;strokeWidth=2;fontColor=#0F172A;fontSize=11;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=ERmany;startArrow=ERone;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ci" target="cs">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="100" y="540" />
+              <mxPoint x="160" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e3" value="caches" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#B45309;strokeWidth=2;fontColor=#0F172A;fontSize=11;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=ERmany;startArrow=ERone;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ci" target="cns">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="520" />
+              <mxPoint x="400" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e4" value="caches" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#B45309;strokeWidth=2;fontColor=#0F172A;fontSize=11;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=ERmany;startArrow=ERone;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ci" target="cdep">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="500" />
+              <mxPoint x="635" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e5" value="caches" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#B45309;strokeWidth=2;fontColor=#0F172A;fontSize=11;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=ERmany;startArrow=ERone;exitX=1;exitY=0.85;entryX=0.5;entryY=0;" edge="1" parent="1" source="ci" target="ccm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="480" />
+              <mxPoint x="1115" y="480" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e6" value="1..*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#B45309;strokeWidth=2;fontColor=#0F172A;fontSize=11;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=ERmany;startArrow=ERone;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="cdep" target="cpod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e7" value="1..*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#B45309;strokeWidth=2;fontColor=#0F172A;fontSize=11;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=ERmany;startArrow=ERone;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="ccm" target="cce">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

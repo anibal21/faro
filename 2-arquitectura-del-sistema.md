@@ -1,7 +1,7 @@
 # 2. Arquitectura del sistema
 
-> Sincronizado con Spec Kit plan + auth IAM file path (2026-07-23).  
-> Wireframes: `specs/001-eks-log-monitor/wireframes/`. Diagramas: `docs/architecture/` (contexto en 3 columnas).
+> Sincronizado con Spec Kit plan (2026-07-23): splash + SQLite durable/session + IAM path.  
+> Wireframes: `specs/001-eks-log-monitor/wireframes/`. Diagramas: `docs/architecture/`.
 
 ## 2.1. Diagrama de arquitectura
 
@@ -12,6 +12,7 @@
 | Contexto del sistema | [01-system-context.svg](docs/architecture/01-system-context.svg) | [.drawio](docs/architecture/01-system-context.drawio) |
 | Componentes internos | [02-components.svg](docs/architecture/02-components.svg) | [.drawio](docs/architecture/02-components.drawio) |
 | Secuencia conexión/logs | [03-connection-sequence.svg](docs/architecture/03-connection-sequence.svg) | [.drawio](docs/architecture/03-connection-sequence.drawio) |
+| ER SQLite (durable + session) | [04-sqlite-er.svg](docs/architecture/04-sqlite-er.svg) | [.drawio](docs/architecture/04-sqlite-er.drawio) |
 
 Resumen Mermaid (equivalente al contexto):
 
@@ -36,33 +37,35 @@ flowchart LR
   EKS --> Pods
 ```
 
-**Patrón:** app de escritorio (Tauri 2) con UI en webview (React/TS) y backend nativo (Rust). Persistencia local SQLite. Una sesión de cluster **activa** a la vez; varios ambientes pueden estar cargados en UI.
+**Arranque:** splash (ventana mínima) → `session_purge_ephemeral` → ventana principal.
+
+**Patrón:** app de escritorio (Tauri 2) con UI en webview (React/TS) y backend nativo (Rust). Persistencia local SQLite en dos capas (durable + session cache). Una sesión de cluster **activa** a la vez; varios ambientes pueden estar cargados en UI.
 
 ## 2.2. Componentes principales
 
 | Componente | Tecnología | Rol |
 |------------|------------|-----|
-| UI | React + TS + Vite | Chrome Ambiente/Ver, catálogo Deployments/Pods/ConfigMaps, pestañas de vistas, Structured/Raw, panel de hallazgo |
-| Shell | Tauri 2 | Ventana, IPC, empaquetado Win/macOS/Linux |
-| Commands | Rust | Ambientes, túnel, AWS token, kube solo lectura, logs, análisis local |
+| UI | React + TS + Vite | Splash, chrome Ambiente/Ver, catálogo Deployments/Pods/ConfigMaps, pestañas, Structured/Raw, panel de hallazgo |
+| Shell | Tauri 2 | Ventana (mínima + principal), IPC, empaquetado Win/macOS/Linux |
+| Commands | Rust | Ambientes, purge splash, túnel, AWS token, kube RO, logs, análisis local |
 | SSH | russh (o `ssh` sistema controlado) | Port-forward al bastión; PEM solo por **ruta** |
 | AWS | aws-sdk-rust | Lee archivo IAM (ruta) → token EKS; `region_name` + `cluster_name` |
-| K8s | kube-rs | List Deployments/pods/ConfigMaps; get logs (follow) |
-| BD | SQLite (`tauri-plugin-sql`) | Ambientes, prefs (tema), historial ligero de hallazgos |
+| K8s | kube-rs | List Deployments/pods/ConfigMaps; get logs (follow); hydrate 1× por connect |
+| BD | SQLite (`tauri-plugin-sql`) | Durable: ambientes, prefs, historial ligero. Session: catálogo (purge en splash/disconnect) |
 | Reglas | Motor local (patrones) | Spring Boot al click; **sin** IA generativa en producto |
 
 ## 2.3. Estructura de ficheros (objetivo post-scaffold)
 
 ```text
 faro/
-├── specs/001-eks-log-monitor/   # plan, data-model, contracts, wireframes
+├── specs/001-eks-log-monitor/   # plan, data-model, contracts, wireframes (01-06)
 ├── src/                         # React + Vite
 ├── src-tauri/                   # Rust / Tauri commands
-├── docs/architecture/           # draw.io + SVG (contexto, componentes, secuencia)
+├── docs/architecture/           # draw.io + SVG (01-04)
 └── 0–7 + readme / prompts       # entrega AI4Devs
 ```
 
-Detalle de árbol Spec Kit: [`plan.md`](specs/001-eks-log-monitor/plan.md).
+Detalle: [`plan.md`](specs/001-eks-log-monitor/plan.md).
 
 ## 2.4. Infraestructura y despliegue
 
@@ -78,20 +81,21 @@ Detalle de árbol Spec Kit: [`plan.md`](specs/001-eks-log-monitor/plan.md).
 - TLS con CA del cluster; sin `insecure-skip-tls` en uso real.
 - RBAC v1: solo lectura (`get/list/watch` pods, `get` pods/log, ConfigMaps read).
 - **No exfiltración (constitution VI):** prohibido enviar credenciales o datos de dominio del usuario a terceros/telemetría/LLM; la única salida no configurada por el usuario puede ser metadata de la herramienta (p. ej. versión). Tráfico a bastión/EKS configurado por el usuario = uso legítimo.
+- Splash purge: solo tablas `«session»` / logs efímeros; **nunca** perfiles de ambiente durables.
 
 ## 2.6. Tests
 
 | Capa | Herramienta | Alcance |
 |------|-------------|---------|
-| Unit | Vitest / `cargo test` | UI helpers, reglas, parsing |
-| Integración | Commands + SQLite | CRUD ambientes, connect mockeable |
-| E2E | Playwright o Tauri WebDriver | ≥1 flujo: ambiente → conectar → logs → hallazgo |
+| Unit | Vitest / `cargo test` | UI helpers, reglas, parsing, purge |
+| Integración | Commands + SQLite | CRUD ambientes, connect mockeable, splash purge |
+| E2E | Playwright o Tauri WebDriver | ≥1 flujo: splash → ambiente → conectar → logs → hallazgo |
 
-Detalle en `TESTING.md` (pendiente). Quickstart técnico: [`specs/001-eks-log-monitor/quickstart.md`](specs/001-eks-log-monitor/quickstart.md).
+Detalle en `TESTING.md` (pendiente). Quickstart: [`specs/001-eks-log-monitor/quickstart.md`](specs/001-eks-log-monitor/quickstart.md).
 
 ## 2.7. IA / menús (contrato UI)
 
-Ver [`contracts/ui-ia.md`](specs/001-eks-log-monitor/contracts/ui-ia.md) y wireframes actuales:
+Ver [`contracts/ui-ia.md`](specs/001-eks-log-monitor/contracts/ui-ia.md) y wireframes:
 
 | Menú | Opciones |
 |------|----------|

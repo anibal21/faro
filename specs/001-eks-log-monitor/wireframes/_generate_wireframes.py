@@ -146,7 +146,46 @@ def empty_workspace_chrome(include_callouts: bool = True) -> str:
 """
 
 
-def write_01() -> None:
+def write_01_splash() -> None:
+    """Minimal splash window: brand + tagline + preparing (session purge)."""
+    svg = header("FARO - SPLASH / PREPARANDO APLICACIÓN")
+    # Prefer committed hand-tuned SVG; this stub regenerates a minimal placeholder if re-run.
+    svg += """
+  <text x="40" y="52" fill="#38BDF8" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">DESKTOP · VENTANA MÍNIMA</text>
+  <g id="desktop" transform="translate(40, 60)">
+    <rect width="1840" height="720" rx="8" fill="#0A1628" stroke="#334155"/>
+    <rect x="520" y="80" width="800" height="520" rx="12" fill="#0F2744" stroke="#64748B" stroke-width="2"/>
+    <text x="920" y="130" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#F8FAFC">Faro</text>
+    <text x="920" y="320" text-anchor="middle" font-family="Georgia, serif" font-size="42" font-weight="700" fill="#F8FAFC">Faro</text>
+    <text x="920" y="360" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#CBD5E1">Herramienta de monitoreo infraestructura para ambiente AWS</text>
+    <text x="920" y="420" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#94A3B8">…preparando aplicación</text>
+    <text x="920" y="470" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">Purga residuos de sesión/logs · conserva connection_instance</text>
+  </g>
+"""
+    svg += ann(
+        [
+            (
+                1,
+                "Splash Faro",
+                "Ventana mínima al abrir con marca Faro.",
+                [("FR", "FR-023")],
+            ),
+            (
+                2,
+                "Tagline + preparing",
+                "Texto AWS + …preparando mientras purge de sesión.",
+                [("FR", "FR-023"), ("FR", "FR-024")],
+            ),
+        ]
+    )
+    svg += footer("001:01 | Faro Splash Preparing | SpecKit")
+    # Keep hand-authored 01-splash-preparing.svg as source of truth; do not overwrite if present.
+    target = OUT / "01-splash-preparing.svg"
+    if not target.exists():
+        target.write_text(svg, encoding="utf-8")
+
+
+def write_02() -> None:
     svg = header("FARO - EMPTY WORKSPACE (NO ENVIRONMENTS)")
     svg += f"""
   <g id="desktop" transform="translate({DX}, {DY})">
@@ -169,11 +208,11 @@ def write_01() -> None:
             ),
         ]
     )
-    svg += footer("001:01 | Faro Empty Workspace | SpecKit")
-    (OUT / "01-empty-workspace.svg").write_text(svg, encoding="utf-8")
+    svg += footer("001:02 | Faro Empty Workspace | SpecKit")
+    (OUT / "02-empty-workspace.svg").write_text(svg, encoding="utf-8")
 
 
-def write_02() -> None:
+def write_03() -> None:
     """Empty base + professional modal: Configuración nuevo ambiente."""
     svg = header("FARO - NEW ENVIRONMENT CONFIG MODAL")
     # Taller modal: SSH + PEM + IAM path + region + cluster
@@ -276,11 +315,11 @@ def write_02() -> None:
             ),
         ]
     )
-    svg += footer("001:02 | Faro New Environment Modal | SpecKit")
-    (OUT / "02-new-environment-modal.svg").write_text(svg, encoding="utf-8")
+    svg += footer("001:03 | Faro New Environment Modal | SpecKit")
+    (OUT / "03-new-environment-modal.svg").write_text(svg, encoding="utf-8")
 
 
-def write_03() -> None:
+def write_04() -> None:
     """Connected workspace: compact nav + tabbed log views (payments Structured)."""
     svg = header("FARO - ENVIRONMENT LOADED (TABS + STRUCTURED)")
     rail_w = 220
@@ -447,11 +486,11 @@ def write_03() -> None:
             ),
         ]
     )
-    svg += footer("001:03 | Faro Environment Loaded | SpecKit")
-    (OUT / "03-environment-loaded.svg").write_text(svg, encoding="utf-8")
+    svg += footer("001:04 | Faro Environment Loaded | SpecKit")
+    (OUT / "04-environment-loaded.svg").write_text(svg, encoding="utf-8")
 
 
-def write_04() -> None:
+def write_05() -> None:
     """ConfigMaps accordion open + tabs with Raw-only view."""
     svg = header("FARO - CONFIGMAPS TABS (RAW ONLY)")
     rail_w = 220
@@ -607,12 +646,12 @@ def write_04() -> None:
             ),
         ]
     )
-    svg += footer("001:04 | Faro ConfigMaps Raw Tabs | SpecKit")
-    (OUT / "04-configmaps-raw-tabs.svg").write_text(svg, encoding="utf-8")
+    svg += footer("001:05 | Faro ConfigMaps Raw Tabs | SpecKit")
+    (OUT / "05-configmaps-raw-tabs.svg").write_text(svg, encoding="utf-8")
 
 
-def write_05() -> None:
-    """Like 03, after click on Structured error row → right detail panel (3 puntos)."""
+def write_06() -> None:
+    """Like 04, after click on Structured error row → right detail panel (3 puntos)."""
     svg = header("FARO - STRUCTURED LOG DETAIL (CLICK FINDING)")
     rail_w = 220
     content_top = 84
@@ -793,14 +832,15 @@ def write_05() -> None:
             ),
         ]
     )
-    svg += footer("001:05 | Faro Structured Finding Detail | SpecKit")
-    (OUT / "05-structured-finding-detail.svg").write_text(svg, encoding="utf-8")
+    svg += footer("001:06 | Faro Structured Finding Detail | SpecKit")
+    (OUT / "06-structured-finding-detail.svg").write_text(svg, encoding="utf-8")
 
 
 if __name__ == "__main__":
-    write_01()
+    write_01_splash()
     write_02()
     write_03()
     write_04()
     write_05()
+    write_06()
     print("OK:", sorted(x.name for x in OUT.glob("0*.svg")))

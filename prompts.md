@@ -111,7 +111,7 @@ Por otro lado, los menús del programa deben considerar las siguientes opciones:
 Debes hacer los mockups con la herramienta que trae SpecKit
 ```
 
-**Cómo se guió al asistente:** se generó `plan.md` / `research.md` / `data-model.md` / `contracts/` / `quickstart.md` y wireframes SVG; iteraciones UX posteriores (solo desktop, rail Deployments/Pods/ConfigMaps, modal ambiente, hallazgo) quedaron en `wireframes/` y sync AI4Devs docs `2`/`3`/`4`.
+**Cómo se guió al asistente:** se generó `plan.md` / `research.md` / `data-model.md` / `contracts/` / `quickstart.md` y wireframes SVG; iteraciones UX posteriores (solo desktop, rail Deployments/Pods/ConfigMaps, modal ambiente, hallazgo) quedaron en `wireframes/` y sync AI4Devs docs `2`/`3`/`4`. Follow-ups del plan: splash `01` + renumeración 02–06; BG image diferida a implement; fix draw.io `04-sqlite-er`.
 
 ---
 
@@ -146,12 +146,23 @@ Quiero que la aplicación pueda contar con una persistencia de datos que pueda r
 
 ---
 
+**Prompt 3: ER SQLite durable + session cache + splash purge**
+*Skill: `/speckit-plan` — modelo entidad-relación interno*
+
+```
+/speckit-plan Desarrolla un modelo entidad relación de la base de datos interna de sql-lite. Debe guardar las configuraciones de los ambientes al menos. Guardar los componentes que se traen de AWS para no ir a bucarlos siempre, y de este modo generar más rapidez en la plataforma, los artefactos y configuraciones que se traigan de aws deben cargarse una vez por conexión al ambiente (POr ejemplo si o si deberían regenerarse al cerrar la aplicación). Además modela en ese diagrama UML todos los otros campos que piensas persistir.
+```
+
+**Cómo se guió al asistente:** dos capas SQLite (durable vs `«session»`); ER en `data-model.md` + `docs/architecture/04-sqlite-er.drawio`; purge en splash conserva ambientes; sync [`3-modelo-de-datos.md`](3-modelo-de-datos.md). Follow-up splash como wireframe 01 y BG image slot diferido.
+
+---
+
 ## 4. Especificación de la API
 
 **Prompt 1: Contratos IPC + auth IAM file path**
 *Mismo primer mensaje que Arquitectura Prompt 3 (`PEM + SSH + ruta IAM + region_name + cluster_name`).*
 
-**Cómo se guió al asistente:** `env_upsert` / `env_connect` leen `iam_credentials_path` al conectar; sync a [`4-especificaciones-de-la-api.md`](4-especificaciones-de-la-api.md).
+**Cómo se guió al asistente:** `env_upsert` / `env_connect` leen `iam_credentials_path` al conectar; sync a [`4-especificaciones-de-la-api.md`](4-especificaciones-de-la-api.md). Follow-up plan: `session_purge_ephemeral`, `catalog_refresh`, preferencia de cache en listados.
 
 ## 5. Historias de usuario
 
@@ -163,7 +174,7 @@ Las HU formales salen del **Prompt 2** de la sección 1 (specify) y refinamiento
 /speckit-clarify Algunos detalles extras de la aplicación desktop es que cuando se habra una instancia de logs tendrá dos tipos de vistauan vista simple rápida y simple que sería como una vista raw muy clonada de como se vería en la terminal viendo como va avanzando el log, y otra donde los logs van a apareciendo pero en un formato estructurado el cuál te muestra la información con severidad, detalle y si se detecta como error se podrá hacer click para visualizar el motor de reglas hacer su trabajo y mostrarnos un apartado con la severidad, explicación simple y recomendación.
 ```
 
-**Cómo se guió al asistente:** se integró en `spec.md` (US3/US4, FR-018–022, SC-009); clarify cerró default Structured, detección ligera + click en stacktrace/escritura, Raw sin manipulación; sync AI4Devs post-clarify.
+**Cómo se guió al asistente:** se integró en `spec.md` (US3/US4, FR-018–022, SC-009); clarify cerró default Structured, detección ligera + click en stacktrace/escritura, Raw sin manipulación; sync AI4Devs post-clarify. Plan posterior: HU0 splash (FR-023/024) en [`5-historias-de-usuario.md`](5-historias-de-usuario.md).
 
 ---
 

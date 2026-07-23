@@ -152,6 +152,8 @@ The product is delivered as a **desktop application** with installable/runnable 
 - **FR-020**: In Structured view, the system MUST apply **lightweight live detection** on each write-group so likely **errors** (including stacktrace writes) are visually marked and **clickable**; clicking MUST invoke the **full** Spring Boot rules engine for that write-group/stacktrace and show a panel with severity, plain-language explanation, and recommendation (live follow MUST remain usable while only lightweight detection runs continuously).
 - **FR-021**: Users MUST be able to switch between Raw and Structured views for the same log window without losing the live follow session.
 - **FR-022**: When a log window opens, it MUST start in **Structured** view; **Raw** MUST be reachable via an explicit control (e.g. button), not as the default.
+- **FR-023**: On application launch, Faro MUST first show a **minimal splash window** with the product name **Faro**, a **background image** (lighthouse / brand visual, full-bleed within the splash window; concrete image asset is supplied at implementation), the tagline *Herramienta de monitoreo infraestructura para ambiente AWS*, and a preparing status (*…preparando aplicación*) before the main workspace appears.
+- **FR-024**: During the splash, Faro MUST purge leftover **ephemeral session / log-related** local data from a prior run (including dirty exit). Faro MUST **NOT** delete durable data needed across sessions: connection instances (environments), UI preferences, light analysis history metadata, or schema metadata. After purge completes, the main window MAY open.
 
 ### Key Entities
 
