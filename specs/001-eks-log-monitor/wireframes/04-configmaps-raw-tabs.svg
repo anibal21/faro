@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c7ddf5"/>
+      <stop offset="100%" stop-color="#b8d4f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <text x="960" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#4b5563" letter-spacing="1">FARO - CONFIGMAPS TABS (RAW ONLY)</text>
+  <text x="40" y="52" fill="#8b5cf6" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">DESKTOP (16:9)</text>
+
+  <g id="desktop" transform="translate(40, 60)">
+    <rect width="1840" height="720" rx="8" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <rect x="0" y="0" width="1840" height="36" fill="#dcc8a8"/>
+    <text x="16" y="24" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">Faro</text>
+    <text x="80" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">Ambiente</text>
+    <text x="180" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">Ver</text>
+    <text x="240" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">Ayuda</text>
+
+
+    <rect x="0" y="36" width="1840" height="48" fill="#dcc8a8"/>
+    <text x="1520" y="66" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">Ambiente</text>
+    <rect x="1536" y="42" width="280" height="36" rx="6" fill="#f5f0e6" stroke="#b8a080"/>
+    <text x="1780" y="66" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">prod-eks</text>
+    <text x="1802" y="66" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">▾</text>
+<g class="callout" transform="translate(1676, 60)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">1</text></g>
+    <rect x="0" y="84" width="220" height="576" fill="#f5f0e6" stroke="#b8a080"/>
+    <text x="10" y="106" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">Deployments</text>
+    <!-- Pods collapsed -->
+    <rect x="6" y="116" width="208" height="28" fill="#dcc8a8"/>
+    <text x="14" y="136" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">▸ Pods</text>
+    <text x="206" y="136" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">5</text>
+<g class="callout" transform="translate(240, 130)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">2</text></g>
+
+    <rect x="6" y="148" width="208" height="28" fill="#dcc8a8"/>
+    <text x="14" y="168" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">▾ ConfigMaps</text>
+    <text x="206" y="168" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">3</text>
+<g class="callout" transform="translate(240, 162)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">3</text></g>
+
+    <rect x="6" y="176" width="208" height="32" fill="#e8d4b8"/>
+    <text x="14" y="198" font-family="system-ui, sans-serif" font-size="14" fill="#8b5cf6">◇</text>
+    <text x="30" y="198" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">app-config</text>
+
+    <rect x="6" y="208" width="208" height="32" fill="#f5f0e6"/>
+    <text x="14" y="230" font-family="system-ui, sans-serif" font-size="14" fill="#8b5cf6">◇</text>
+    <text x="30" y="230" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">payments-secrets-ref</text>
+
+    <rect x="6" y="240" width="208" height="32" fill="#e8d4b8"/>
+    <text x="14" y="262" font-family="system-ui, sans-serif" font-size="14" fill="#8b5cf6">◇</text>
+    <text x="30" y="262" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">feature-flags</text>
+
+    <rect x="220" y="84" width="1620" height="576" fill="#e8d4b8"/>
+    <rect x="220" y="84" width="1620" height="36" fill="#dcc8a8"/>
+
+    <rect x="228" y="88" width="210" height="30" rx="4" fill="#f5f0e6" stroke="#8b5cf6" stroke-width="2"/>
+    <rect x="234" y="94" width="28" height="18" rx="3" fill="#8b5cf6"/>
+    <text x="248" y="108" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">CM</text>
+    <text x="268" y="110" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">app-config</text>
+    <text x="424" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">×</text>
+
+    <rect x="444" y="88" width="210" height="30" rx="4" fill="#e8d4b8" stroke="#b8a080" stroke-width="1"/>
+    <rect x="450" y="94" width="28" height="18" rx="3" fill="#8b5cf6"/>
+    <text x="464" y="108" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">CM</text>
+    <text x="484" y="110" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">payments-secrets-ref</text>
+    <text x="640" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">×</text>
+
+    <rect x="660" y="88" width="210" height="30" rx="4" fill="#e8d4b8" stroke="#b8a080" stroke-width="1"/>
+    <rect x="666" y="94" width="28" height="18" rx="3" fill="#8b5cf6"/>
+    <text x="680" y="108" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">CM</text>
+    <text x="700" y="110" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">feature-flags</text>
+    <text x="856" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">×</text>
+<g class="callout" transform="translate(430, 102)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">4</text></g>
+    <rect x="220" y="120" width="1620" height="40" fill="#e8d4b8"/>
+    <rect x="232" y="126" width="90" height="28" rx="4" fill="#8b5cf6"/>
+    <text x="277" y="146" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Raw</text>
+
+    <rect x="232" y="160" width="1596" height="492" fill="#1f2937"/>
+<text x="248" y="188" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">apiVersion: v1</text><text x="248" y="216" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">kind: ConfigMap</text><text x="248" y="244" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">metadata:</text><text x="248" y="272" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">  name: app-config</text><text x="248" y="300" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">  namespace: default</text><text x="248" y="328" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">data:</text><text x="248" y="356" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">  application.yml: |</text><text x="248" y="384" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">    spring:</text><text x="248" y="412" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">      datasource:</text><text x="248" y="440" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">        url: jdbc:postgresql://…</text><text x="248" y="468" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">  logging.level.root: INFO</text><text x="248" y="496" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">  feature.newCheckout: "true"</text><text x="248" y="524" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">█</text>
+    <rect x="0" y="660" width="1840" height="60" fill="#dcc8a8"/>
+    <text x="24" y="696" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">Conectado · prod-eks · pestaña activa: app-config (Raw) · vistas 3/4</text>
+  </g>
+  <g id="annotations" transform="translate(40, 800)">
+    <rect width="1840" height="220" rx="8" fill="#dcc8a8" stroke="#b8a080"/>
+    <g transform="translate(20, 20)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US-001 Env switcher</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Mismo selector Ambiente a la derecha.</text>
+      <rect x="40.0" y="44" width="72" height="22" rx="4" fill="#0891b2"/>
+      <text x="76.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US-001</text>
+      <rect x="118.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="154.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-004</text>
+    </g>
+    <g transform="translate(920, 20)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">2</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US-002 Pods collapsed</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Acordeón Pods cerrado; foco en ConfigMaps.</text>
+      <rect x="40.0" y="44" width="72" height="22" rx="4" fill="#0891b2"/>
+      <text x="76.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US-002</text>
+      <rect x="118.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="154.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-005</text>
+    </g>
+    <g transform="translate(20, 120)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">3</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US-002 ConfigMaps open</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Acordeón ConfigMaps abierto con artefactos; ◇ = abierto en pestaña.</text>
+      <rect x="40.0" y="44" width="72" height="22" rx="4" fill="#0891b2"/>
+      <text x="76.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US-002</text>
+      <rect x="118.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="154.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-011</text>
+    </g>
+    <g transform="translate(920, 120)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">4</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US-002 ConfigMap tabs Raw</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Pestañas de ConfigMaps con ×; solo Raw (sin Structured).</text>
+      <rect x="40.0" y="44" width="72" height="22" rx="4" fill="#0891b2"/>
+      <text x="76.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US-002</text>
+      <rect x="118.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="154.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-011</text>
+      <rect x="196.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="232.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-018</text>
+    </g>
+  </g>  <text x="40" y="1060" fill="#374151" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">001:04 | Faro ConfigMaps Raw Tabs | SpecKit</text>
+</svg>

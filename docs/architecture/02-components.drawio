@@ -1,0 +1,99 @@
+<mxfile host="app.diagrams.net" agent="Faro Spec Kit" version="22.1.0" type="device">
+  <diagram id="faro-components" name="Components">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="canvas" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="1100" height="500" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="Faro — Componentes internos (v1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2A4A;strokeColor=#1B2A4A;fontColor=#FFFFFF;align=left;verticalAlign=middle;fontStyle=1;fontSize=18;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="24" width="480" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uiBox" value="Frontend (React + TypeScript + Vite)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#1E3A5F;verticalAlign=top;fontStyle=1;align=left;spacingLeft=10;spacingTop=6;fontSize=12;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="280" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ui1" value="Menus Ambiente / Ver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1E3A5F;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="240" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="ui2" value="Selector + rail Deployments/Pods/CM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1E3A5F;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="166" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ui3" value="Pestañas: Structured / Raw" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1E3A5F;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="216" width="240" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="ui4" value="Panel hallazgo (click ERROR)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1E3A5F;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="262" width="240" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="ui5" value="Theme light/dark" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1E3A5F;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="308" width="240" height="32" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ipc" value="Tauri IPC&#xa;commands + events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2A4A;strokeColor=#0F172A;fontColor=#FFFFFF;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="360" y="180" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rustBox" value="Backend Rust (src-tauri)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#BAE6FD;strokeColor=#0369A1;verticalAlign=top;fontStyle=1;align=left;spacingLeft=10;spacingTop=6;fontSize=12;fontColor=#0C4A6E;" vertex="1" parent="1">
+          <mxGeometry x="540" y="80" width="320" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" value="commands: env_* · k8s_* · logs_* · analyze · prefs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0369A1;fontColor=#0F172A;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="115" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" value="ssh/ — túnel PEM path" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0369A1;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="165" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" value="k8s/ — kube RO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0369A1;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="710" y="165" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" value="aws — IAM file → token" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0369A1;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="220" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" value="db/ — SQLite" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0369A1;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="710" y="220" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="r6" value="rules/ — Spring Boot (local)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0369A1;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="275" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="r7" value="events: logs_chunk · logs_status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0369A1;fontColor=#0C4A6E;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="325" width="280" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sql" value="SQLite&#xa;ambientes · prefs · history" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#FEF3C7;strokeColor=#92400E;fontColor=#78350F;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="600" y="400" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext" value="Externos (usuario)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#BBF7D0;strokeColor=#15803D;verticalAlign=top;fontStyle=1;align=left;spacingLeft=10;spacingTop=6;fontSize=12;fontColor=#14532D;" vertex="1" parent="1">
+          <mxGeometry x="900" y="80" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="x1" value="Bastión SSH" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#15803D;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="920" y="120" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="x2" value="EKS API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#15803D;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="920" y="175" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="x3" value="IAM credentials file" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#15803D;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="920" y="230" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="x4" value="PEM + region + cluster&#xa;(paths / ids)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#15803D;fontColor=#0F172A;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="920" y="285" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#0F172A;strokeWidth=2;endArrow=block;endFill=1;startArrow=block;startFill=0;" edge="1" parent="1" source="uiBox" target="ipc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#0F172A;strokeWidth=2;endArrow=block;endFill=1;startArrow=block;startFill=0;" edge="1" parent="1" source="ipc" target="rustBox">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B45309;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="r5" target="sql">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#15803D;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="rustBox" target="ext">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

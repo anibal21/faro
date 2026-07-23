@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="800" viewBox="0 0 1020 800" role="img" aria-labelledby="title desc">
+  <title id="title">Faro Connection Sequence</title>
+  <desc id="desc">Connect, catalog, logs follow, local analyze sequence.</desc>
+  <rect width="1020" height="800" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <rect x="30" y="16" width="720" height="36" rx="6" fill="#1B2A4A"/>
+  <text x="42" y="40" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">Faro - Secuencia: conectar / catalogo / logs / hallazgo</text>
+
+  <rect x="60" y="70" width="100" height="40" rx="6" fill="#DBEAFE" stroke="#1E3A5F"/><text x="110" y="95" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">UI React</text>
+  <rect x="220" y="70" width="100" height="40" rx="6" fill="#BAE6FD" stroke="#0369A1"/><text x="270" y="95" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0C4A6E">Commands</text>
+  <rect x="380" y="70" width="100" height="40" rx="6" fill="#BAE6FD" stroke="#0369A1"/><text x="430" y="95" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0C4A6E">SSH Tunnel</text>
+  <rect x="540" y="70" width="100" height="40" rx="6" fill="#E9D5FF" stroke="#7E22CE"/><text x="590" y="95" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#581C87">IAM file</text>
+  <rect x="700" y="70" width="100" height="40" rx="6" fill="#BBF7D0" stroke="#15803D"/><text x="750" y="95" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#14532D">EKS API</text>
+  <rect x="860" y="70" width="100" height="40" rx="6" fill="#FEF3C7" stroke="#92400E"/><text x="910" y="95" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#78350F">Rules</text>
+
+  <line x1="110" y1="120" x2="110" y2="700" stroke="#64748B" stroke-dasharray="4 4"/>
+  <line x1="270" y1="120" x2="270" y2="700" stroke="#64748B" stroke-dasharray="4 4"/>
+  <line x1="430" y1="120" x2="430" y2="700" stroke="#64748B" stroke-dasharray="4 4"/>
+  <line x1="590" y1="120" x2="590" y2="700" stroke="#64748B" stroke-dasharray="4 4"/>
+  <line x1="750" y1="120" x2="750" y2="700" stroke="#64748B" stroke-dasharray="4 4"/>
+  <line x1="910" y1="120" x2="910" y2="700" stroke="#64748B" stroke-dasharray="4 4"/>
+
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0F172A"/></marker>
+  </defs>
+
+  <line x1="110" y1="150" x2="270" y2="150" stroke="#0F172A" stroke-width="2" marker-end="url(#arr)"/><rect x="130" y="132" width="160" height="16" fill="#FFFFFF"/><text x="210" y="144" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#0F172A">env_set_active + env_connect</text>
+  <line x1="270" y1="200" x2="430" y2="200" stroke="#0369A1" stroke-width="2" marker-end="url(#arr)"/><rect x="290" y="182" width="140" height="16" fill="#FFFFFF"/><text x="360" y="194" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#0C4A6E">open tunnel (PEM path)</text>
+  <line x1="270" y1="250" x2="590" y2="250" stroke="#7E22CE" stroke-width="2" marker-end="url(#arr)"/><rect x="300" y="232" width="240" height="16" fill="#FFFFFF"/><text x="420" y="244" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#581C87">read IAM file - EKS token (region+cluster)</text>
+  <line x1="590" y1="290" x2="270" y2="290" stroke="#7E22CE" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arr)"/><rect x="400" y="272" width="40" height="16" fill="#FFFFFF"/><text x="420" y="284" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#581C87">token</text>
+  <line x1="270" y1="340" x2="750" y2="340" stroke="#15803D" stroke-width="2" marker-end="url(#arr)"/><rect x="360" y="322" width="260" height="16" fill="#FFFFFF"/><text x="490" y="334" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#14532D">kube client via localhost-bastion-API</text>
+  <line x1="270" y1="380" x2="110" y2="380" stroke="#0F172A" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arr)"/><rect x="150" y="362" width="70" height="16" fill="#FFFFFF"/><text x="185" y="374" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#0F172A">connected</text>
+  <line x1="110" y1="430" x2="750" y2="430" stroke="#15803D" stroke-width="2" marker-end="url(#arr)"/><rect x="300" y="412" width="220" height="16" fill="#FFFFFF"/><text x="410" y="424" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#14532D">k8s_list_deployments / configmaps</text>
+  <line x1="750" y1="470" x2="110" y2="470" stroke="#15803D" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arr)"/><rect x="390" y="452" width="50" height="16" fill="#FFFFFF"/><text x="415" y="464" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#14532D">catalog</text>
+  <line x1="110" y1="520" x2="750" y2="520" stroke="#15803D" stroke-width="2" marker-end="url(#arr)"/><rect x="300" y="502" width="220" height="16" fill="#FFFFFF"/><text x="410" y="514" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#14532D">logs_open - follow replicas</text>
+  <line x1="750" y1="560" x2="110" y2="560" stroke="#15803D" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arr)"/><rect x="350" y="542" width="120" height="16" fill="#FFFFFF"/><text x="410" y="554" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#14532D">logs_chunk (events)</text>
+  <line x1="110" y1="620" x2="910" y2="620" stroke="#B45309" stroke-width="2" marker-end="url(#arr)"/><rect x="320" y="602" width="220" height="16" fill="#FFFFFF"/><text x="430" y="614" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#78350F">click ERROR - analyze_write_group</text>
+  <line x1="910" y1="660" x2="110" y2="660" stroke="#B45309" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arr)"/><rect x="350" y="642" width="160" height="16" fill="#FFFFFF"/><text x="430" y="654" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#78350F">AnalysisFinding (local)</text>
+
+  <rect x="30" y="730" width="940" height="40" rx="6" fill="#FFFFFF" stroke="#64748B"/>
+  <text x="42" y="754" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">Sin mutaciones K8s. Sin export. Analyze solo del write-group. Payload no sale de la maquina.</text>
+</svg>

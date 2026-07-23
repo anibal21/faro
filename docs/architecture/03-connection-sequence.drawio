@@ -1,0 +1,151 @@
+<mxfile host="app.diagrams.net" agent="Faro Spec Kit" version="22.1.0" type="device">
+  <diagram id="faro-sequence" name="Connection Sequence">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1100" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="canvas" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="1000" height="800" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="Faro — Secuencia: conectar → catálogo → logs → hallazgo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2A4A;strokeColor=#1B2A4A;fontColor=#FFFFFF;align=left;verticalAlign=middle;fontStyle=1;fontSize=15;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="24" width="720" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aUI" value="UI React" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#1E3A5F;fontColor=#0F172A;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aCmd" value="Commands" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BAE6FD;strokeColor=#0369A1;fontColor=#0C4A6E;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="220" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aSSH" value="SSH Tunnel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BAE6FD;strokeColor=#0369A1;fontColor=#0C4A6E;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="380" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aAWS" value="IAM file" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9D5FF;strokeColor=#7E22CE;fontColor=#581C87;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="540" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aEKS" value="EKS API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBF7D0;strokeColor=#15803D;fontColor=#14532D;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="700" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aRules" value="Rules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#92400E;fontColor=#78350F;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="860" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l1" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="130" as="sourcePoint" />
+            <mxPoint x="110" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l2" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="130" as="sourcePoint" />
+            <mxPoint x="270" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l3" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="430" y="130" as="sourcePoint" />
+            <mxPoint x="430" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l4" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="590" y="130" as="sourcePoint" />
+            <mxPoint x="590" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l5" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="130" as="sourcePoint" />
+            <mxPoint x="750" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l6" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="910" y="130" as="sourcePoint" />
+            <mxPoint x="910" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="s1" value="env_set_active + env_connect" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#0F172A;strokeWidth=2;fontSize=11;fontColor=#0F172A;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="160" as="sourcePoint" />
+            <mxPoint x="270" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s2" value="open tunnel (PEM path)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#0369A1;strokeWidth=2;fontSize=11;fontColor=#0C4A6E;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="210" as="sourcePoint" />
+            <mxPoint x="430" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s3" value="read IAM file → get EKS token (region+cluster)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#7E22CE;strokeWidth=2;fontSize=11;fontColor=#581C87;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="260" as="sourcePoint" />
+            <mxPoint x="590" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s4" value="token" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;dashed=1;strokeColor=#7E22CE;strokeWidth=2;fontSize=11;fontColor=#581C87;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="590" y="300" as="sourcePoint" />
+            <mxPoint x="270" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s5" value="kube client via localhost→bastion→API" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#15803D;strokeWidth=2;fontSize=11;fontColor=#14532D;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="350" as="sourcePoint" />
+            <mxPoint x="750" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s6" value="connected" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;dashed=1;strokeColor=#0F172A;strokeWidth=2;fontSize=11;fontColor=#0F172A;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="390" as="sourcePoint" />
+            <mxPoint x="110" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s7" value="k8s_list_deployments / configmaps" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#15803D;strokeWidth=2;fontSize=11;fontColor=#14532D;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="440" as="sourcePoint" />
+            <mxPoint x="750" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s8" value="catalog" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;dashed=1;strokeColor=#15803D;strokeWidth=2;fontSize=11;fontColor=#14532D;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="480" as="sourcePoint" />
+            <mxPoint x="110" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s9" value="logs_open (Deployment) → follow réplicas" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#15803D;strokeWidth=2;fontSize=11;fontColor=#14532D;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="530" as="sourcePoint" />
+            <mxPoint x="750" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s10" value="logs_chunk (events)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;dashed=1;strokeColor=#15803D;strokeWidth=2;fontSize=11;fontColor=#14532D;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="570" as="sourcePoint" />
+            <mxPoint x="110" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s11" value="click ERROR → analyze_write_group" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#B45309;strokeWidth=2;fontSize=11;fontColor=#78350F;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="630" as="sourcePoint" />
+            <mxPoint x="910" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s12" value="AnalysisFinding (local)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;dashed=1;strokeColor=#B45309;strokeWidth=2;fontSize=11;fontColor=#78350F;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="910" y="670" as="sourcePoint" />
+            <mxPoint x="110" y="670" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="note" value="Sin mutaciones K8s. Sin export. Analyze solo del write-group. Payload de análisis no sale de la máquina." style="rounded=1;whiteSpace=wrap;html=1;align=left;fillColor=#FFFFFF;strokeColor=#64748B;fontSize=11;fontColor=#0F172A;fontStyle=1;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="740" width="940" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

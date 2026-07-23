@@ -1,0 +1,120 @@
+# Research: 001-eks-log-monitor
+
+**Date**: 2026-07-22  
+**Plan**: [plan.md](./plan.md)
+
+All Technical Context items resolved; no remaining NEEDS CLARIFICATION.
+
+---
+
+## Decision: Tauri 2 + React + TypeScript + Vite
+
+**Rationale**: Constitution and seed (`docs/SPEC.md`) lock desktop delivery with Rust commands for SSH/kube and a web UI for IA. Tauri 2 fits multi-OS packaging without a public URL, keeps secrets on-device, and matches AI4Devs demonstrability.
+
+**Alternatives considered**:
+- Electron — heavier runtime, larger attack surface for credential-bearing tools
+- Pure native (Swift/WinUI) — triple UI cost for MVP
+- Web SaaS — conflicts with constitution VI and “desktop demo” delivery
+
+---
+
+## Decision: Local SQLite via `tauri-plugin-sql`
+
+**Rationale**: Persist connection instances and UI prefs (theme) across restarts (SC-006) without a backend. Full log dumps must not be persisted (constitution IV).
+
+**Alternatives considered**:
+- JSON files only — weaker querying/migrations for prefs + history metadata
+- Cloud sync DB — forbidden (exfiltration / multi-user backend)
+
+---
+
+## Decision: SSH bastion (PEM) + IAM credentials file path + region_name + cluster_name
+
+**Rationale**: Ops colleagues often lack AWS CLI/local profiles. Faro is standalone: each environment stores **paths only** — PEM for SSH tunnel and a local IAM credentials file (`aws_access_key_id` / `aws_secret_access_key`) read at connect time to mint EKS tokens. `region_name` + `cluster_name` identify the cluster (SDK can `DescribeCluster` for endpoint/CA). No AWS secrets persisted in SQLite.
+
+**New-environment form fields**: name, bastion host, SSH port, SSH user, namespace (optional), PEM path, IAM credentials path, `region_name`, `cluster_name`.
+
+**Alternatives considered**:
+- AWS profile name only — requires CLI/SSO setup; poor fit for ops-only PEM users
+- Embedding Access Key/Secret in SQLite — violates constitution II
+- SSO start URL alone — insufficient without account/role/region/cluster
+- Kubeconfig-only auth — valid later; MVP locks IAM file + PEM + region + cluster
+
+---
+
+## Decision: Dual log views — Structured default, Raw unmodified
+
+**Rationale**: Clarification session 2026-07-22. Structured groups by **each write** (stacktrace ≈ one write); Raw is terminal dump with **no** manipulation. Default Structured (FR-022); switch via button without dropping follow (FR-021).
+
+**Alternatives considered**:
+- Raw-only — fails non-technical analysis path
+- Always parse/columns in Raw — violates FR-018
+- Buffer-wide Analyze button — out of scope MVP
+
+---
+
+## Decision: Lightweight live detection + full rules on click
+
+**Rationale**: Live follow stays cheap; full Spring Boot rules run when user clicks a marked write-group/stacktrace (FR-012, FR-020).
+
+**Alternatives considered**:
+- Full rules on every line — too expensive under volume
+- Generative AI panel — forbidden by constitution IV / FR-014
+
+---
+
+## Decision: Multi-environment load vs one active session
+
+**Rationale**: User menu asks for configure / load one / load many. Spec assumes one **active** connection for browsing. **UX**: load many into the Ambientes list; only the active environment drives SSH/kube; switching active closes or invalidates live log windows.
+
+**Alternatives considered**:
+- Concurrent tunnels to many clusters — higher complexity and unclear MVP value
+- Single environment only — rejects “cargar varios” menu need
+
+---
+
+## Decision: Light / dark theme as Ver menu preference
+
+**Rationale**: Explicit UX request for plan/mockups. Store in SQLite UI prefs; default light to match Spec Kit wireframe light theme for review. Theme does not affect Raw’s terminal-like contrast (dark dump panel may remain dark in both app themes for readability—implementation detail).
+
+**Alternatives considered**:
+- OS-only theme follow — still need explicit Ver menu per product request
+- Theme per log window — overkill for MVP
+
+---
+
+## Decision: Wireframe-first UI constraints (Spec Kit extension)
+
+**Rationale**: Four light-theme SVGs under `wireframes/` define empty, connected, Structured, and Raw. Sign-off via `/speckit-wireframe-review` should promote them into `spec.md` ## UI Mockup before implement freezes layout.
+
+**Alternatives considered**:
+- Implement without mockups — higher IA rework risk for AI4Devs delivery
+- Figma-only — outside Spec Kit artifact trail
+
+---
+
+## Best practices captured
+
+| Area | Practice |
+|------|----------|
+| Secrets | Paths only (PEM, IAM file); never log/persist key contents |
+| K8s | get/list/watch + pod logs only |
+| Log buffer | Ring buffer with searchable window; drop oldest under pressure |
+| Errors | Actionable, non-secret-leaking messages |
+| Tests | Unit rules + integration connect mocks + 1 E2E happy path |
+
+---
+
+## Decision: Architecture diagrams in draw.io (+ SVG export)
+
+**Rationale**: AI4Devs / `docs/SPEC.md` require editable architecture artifacts separate from UI wireframes. `.drawio` is the source of truth; `.svg` is the agent/PR-readable export (XML de draw.io se lee mal).
+
+**Location**: `docs/architecture/01-system-context`, `02-components`, `03-connection-sequence` (each `.drawio` + `.svg`).
+
+**Contrast (dark/light editor)**: white page `background` + canvas rect; solid shape fills; dark text `#0F172A` on light fills / white text on navy; edge labels use `labelBackgroundColor=#FFFFFF`.
+
+**Alternatives considered**:
+- Only Mermaid in markdown — fine for quick view, weaker for formal delivery/editing in diagrams.net
+- Spec Kit wireframe dark theme for “architecture” — reserved for UI/backend mockups, not the agreed draw.io package
+- Figma — not the repo source of truth for this project
+- Transparent titles (`fillColor=none`) — unreadable when Draw.io UI is in dark mode
