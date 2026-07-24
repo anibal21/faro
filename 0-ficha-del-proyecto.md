@@ -16,7 +16,8 @@ Cada usuario define **instancias de conexión** por ambiente: bastión SSH (host
 
 **Tagline:** *Ilumina los logs. Gobierna el cluster.*
 
-**Spec Kit:** [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md) · [plan.md](specs/001-eks-log-monitor/plan.md)  
+**Spec Kit:** [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md) · [plan.md](specs/001-eks-log-monitor/plan.md) · [tasks.md](specs/001-eks-log-monitor/tasks.md) (T001–T085)  
+**Tickets AI4Devs:** [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md) (1 ticket / HU)  
 **Arquitectura (draw.io):** [`docs/architecture/`](docs/architecture/) (contexto, componentes, secuencia, ER SQLite, **IPC commands/events**)  
 **IPC (comandos/eventos):** [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md)  
 **Constitución:** [`.specify/memory/constitution.md`](.specify/memory/constitution.md) (v1.1.0+)

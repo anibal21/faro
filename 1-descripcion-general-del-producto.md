@@ -1,6 +1,6 @@
 # 1. Descripción general del producto
 
-> Sincronizado con Spec Kit `specs/001-eks-log-monitor/` (spec + plan + wireframes + SQLite + splash + **IPC** + **10 HU atómicas** US1–US10, 2026-07-23).
+> Sincronizado con Spec Kit `specs/001-eks-log-monitor/` (spec + plan + **tasks T001–T085** + wireframes + SQLite + splash + IPC + **10 HU**, 2026-07-23).
 
 ## 1.1. Objetivo
 
@@ -59,6 +59,8 @@ Ver [`readme.md`](readme.md) y `QUICK-START.md` (cuando exista).
 
 - Spec: [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md)  
 - Plan: [`specs/001-eks-log-monitor/plan.md`](specs/001-eks-log-monitor/plan.md)  
+- Tasks: [`specs/001-eks-log-monitor/tasks.md`](specs/001-eks-log-monitor/tasks.md) (T001–T085)  
+- Tickets: [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md) (HU1–HU10)  
 - IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md) · [`ipc-commands-events.md`](specs/001-eks-log-monitor/contracts/ipc-commands-events.md)  
 - HU: [`5-historias-de-usuario.md`](5-historias-de-usuario.md)  
 - Checklist: `specs/001-eks-log-monitor/checklists/requirements.md`

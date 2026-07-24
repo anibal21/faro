@@ -187,7 +187,7 @@ Las HU formales salen del **Prompt 2** de la sección 1 (specify) y refinamiento
 /speckit-clarify Algunos detalles extras de la aplicación desktop es que cuando se habra una instancia de logs tendrá dos tipos de vistauan vista simple rápida y simple que sería como una vista raw muy clonada de como se vería en la terminal viendo como va avanzando el log, y otra donde los logs van a apareciendo pero en un formato estructurado el cuál te muestra la información con severidad, detalle y si se detecta como error se podrá hacer click para visualizar el motor de reglas hacer su trabajo y mostrarnos un apartado con la severidad, explicación simple y recomendación.
 ```
 
-**Cómo se guió al asistente:** se integró en `spec.md` (US3/US4, FR-018–022, SC-009); clarify cerró default Structured, detección ligera + click en stacktrace/escritura, Raw sin manipulación; sync AI4Devs post-clarify. Plan 2026-07-23: desglose a **10 US atómicas** en `spec.md` + [`5-historias-de-usuario.md`](5-historias-de-usuario.md).
+**Cómo se guió al asistente:** se integró en `spec.md` (vistas Raw/Structured, FR-018–022); clarify cerró default Structured, detección ligera + click; sync AI4Devs post-clarify. Plan 2026-07-23: desglose a **10 US atómicas** en `spec.md` + [`5-historias-de-usuario.md`](5-historias-de-usuario.md).
 
 **Prompt 2: Sync AI4Devs tras 10 HU atómicas**
 
@@ -195,13 +195,27 @@ Las HU formales salen del **Prompt 2** de la sección 1 (specify) y refinamiento
 sync AI4Devs
 ```
 
-**Cómo se guió al asistente:** alineó `0`/`1`/`README`/`6`/`docs/SPEC.md`/`ui-ia.md` con US1–US10 + FR-025; tickets borrador mapean HU1–HU8; sin regenerar tasks.
+**Cómo se guió al asistente:** alineó `0`/`1`/`README`/`6`/`docs/SPEC.md`/`ui-ia.md` con US1–US10 + FR-025.
 
 ---
 
 ## 6. Tickets de trabajo
 
-<!-- Hasta 3 prompts; texto completo al usar /speckit-tasks -->
+**Prompt 1: `/speckit-tasks` — tickets + tasks desde HU atómicas**
+
+```
+/speckit-tasks genera los tickets de las historias de usuario, y todas las últimas desiciones
+```
+
+**Cómo se guió al asistente:** `tasks.md` T001–T085 por US1–US10 (setup, foundation, polish, tests constitution); sync AI4Devs `6-tickets-de-trabajo.md` (1 ticket/HU + tabla capas BD/BE/FE); README actualizado.
+
+**Prompt 2: Sync AI4Devs post-tasks**
+
+```
+sync AI4Devs
+```
+
+**Cómo se guió al asistente:** enlaces tasks/tickets en `0`/`1`/`2`/`5`; `docs/SPEC.md` (wireframes 01–06 + tasks hechos); estados README; trazabilidad cruzada.
 
 ---
 

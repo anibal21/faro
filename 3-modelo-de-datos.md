@@ -2,7 +2,7 @@
 
 > Sincronizado con [`specs/001-eks-log-monitor/data-model.md`](specs/001-eks-log-monitor/data-model.md) (SQLite durable + session + splash purge; HU1/HU2).  
 > Diagrama editable: [`docs/architecture/04-sqlite-er.drawio`](docs/architecture/04-sqlite-er.drawio).  
-> IPC que lee/escribe estas tablas: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).
+> IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md). Tasks BD: T007–T009, T015 en [`tasks.md`](specs/001-eks-log-monitor/tasks.md).
 
 ## 3.1. Capas de persistencia
 

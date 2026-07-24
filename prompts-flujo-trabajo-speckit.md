@@ -63,7 +63,7 @@ flowchart TD
    → Sync: `2-arquitectura…`, `3-modelo…`, `4-comandos-y-eventos-ipc…` (sección “API” de la entrega = IPC).
 
 7. **Tasks** — `/speckit.tasks`  
-   → Sync: `6-tickets…`.
+   → Sync: `6-tickets…` (**hecho 2026-07-23**: 10 tickets HU + `tasks.md` T001–T085).
 
 8. **Implement** por ticket/PR — `/speckit.implement`  
    → Sync: `7-pull-requests…`, testing, estados en `readme.md`.

@@ -2,7 +2,7 @@
 
 **Monitoreo de logs EKS vía bastión** — *Ilumina los logs. Gobierna el cluster.*
 
-> App de escritorio (Windows, macOS, Linux): splash de arranque, instancias por ambiente, **Pods/Deployments** + **ConfigMaps**, logs en vivo con vista **Structured** (default) y **Raw** (terminal sin manipulación), click en stacktrace → reglas Spring Boot. Sin SSH manual. Proyecto final AI4Devs.
+> App de escritorio (Windows, macOS, Linux): splash de arranque, instancias por ambiente, **Pods/Deployments** + **ConfigMaps**, logs en vivo con vista **Structured** (default) y **Raw** (terminal sin manipulación), click en stacktrace → reglas Spring Boot. Sin SSH manual. **10 HU** → **10 tickets** → `tasks.md` T001–T085. Proyecto final AI4Devs.
 
 ---
 
@@ -35,13 +35,14 @@ npm run tauri dev
 | [**3-modelo-de-datos.md**](3-modelo-de-datos.md) | Entidades + Mermaid + ER SQLite | Actualizado (durable + session + splash purge) |
 | [**4-comandos-y-eventos-ipc.md**](4-comandos-y-eventos-ipc.md) | Comandos + eventos IPC (mapa + secuencias) | Actualizado (IPC map + diagrama 05) |
 | [**5-historias-de-usuario.md**](5-historias-de-usuario.md) | HU con criterios de aceptación | Actualizado (**10 HU atómicas** US1–US10) |
-| [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (backend / frontend / BD) | Borrador alineado HU; fino con `/speckit-tasks` |
-| [**7-pull-requests.md**](7-pull-requests.md) | PRs del desarrollo | Pendiente |
-| [**prompts.md**](prompts.md) | Registro de uso de IA (≤3 prompts/sección) | En progreso |
+| [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (1 por HU + capas BD/BE/FE) | Actualizado (`tasks.md` T001–T085) |
+| [**7-pull-requests.md**](7-pull-requests.md) | PRs del desarrollo | Plantilla lista (pendiente implement) |
+| [**prompts.md**](prompts.md) | Registro de uso de IA (≤3 prompts/sección) | Actualizado (tasks + sync) |
 | [**prompts-conversacion-inicial.md**](prompts-conversacion-inicial.md) | Consultas 1ª conversación (sin respuestas) | Completo |
 | [**prompts-flujo-trabajo-speckit.md**](prompts-flujo-trabajo-speckit.md) | Flujo Spec Kit + sync readme | Completo |
 | [**specs/001-eks-log-monitor/spec.md**](specs/001-eks-log-monitor/spec.md) | Spec Kit — especificación formal | Draft (10 US atómicas + FR-023–025) |
 | [**specs/001-eks-log-monitor/plan.md**](specs/001-eks-log-monitor/plan.md) | Spec Kit — plan técnico | Completo (10 US + splash + SQLite + IPC) |
+| [**specs/001-eks-log-monitor/tasks.md**](specs/001-eks-log-monitor/tasks.md) | Spec Kit — tasks T001–T085 | Generado (`/speckit-tasks`) |
 | [**specs/001-eks-log-monitor/wireframes/**](specs/001-eks-log-monitor/wireframes/) | Mockups SVG (6 pantallas, 01=splash) | En revisión (pre sign-off) |
 | [**docs/architecture/**](docs/architecture/) | Diagramas draw.io + SVG | Completo (01–05: contexto … ER … IPC) |
 
@@ -74,11 +75,11 @@ App de escritorio multi-OS: splash, instancias por ambiente (**PEM + SSH + ruta 
 
 ### **0.4. URL del proyecto:**
 
-<!-- Completar cuando exista el repo remoto -->
+URL de releases quedará disponible al final del proyecto
 
 ### **0.5. URL o archivo comprimido del repositorio:**
 
-<!-- Completar -->
+Aún no disponible
 
 > Detalle: [0-ficha-del-proyecto.md](0-ficha-del-proyecto.md)
 
@@ -199,13 +200,20 @@ Ver documento detallado.
 
 ## 6. Tickets de Trabajo
 
-> ≥3 tickets: uno backend (Rust/Tauri), uno frontend (React), uno de base de datos (SQLite).
+> 10 tickets (1 por HU atómica) + mapeo a capas BD/Backend/Frontend. Tasks Spec Kit: T001–T085.
 
-**Ticket 1:** Backend — túnel SSH + EKS/kube (HU4; habilita HU5–HU7)  
-**Ticket 2:** Frontend — Structured/Raw + análisis al click (HU7–HU8)  
-**Ticket 3:** BD — SQLite durable + session + purge splash (HU1–HU2)  
+**Ticket HU1:** Splash + purge  
+**Ticket HU2:** CRUD ambientes  
+**Ticket HU3:** Cargar / activo  
+**Ticket HU4:** Connect / disconnect  
+**Ticket HU5:** Pods cache  
+**Ticket HU6:** ConfigMaps  
+**Ticket HU7:** Logs Structured/Raw  
+**Ticket HU8:** Análisis al click  
+**Ticket HU9:** Tema (Should)  
+**Ticket HU10:** Packages multi-OS  
 
-**Documentación completa:** [6-tickets-de-trabajo.md](6-tickets-de-trabajo.md)
+**Documentación completa:** [6-tickets-de-trabajo.md](6-tickets-de-trabajo.md) · Spec Kit: [tasks.md](specs/001-eks-log-monitor/tasks.md)
 
 ---
 
@@ -213,9 +221,9 @@ Ver documento detallado.
 
 > Documentar ≥3 Pull Requests del desarrollo.
 
-**Pull Request 1:** \[Pendiente\]  
-**Pull Request 2:** \[Pendiente\]  
-**Pull Request 3:** \[Pendiente\]  
+**Pull Request 1:** \[Pendiente — scaffold + splash / T001–T021\]  
+**Pull Request 2:** \[Pendiente — ambientes + connect / HU2–HU4\]  
+**Pull Request 3:** \[Pendiente — catálogo + logs + analyze / HU5–HU8\]  
 
 **Documentación completa:** [7-pull-requests.md](7-pull-requests.md)
 

@@ -1,8 +1,9 @@
 # 2. Arquitectura del sistema
 
-> Sincronizado con Spec Kit plan (2026-07-23): splash + SQLite durable/session + **IPC** + trazabilidad **US1–US10**.  
+> Sincronizado con Spec Kit plan + **tasks** (2026-07-23): splash + SQLite durable/session + **IPC** + **US1–US10** → tickets HU1–HU10.  
 > Wireframes: `specs/001-eks-log-monitor/wireframes/`. Diagramas: `docs/architecture/`.  
-> Contrato IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).
+> Contrato IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).  
+> Ejecución: [`tasks.md`](specs/001-eks-log-monitor/tasks.md) · [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md).
 
 ## 2.1. Diagrama de arquitectura
 

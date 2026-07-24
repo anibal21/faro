@@ -1,7 +1,8 @@
 # 5. Historias de usuario
 
 > Spec Kit: [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md) — **10 historias atómicas** (US1–US10) para control de desarrollo.  
-> IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).
+> IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).  
+> Tickets / tasks: [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md) · [`tasks.md`](specs/001-eks-log-monitor/tasks.md) (T001–T085).
 
 ---
 

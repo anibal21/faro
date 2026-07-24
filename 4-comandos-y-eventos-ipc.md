@@ -4,7 +4,7 @@
 > **Commands** (`invoke`, request/response) y **Events** (`emit`/`listen`, push).  
 > Fuente Spec Kit: [`contracts/ipc-commands-events.md`](specs/001-eks-log-monitor/contracts/ipc-commands-events.md).  
 > Diagrama: [`docs/architecture/05-ipc-commands-events.drawio`](docs/architecture/05-ipc-commands-events.drawio).  
-> Trazabilidad HU: [`5-historias-de-usuario.md`](5-historias-de-usuario.md) (US1–US10).
+> Trazabilidad HU: [`5-historias-de-usuario.md`](5-historias-de-usuario.md) (US1–US10) · Tasks: [`tasks.md`](specs/001-eks-log-monitor/tasks.md).
 
 ## 4.0. Cómo se comunican
 

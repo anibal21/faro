@@ -98,8 +98,8 @@ Usamos **Spec Kit** para SDD (`.specify/`, specs, tasks), pero la **documentaci�
 | `2-arquitectura-del-sistema.md` | Diagramas, componentes, infra, seguridad, tests |
 | `3-modelo-de-datos.md` | ER (Mermaid) + entidades |
 | `4-comandos-y-eventos-ipc.md` | **Comandos y eventos** Tauri IPC (mapa invoke/emit); sustituye la sección “API” HTTP de la plantilla |
-| `5-historias-de-usuario.md` | ≥3 HU con criterios de aceptación |
-| `6-tickets-de-trabajo.md` | ≥3 tickets (p. ej. backend/Rust, frontend, BD) |
+| `5-historias-de-usuario.md` | 10 HU atómicas (US1–US10) con criterios de aceptación |
+| `6-tickets-de-trabajo.md` | 10 tickets (1/HU) + mapeo capas BD/Backend/Frontend; traza a `tasks.md` T001–T085 |
 | `7-pull-requests.md` | ≥3 PRs documentadas |
 | `prompts.md` | ≤3 prompts clave por sección + notas de guía humana |
 
@@ -174,13 +174,14 @@ specify extension add wireframe
 - Todo versionado en Git; el agente de Cursor puede leer los SVG.
 
 **Pantallas wireframeadas (SVG en `specs/001-eks-log-monitor/wireframes/`; sign-off pendiente):**
-1. Workspace vacío + selector Ambiente (`01`)
-2. Modal nueva conexión (`02`)
-3. Ambiente cargado — Deployments / Pods / pestañas Structured (`03`)
-4. ConfigMaps — vista Raw (`04`)
-5. Hallazgo Structured al click en ERROR (`05`)
+1. Splash / preparando (`01`)
+2. Workspace vacío + selector Ambiente (`02`)
+3. Modal nueva conexión (`03`)
+4. Ambiente cargado — Deployments / Pods / Structured (`04`)
+5. ConfigMaps — vista Raw (`05`)
+6. Hallazgo Structured al click en ERROR (`06`)
 
-**Nota:** `/speckit.plan` produjo `plan.md`, `data-model.md`, `contracts/`, wireframes y sync AI4Devs `2`/`3`/`4`. Diagramas draw.io en `docs/architecture/` (completados). Falta `/speckit.tasks` y wireframe sign-off.
+**Nota:** `/speckit.plan` + `/speckit.tasks` hechos (`plan.md`, `data-model.md`, `contracts/`, `tasks.md` T001–T085, sync AI4Devs `0`–`6`). Diagramas draw.io `01`–`05` en `docs/architecture/`. Pendiente: wireframe sign-off + `/speckit.implement` + PRs (`7`).
 
 **No usamos Figma como fuente de verdad** en este proyecto (rompe el bucle SDD salvo que exportes y copies a mano). Si más adelante hay diseño de marca, se puede anexar PNG de referencia, pero los wireframes SVG siguen siendo el contrato con Spec Kit.
 
