@@ -37,8 +37,11 @@ Formulario **nuevo ambiente** (`03-new-environment-modal.svg`): nombre, Host bas
 
 | Screen | Primary US | Key FR |
 |--------|------------|--------|
-| Splash | US-005 | FR-023, FR-024 |
-| Empty | US-001 | FR-001 |
-| Loaded | US-002 | FR-004, FR-005 |
-| Structured | US-003, US-004 | FR-019–022, FR-012–013 |
-| Raw | US-003 | FR-018, FR-021 |
+| Splash | US1 | FR-023, FR-024 |
+| Empty / env chrome | US2, US3 | FR-001–003 |
+| Loaded + Pods | US4, US5 | FR-004–006 |
+| ConfigMaps | US6 | FR-011 |
+| Structured | US7, US8 | FR-019–022, FR-012–013, FR-020 |
+| Raw | US7 | FR-018, FR-021 |
+| Theme (Ver) | US9 | FR-025 |
+| Desktop packages | US10 | FR-015 |

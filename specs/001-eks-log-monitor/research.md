@@ -28,6 +28,26 @@ All Technical Context items resolved; no remaining NEEDS CLARIFICATION.
 
 ---
 
+## Decision: Ten atomic user stories for development control
+
+**Rationale**: Coarse US1–US5 packed too much for ticket/PR sizing. Split into **US1–US10** (splash, CRUD env, load/active, connect, Pods cache, ConfigMaps, logs dual view, analyze click, theme Should, desktop P3) without adding product scope beyond plan/FR. Enables `/speckit-tasks` to map 1:1 or few tasks per story.
+
+**Alternatives considered**:
+- Keep 5 coarse stories — harder to track implement progress
+- 15+ micro-stories — overhead without independence gains
+
+---
+
+## Decision: Document IPC as Commands + Events (not HTTP API)
+
+**Rationale**: Faro is a Tauri desktop app; frontend↔backend is local IPC. Delivery docs must map **commands** (`invoke`, request/response, including CRUD) and **events** (`emit`, log stream) explicitly so evaluators and implementers see the real contract. Canonical artifacts: `contracts/ipc-commands-events.md`, AI4Devs `4-comandos-y-eventos-ipc.md`, diagram `docs/architecture/05-ipc-commands-events`.
+
+**Alternatives considered**:
+- OpenAPI REST doc — implies a web API Faro does not have
+- Only informal command list — weaker for AI4Devs “API” section and IPC visualization
+
+---
+
 ## Decision: Splash window + ephemeral purge before main UI
 
 **Rationale**: On launch, Faro shows a **minimal** splash (brand **Faro** over a **background image** full-bleed in the splash window — concrete asset **deferred to implementation**; wireframe `01-splash-preparing.svg` only shows the placeholder slot — plus tagline *Herramienta de monitoreo infraestructura para ambiente AWS*, status *…preparando aplicación*) while `session_purge_ephemeral` clears leftover **session/log-ephemeral** SQLite rows from a dirty prior exit. Only after purge completes does the main window open. Durable **connection instances**, UI prefs, and light analysis history **must** survive. Wireframe order: `01-splash-preparing` then empty/modal/loaded/… renumbered 02–06.

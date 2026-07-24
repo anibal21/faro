@@ -1,7 +1,8 @@
 # 2. Arquitectura del sistema
 
-> Sincronizado con Spec Kit plan (2026-07-23): splash + SQLite durable/session + IAM path.  
-> Wireframes: `specs/001-eks-log-monitor/wireframes/`. Diagramas: `docs/architecture/`.
+> Sincronizado con Spec Kit plan (2026-07-23): splash + SQLite durable/session + **IPC** + trazabilidad **US1–US10**.  
+> Wireframes: `specs/001-eks-log-monitor/wireframes/`. Diagramas: `docs/architecture/`.  
+> Contrato IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).
 
 ## 2.1. Diagrama de arquitectura
 
@@ -13,13 +14,14 @@
 | Componentes internos | [02-components.svg](docs/architecture/02-components.svg) | [.drawio](docs/architecture/02-components.drawio) |
 | Secuencia conexión/logs | [03-connection-sequence.svg](docs/architecture/03-connection-sequence.svg) | [.drawio](docs/architecture/03-connection-sequence.drawio) |
 | ER SQLite (durable + session) | [04-sqlite-er.svg](docs/architecture/04-sqlite-er.svg) | [.drawio](docs/architecture/04-sqlite-er.drawio) |
+| IPC commands vs events | [05-ipc-commands-events.svg](docs/architecture/05-ipc-commands-events.svg) | [.drawio](docs/architecture/05-ipc-commands-events.drawio) |
 
 Resumen Mermaid (equivalente al contexto):
 
 ```mermaid
 flowchart LR
   UI[React UI]
-  IPC[Tauri commands]
+  IPC[Tauri IPC]
   Rules[Motor reglas Spring Boot]
   SQL[(SQLite local)]
   Tunnel[SSH túnel PEM path]
@@ -27,7 +29,7 @@ flowchart LR
   EKS[EKS API]
   Pods[Pods / ConfigMaps]
 
-  UI --> IPC
+  UI -->|"invoke / listen"| IPC
   IPC --> SQL
   IPC --> Rules
   IPC --> Tunnel
@@ -39,7 +41,7 @@ flowchart LR
 
 **Arranque:** splash (ventana mínima) → `session_purge_ephemeral` → ventana principal.
 
-**Patrón:** app de escritorio (Tauri 2) con UI en webview (React/TS) y backend nativo (Rust). Persistencia local SQLite en dos capas (durable + session cache). Una sesión de cluster **activa** a la vez; varios ambientes pueden estar cargados en UI.
+**Patrón:** app de escritorio (Tauri 2) con UI en webview (React/TS) y backend nativo (Rust). Comunicación UI↔Rust = **commands + events** (sin HTTP). Persistencia SQLite en dos capas (durable + session cache). Una sesión de cluster **activa** a la vez.
 
 ## 2.2. Componentes principales
 
@@ -47,7 +49,7 @@ flowchart LR
 |------------|------------|-----|
 | UI | React + TS + Vite | Splash, chrome Ambiente/Ver, catálogo Deployments/Pods/ConfigMaps, pestañas, Structured/Raw, panel de hallazgo |
 | Shell | Tauri 2 | Ventana (mínima + principal), IPC, empaquetado Win/macOS/Linux |
-| Commands | Rust | Ambientes, purge splash, túnel, AWS token, kube RO, logs, análisis local |
+| Commands / Events | Rust + Tauri IPC | `invoke` (CRUD, connect, analyze) + `emit` (`logs_chunk`, `logs_status`) |
 | SSH | russh (o `ssh` sistema controlado) | Port-forward al bastión; PEM solo por **ruta** |
 | AWS | aws-sdk-rust | Lee archivo IAM (ruta) → token EKS; `region_name` + `cluster_name` |
 | K8s | kube-rs | List Deployments/pods/ConfigMaps; get logs (follow); hydrate 1× por connect |
@@ -58,10 +60,11 @@ flowchart LR
 
 ```text
 faro/
-├── specs/001-eks-log-monitor/   # plan, data-model, contracts, wireframes (01-06)
+├── specs/001-eks-log-monitor/   # plan, data-model, contracts/ipc-*, wireframes (01-06)
 ├── src/                         # React + Vite
-├── src-tauri/                   # Rust / Tauri commands
-├── docs/architecture/           # draw.io + SVG (01-04)
+├── src-tauri/                   # Rust / Tauri commands + events
+├── docs/architecture/           # draw.io + SVG (01-05)
+├── 4-comandos-y-eventos-ipc.md  # entrega: mapa IPC
 └── 0–7 + readme / prompts       # entrega AI4Devs
 ```
 
@@ -103,3 +106,7 @@ Ver [`contracts/ui-ia.md`](specs/001-eks-log-monitor/contracts/ui-ia.md) y wiref
 | **Ver** | Modo claro · Modo oscuro |
 
 Selector de ambiente activo en chrome (arriba-derecha). Hasta **4** pestañas de vista abiertas (Pods Structured / ConfigMaps Raw según tipo).
+
+## 2.8. Comandos y eventos IPC
+
+Contrato UI ↔ Rust (sin HTTP): [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md) · diagrama [`05-ipc-commands-events`](docs/architecture/05-ipc-commands-events.drawio).

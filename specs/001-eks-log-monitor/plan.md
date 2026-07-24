@@ -29,7 +29,7 @@ Faro is a **desktop** app (Tauri 2 + React + TypeScript) that lets ops/colleague
 
 **Constraints**: Constitution VI — no credential/user-data exfiltration; read-only K8s v1; PEM path + IAM credentials **file path** only (no secret values in DB); `region_name` + `cluster_name` required; no log export in MVP; no buffer-wide Analyze button
 
-**Scale/Scope**: Single-user desktop; splash then main window; multiple saved environments; one **active** cluster session at a time; multiple concurrent log windows; MVP screens = splash / empty / env loaded / Structured / Raw (+ theme toggle)
+**Scale/Scope**: Single-user desktop; **10 atomic user stories (US1–US10)** for development control; splash then main window; multiple saved environments; one **active** cluster session; multiple concurrent log windows; MVP screens = splash / empty / env loaded / Structured / Raw (+ theme)
 
 ## Constitution Check
 
@@ -47,7 +47,7 @@ Verify against `.specify/memory/constitution.md` (Faro v1.1.0+):
 - [x] Desktop demonstrable; public URL not required
 - [x] AI4Devs docs sync planned (`2`/`3`/`4` after plan; `6` after tasks)
 
-**Post-design re-check (Phase 1):** PASS — splash purge is ephemeral-only (connections kept); contracts are local Tauri IPC only; no SaaS egress; no full log dumps in SQLite; wireframes include splash + renumbered 02–06.
+**Post-design re-check (Phase 1):** PASS — splash purge ephemeral-only; IPC documented as commands/events (no HTTP SaaS); no full log dumps in SQLite; wireframes 01–06.
 
 ## Project Structure
 
@@ -60,7 +60,8 @@ specs/001-eks-log-monitor/
 ├── data-model.md
 ├── quickstart.md
 ├── contracts/
-│   ├── tauri-commands.md
+│   ├── ipc-commands-events.md   # canonical IPC map
+│   ├── tauri-commands.md        # stub → ipc-commands-events
 │   └── ui-ia.md
 ├── wireframes/
 │   ├── 01-splash-preparing.svg
@@ -111,10 +112,10 @@ apps/faro/                    # or repo-root app after scaffold
 
 - [research.md](./research.md) — stack, multi-env UX, Raw/Structured, theme, **session catalog cache**
 - [data-model.md](./data-model.md) — ER/UML entities, durable vs session tiers, validation
-- [contracts/](./contracts/) — Tauri commands + UI IA
+- [contracts/](./contracts/) — **Comandos y eventos IPC** + UI IA
 - [quickstart.md](./quickstart.md) — validation scenarios (incl. cache lifecycle)
 - [wireframes/](./wireframes/) — UI SVG mockups (iterating; sign-off pending)
-- [docs/architecture/](../../docs/architecture/) — draw.io + SVG (system context, components, sequence, **SQLite ER**)
+- [docs/architecture/](../../docs/architecture/) — draw.io + SVG (system context, components, sequence, SQLite ER, **IPC commands/events**)
 
 ## Architecture diagrams (draw.io)
 
@@ -124,6 +125,7 @@ apps/faro/                    # or repo-root app after scaffold
 | 2 | Internal components (UI · IPC · Rust · SQLite · externos) | [`02-components.drawio`](../../docs/architecture/02-components.drawio) | [`02-components.svg`](../../docs/architecture/02-components.svg) |
 | 3 | Connection / logs / analyze sequence | [`03-connection-sequence.drawio`](../../docs/architecture/03-connection-sequence.drawio) | [`03-connection-sequence.svg`](../../docs/architecture/03-connection-sequence.svg) |
 | 4 | SQLite ER (durable + session cache) | [`04-sqlite-er.drawio`](../../docs/architecture/04-sqlite-er.drawio) | [`04-sqlite-er.svg`](../../docs/architecture/04-sqlite-er.svg) |
+| 5 | IPC commands vs events | [`05-ipc-commands-events.drawio`](../../docs/architecture/05-ipc-commands-events.drawio) | [`05-ipc-commands-events.svg`](../../docs/architecture/05-ipc-commands-events.svg) |
 
 **Edit:** open `.drawio` in [diagrams.net](https://app.diagrams.net/) or Draw.io VS Code/Cursor extension; re-export SVG after changes.  
 **Contrast:** diagrams use fixed white page/canvas, solid fills, dark text (`#0F172A`), and `labelBackgroundColor=#FFFFFF` on edge labels so they stay readable in editor dark or light theme.

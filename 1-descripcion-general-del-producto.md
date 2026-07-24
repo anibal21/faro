@@ -1,6 +1,6 @@
 # 1. Descripción general del producto
 
-> Sincronizado con Spec Kit `specs/001-eks-log-monitor/` (spec + plan + wireframes + SQLite durable/session + splash, 2026-07-23).
+> Sincronizado con Spec Kit `specs/001-eks-log-monitor/` (spec + plan + wireframes + SQLite + splash + **IPC** + **10 HU atómicas** US1–US10, 2026-07-23).
 
 ## 1.1. Objetivo
 
@@ -14,15 +14,16 @@
 
 | # | Funcionalidad | Prioridad |
 |---|---------------|-----------|
-| 0 | Splash de arranque (ventana mínima + BG image diferida + *…preparando*) con purge de sesión/logs efímeros; **conserva** ambientes y prefs | Must-Have (P1) |
-| 1 | Instancias de conexión (N ambientes: bastión SSH, PEM path, IAM credentials path, `region_name`, `cluster_name`) | Must-Have (P1) |
-| 2 | Conexión vía bastión sin SSH manual; token EKS desde archivo IAM (ruta) | Must-Have (P1) |
-| 3 | Explorador **Pods** (por Deployment) + **ConfigMaps** (solo lectura); catálogo cacheado 1× por conexión | Must-Have (P1) |
-| 4 | Una ventanilla de logs por Deployment; réplicas agregadas; follow en vivo; multi-ventana; búsqueda | Must-Have (P1) |
-| 5 | Vista **Structured** por defecto (grupo = cada escritura al log; stacktrace suele ser una escritura) | Must-Have (P1) |
-| 6 | Vista **Raw** opcional (botón): volcado tipo terminal **sin manipulación** | Must-Have (P1) |
-| 7 | Click en error/stacktrace (Structured) → motor de reglas Spring Boot (severidad + explicación simple + acción) | Must-Have (P2) |
-| 8 | Empaquetado desktop Windows / macOS / Linux | Must-Have (P3) |
+| 1 | Splash + purge sesión | Must-Have (P1) |
+| 2 | CRUD ambientes (PEM+SSH+IAM+región+cluster) | Must-Have (P1) |
+| 3 | Cargar uno/varios + un activo | Must-Have (P1) |
+| 4 | Conectar / desconectar bastión | Must-Have (P1) |
+| 5 | Explorar Deployments/Pods (cache) | Must-Have (P1) |
+| 6 | Explorar ConfigMaps RO | Must-Have (P1) |
+| 7 | Logs Structured + Raw | Must-Have (P1) |
+| 8 | Análisis Spring Boot al click | Must-Have (P1) |
+| 9 | Tema claro/oscuro | Should-Have (P2) |
+| 10 | Empaquetado Win/macOS/Linux | Must-Have (P3) |
 
 **Fuera de alcance MVP:** exportar logs a archivo; botón Analizar de todo el buffer; colas/eventos/otros componentes; reglas Flask/NestJS; mutar el cluster; IA generativa en la app; guardar Access Key/Secret dentro de SQLite; dumps de logs en BD.
 
@@ -46,7 +47,7 @@
 | 05 | `05-configmaps-raw-tabs.svg` | ConfigMaps abiertos, vista Raw |
 | 06 | `06-structured-finding-detail.svg` | Detalle de hallazgo al click en ERROR |
 
-> Sign-off formal (`/speckit-wireframe-review` → `## UI Mockup` en `spec.md`) pendiente. Spec: US1–US5 + FR-023/024.
+> Sign-off formal (`/speckit-wireframe-review` → `## UI Mockup` en `spec.md`) pendiente. Spec: **US1–US10** + FR-023–025 (tema = Should).
 
 ## 1.4. Instrucciones de instalación
 
@@ -58,5 +59,6 @@ Ver [`readme.md`](readme.md) y `QUICK-START.md` (cuando exista).
 
 - Spec: [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md)  
 - Plan: [`specs/001-eks-log-monitor/plan.md`](specs/001-eks-log-monitor/plan.md)  
+- IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md) · [`ipc-commands-events.md`](specs/001-eks-log-monitor/contracts/ipc-commands-events.md)  
 - HU: [`5-historias-de-usuario.md`](5-historias-de-usuario.md)  
 - Checklist: `specs/001-eks-log-monitor/checklists/requirements.md`

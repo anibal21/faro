@@ -84,6 +84,6 @@ Confirm SQLite DB created locally; no secrets in repo.
 ## References
 
 - [data-model.md](./data-model.md)
-- [contracts/tauri-commands.md](./contracts/tauri-commands.md)
+- [contracts/ipc-commands-events.md](./contracts/ipc-commands-events.md)
 - [contracts/ui-ia.md](./contracts/ui-ia.md)
 - [wireframes/](./wireframes/)

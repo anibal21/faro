@@ -29,21 +29,21 @@ npm run tauri dev
 
 | Documento | Descripción | Estado |
 |-----------|-------------|--------|
-| [**0-ficha-del-proyecto.md**](0-ficha-del-proyecto.md) | Información general y datos del proyecto | Actualizado (splash + ER) |
-| [**1-descripcion-general-del-producto.md**](1-descripcion-general-del-producto.md) | Objetivos, funcionalidades y UX | Actualizado (splash + wireframes 01–06) |
-| [**2-arquitectura-del-sistema.md**](2-arquitectura-del-sistema.md) | Diagramas, componentes y decisiones técnicas | Actualizado (draw.io 01–04 + splash) |
+| [**0-ficha-del-proyecto.md**](0-ficha-del-proyecto.md) | Información general y datos del proyecto | Actualizado (10 HU + splash + IPC) |
+| [**1-descripcion-general-del-producto.md**](1-descripcion-general-del-producto.md) | Objetivos, funcionalidades y UX | Actualizado (US1–US10 + wireframes 01–06) |
+| [**2-arquitectura-del-sistema.md**](2-arquitectura-del-sistema.md) | Diagramas, componentes y decisiones técnicas | Actualizado (draw.io 01–05 + US1–US10) |
 | [**3-modelo-de-datos.md**](3-modelo-de-datos.md) | Entidades + Mermaid + ER SQLite | Actualizado (durable + session + splash purge) |
-| [**4-especificaciones-de-la-api.md**](4-especificaciones-de-la-api.md) | Contratos commands / IPC | Actualizado (`session_purge_ephemeral`, catalog cache) |
-| [**5-historias-de-usuario.md**](5-historias-de-usuario.md) | HU con criterios de aceptación | Actualizado (HU0 splash + HU5 desktop) |
-| [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (backend / frontend / BD) | Pendiente (`/speckit-tasks`) |
+| [**4-comandos-y-eventos-ipc.md**](4-comandos-y-eventos-ipc.md) | Comandos + eventos IPC (mapa + secuencias) | Actualizado (IPC map + diagrama 05) |
+| [**5-historias-de-usuario.md**](5-historias-de-usuario.md) | HU con criterios de aceptación | Actualizado (**10 HU atómicas** US1–US10) |
+| [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (backend / frontend / BD) | Borrador alineado HU; fino con `/speckit-tasks` |
 | [**7-pull-requests.md**](7-pull-requests.md) | PRs del desarrollo | Pendiente |
 | [**prompts.md**](prompts.md) | Registro de uso de IA (≤3 prompts/sección) | En progreso |
 | [**prompts-conversacion-inicial.md**](prompts-conversacion-inicial.md) | Consultas 1ª conversación (sin respuestas) | Completo |
 | [**prompts-flujo-trabajo-speckit.md**](prompts-flujo-trabajo-speckit.md) | Flujo Spec Kit + sync readme | Completo |
-| [**specs/001-eks-log-monitor/spec.md**](specs/001-eks-log-monitor/spec.md) | Spec Kit — especificación formal | Draft (specify + clarify + plan; FR-023/024) |
-| [**specs/001-eks-log-monitor/plan.md**](specs/001-eks-log-monitor/plan.md) | Spec Kit — plan técnico | Completo (splash + SQLite tiers) |
+| [**specs/001-eks-log-monitor/spec.md**](specs/001-eks-log-monitor/spec.md) | Spec Kit — especificación formal | Draft (10 US atómicas + FR-023–025) |
+| [**specs/001-eks-log-monitor/plan.md**](specs/001-eks-log-monitor/plan.md) | Spec Kit — plan técnico | Completo (10 US + splash + SQLite + IPC) |
 | [**specs/001-eks-log-monitor/wireframes/**](specs/001-eks-log-monitor/wireframes/) | Mockups SVG (6 pantallas, 01=splash) | En revisión (pre sign-off) |
-| [**docs/architecture/**](docs/architecture/) | Diagramas draw.io + SVG | Completo (contexto, componentes, secuencia, ER SQLite) |
+| [**docs/architecture/**](docs/architecture/) | Diagramas draw.io + SVG | Completo (01–05: contexto … ER … IPC) |
 
 ## Índice
 
@@ -51,7 +51,7 @@ npm run tauri dev
 2. [Descripción general del producto](#1-descripción-general-del-producto)
 3. [Arquitectura del sistema](#2-arquitectura-del-sistema)
 4. [Modelo de datos](#3-modelo-de-datos)
-5. [Especificación de la API](#4-especificación-de-la-api)
+5. [Comandos y eventos IPC](#4-comandos-y-eventos-ipc)
 6. [Historias de usuario](#5-historias-de-usuario)
 7. [Tickets de trabajo](#6-tickets-de-trabajo)
 8. [Pull requests](#7-pull-requests)
@@ -62,7 +62,7 @@ npm run tauri dev
 
 ### **0.1. Tu nombre completo:**
 
-<!-- Completar -->
+Aníbal Edinson Rodríguez Carrasco
 
 ### **0.2. Nombre del proyecto:**
 
@@ -70,7 +70,7 @@ Faro — monitoreo de logs EKS vía bastión
 
 ### **0.3. Descripción breve del proyecto:**
 
-App de escritorio multi-OS: instancias por ambiente (**PEM + SSH + ruta IAM + region + cluster**), **Pods/Deployments** + **ConfigMaps**, logs en vivo (**Structured** default / **Raw** botón), click en stacktrace → reglas Spring Boot. Sin export ni Analizar de buffer en MVP.
+App de escritorio multi-OS: splash, instancias por ambiente (**PEM + SSH + ruta IAM + region + cluster**), **Pods/Deployments** + **ConfigMaps**, logs en vivo (**Structured** / **Raw**), click en stacktrace → reglas Spring Boot, tema claro/oscuro (Should). UI↔Rust vía **Tauri IPC**. Desarrollo con **10 HU atómicas**. Sin export ni Analizar de buffer en MVP.
 
 ### **0.4. URL del proyecto:**
 
@@ -92,13 +92,10 @@ Reducir fricción al monitorear EKS detrás de bastión SSH; valor para perfiles
 
 ### **1.2. Características y funcionalidades principales:**
 
-- Splash de arranque (BG image diferida) + purge sesión/logs efímeros; **conserva** ambientes
-- Instancias de conexión (N ambientes: PEM + SSH + ruta IAM + `region_name` + `cluster_name`)
-- Pods por Deployment + ConfigMaps (solo lectura); catálogo cacheado 1× por conexión
-- Logs en vivo: **Structured** (default, por escritura) + **Raw** (botón, sin manipulación)
-- Click en error/stacktrace → motor Spring Boot (explicación simple)
-- Empaquetado Windows / macOS / Linux  
-- **No** export de logs ni Analizar de buffer; **no** secretos IAM/PEM en SQLite (MVP)
+- Splash + purge sesión (HU1); CRUD + cargar/activo + connect (HU2–HU4)
+- Pods/ConfigMaps cacheados (HU5–HU6); logs Structured/Raw (HU7); análisis al click (HU8)
+- Tema claro/oscuro (HU9 Should); empaquetado Win/macOS/Linux (HU10)
+- **No** export ni Analizar de buffer; **no** secretos IAM/PEM en SQLite (MVP)
 
 ### **1.3. Diseño y experiencia de usuario:**
 
@@ -124,6 +121,7 @@ App de escritorio **Tauri 2**: splash → UI React → commands Rust → SQLite 
 | 2 | Componentes internos | [02-components.svg](docs/architecture/02-components.svg) | [02-components.drawio](docs/architecture/02-components.drawio) |
 | 3 | Secuencia conectar → logs → hallazgo | [03-connection-sequence.svg](docs/architecture/03-connection-sequence.svg) | [03-connection-sequence.drawio](docs/architecture/03-connection-sequence.drawio) |
 | 4 | ER SQLite (durable + session) | [04-sqlite-er.svg](docs/architecture/04-sqlite-er.svg) | [04-sqlite-er.drawio](docs/architecture/04-sqlite-er.drawio) |
+| 5 | IPC commands vs events | [05-ipc-commands-events.svg](docs/architecture/05-ipc-commands-events.svg) | [05-ipc-commands-events.drawio](docs/architecture/05-ipc-commands-events.drawio) |
 
 ### **2.2. Descripción de componentes principales:**
 
@@ -131,7 +129,7 @@ App de escritorio **Tauri 2**: splash → UI React → commands Rust → SQLite 
 |------------|------------|-----|
 | UI | React + TS + Vite | Splash, Ambiente/Ver, catálogo, Structured/Raw, panel hallazgo |
 | Shell | Tauri 2 | Ventana mínima + principal, IPC, empaquetado Win/macOS/Linux |
-| Commands | Rust | Ambientes, session_purge, túnel, token EKS, kube RO, logs, analyze |
+| Commands / Events | Rust + Tauri IPC | `invoke` (CRUD, connect…) + `emit` (logs_*) |
 | SSH | russh (o ssh sistema) | Port-forward; PEM solo por ruta |
 | AWS | aws-sdk-rust | Lee archivo IAM (ruta) → token EKS; region_name + cluster_name |
 | K8s | kube-rs | List/get RO; hydrate catálogo 1× por connect; follow logs |
@@ -152,7 +150,7 @@ PEM e IAM solo por **ruta** local; `region_name` + `cluster_name`; TLS con CA de
 
 ### **2.6. Tests**
 
-Unitarios + integración + ≥1 E2E del flujo principal (ambiente → conectar → logs → hallazgo).
+Unitarios + integración + ≥1 E2E (splash → ambiente → conectar → logs → hallazgo).
 
 **Documentación completa:** [2-arquitectura-del-sistema.md](2-arquitectura-del-sistema.md) · [docs/architecture/](docs/architecture/)
 
@@ -172,11 +170,11 @@ Ver documento detallado.
 
 ---
 
-## 4. Especificación de la API
+## 4. Comandos y eventos IPC
 
-> Faro no expone REST HTTP al usuario: **Tauri commands** + events (`env_*`, `session_purge_ephemeral`, `k8s_*`, `catalog_refresh`, `logs_*`, `analyze_write_group`, `prefs_*`). Detalle en [4-especificaciones-de-la-api.md](4-especificaciones-de-la-api.md) y `contracts/tauri-commands.md`.
+> Faro **no** usa HTTP REST. Contrato = **Tauri IPC**: commands (`invoke`) + events (`emit`). CRUD de ambientes = commands. Stream de logs = events (`logs_chunk`, `logs_status`).
 
-**Documentación completa:** [4-especificaciones-de-la-api.md](4-especificaciones-de-la-api.md)
+**Documentación completa:** [4-comandos-y-eventos-ipc.md](4-comandos-y-eventos-ipc.md) · Contrato: [`ipc-commands-events.md`](specs/001-eks-log-monitor/contracts/ipc-commands-events.md) · Diagrama: [`05-ipc-commands-events`](docs/architecture/05-ipc-commands-events.drawio)
 
 ---
 
@@ -184,12 +182,16 @@ Ver documento detallado.
 
 > Documentar ≥3 historias principales con criterios de aceptación.
 
-**Historia de Usuario 0:** Splash + purge de sesión (conserva ambientes)  
-**Historia de Usuario 1:** Instancias de conexión (PEM + SSH + ruta IAM + región + cluster)  
-**Historia de Usuario 2:** Explorar Pods y ConfigMaps (cache 1× por connect)  
-**Historia de Usuario 3:** Logs Structured / Raw  
-**Historia de Usuario 4:** Análisis Spring Boot al click (stacktrace)  
-**Historia de Usuario 5:** Desktop multi-OS  
+**Historia de Usuario 1:** Splash + purge de sesión  
+**Historia de Usuario 2:** CRUD ambientes (PEM + SSH + IAM path + región + cluster)  
+**Historia de Usuario 3:** Cargar uno/varios + un activo  
+**Historia de Usuario 4:** Conectar / desconectar vía bastión  
+**Historia de Usuario 5:** Explorar Deployments/Pods (cache)  
+**Historia de Usuario 6:** Explorar ConfigMaps  
+**Historia de Usuario 7:** Logs Structured / Raw  
+**Historia de Usuario 8:** Análisis Spring Boot al click  
+**Historia de Usuario 9:** Tema claro / oscuro (Should)  
+**Historia de Usuario 10:** Desktop multi-OS  
 
 **Documentación completa:** [5-historias-de-usuario.md](5-historias-de-usuario.md) · Spec Kit: [specs/001-eks-log-monitor/spec.md](specs/001-eks-log-monitor/spec.md)
 
@@ -199,9 +201,9 @@ Ver documento detallado.
 
 > ≥3 tickets: uno backend (Rust/Tauri), uno frontend (React), uno de base de datos (SQLite).
 
-**Ticket 1:** Backend — túnel SSH + cliente EKS/kube  
-**Ticket 2:** Frontend — visor de logs + Analizar  
-**Ticket 3:** Base de datos — esquema SQLite y persistencia de perfiles  
+**Ticket 1:** Backend — túnel SSH + EKS/kube (HU4; habilita HU5–HU7)  
+**Ticket 2:** Frontend — Structured/Raw + análisis al click (HU7–HU8)  
+**Ticket 3:** BD — SQLite durable + session + purge splash (HU1–HU2)  
 
 **Documentación completa:** [6-tickets-de-trabajo.md](6-tickets-de-trabajo.md)
 
@@ -228,13 +230,15 @@ faro/
 ├── prompts-conversacion-inicial.md
 ├── prompts-flujo-trabajo-speckit.md
 ├── 0-ficha-del-proyecto.md … 7-pull-requests.md
+├── 4-comandos-y-eventos-ipc.md   # sección 4 entrega (IPC; no REST)
 ├── docs/
 │   ├── SPEC.md
-│   └── architecture/           # draw.io + SVG (contexto, componentes, secuencia, ER)
+│   └── architecture/           # draw.io + SVG (contexto … ER … IPC)
 │       ├── 01-system-context.drawio / .svg
 │       ├── 02-components.drawio / .svg
 │       ├── 03-connection-sequence.drawio / .svg
-│       └── 04-sqlite-er.drawio / .svg
+│       ├── 04-sqlite-er.drawio / .svg
+│       └── 05-ipc-commands-events.drawio / .svg
 ├── .specify/                   # Spec Kit
 ├── specs/001-eks-log-monitor/  # spec, plan, data-model, contracts, wireframes (01-06)
 ├── src/                        # React + Vite (tras scaffold)

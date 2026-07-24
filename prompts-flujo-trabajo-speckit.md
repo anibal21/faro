@@ -60,7 +60,7 @@ flowchart TD
    → Sync: sección UX en `1-…` + capturas/enlaces.
 
 6. **Plan + draw.io** — `/speckit.plan` + diagramas  
-   → Sync: `2-arquitectura…`, `3-modelo…`, `4-api/commands…`.
+   → Sync: `2-arquitectura…`, `3-modelo…`, `4-comandos-y-eventos-ipc…` (sección “API” de la entrega = IPC).
 
 7. **Tasks** — `/speckit.tasks`  
    → Sync: `6-tickets…`.

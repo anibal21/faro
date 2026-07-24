@@ -70,7 +70,8 @@ Producto de software **end-to-end** (idea → despliegue), con **IA en todas las
 ### Alcance MVP (académico)
 - Dominio libre (Faro encaja: herramienta cercana al trabajo / ops K8s).
 - Un **flujo E2E prioritario** que cree valor completo.
-- **3–5 historias Must-Have** y **1–2 Should-Have** opcionales para ese flujo.
+- Marco académico: **3–5 historias Must-Have** y **1–2 Should-Have** opcionales para el flujo E2E.
+- **Faro (Spec Kit, 2026-07-23):** el mismo alcance se controla con **10 historias atómicas** (US1–US10): Must P1 = US1–US8, Should P2 = US9 (tema), Must P3 = US10 (desktop). Ver [`5-historias-de-usuario.md`](../5-historias-de-usuario.md).
 
 ### Artefactos a producir (progresivos en 3 entregas)
 | Artefacto | Cómo lo cubre Faro |
@@ -96,7 +97,7 @@ Usamos **Spec Kit** para SDD (`.specify/`, specs, tasks), pero la **documentaci�
 | `1-descripcion-general-del-producto.md` | Objetivo, features, UX, instalación |
 | `2-arquitectura-del-sistema.md` | Diagramas, componentes, infra, seguridad, tests |
 | `3-modelo-de-datos.md` | ER (Mermaid) + entidades |
-| `4-especificaciones-de-la-api.md` | Contratos principales (en Faro: **Tauri commands** / IPC, formato OpenAPI-like o equivalente) |
+| `4-comandos-y-eventos-ipc.md` | **Comandos y eventos** Tauri IPC (mapa invoke/emit); sustituye la sección “API” HTTP de la plantilla |
 | `5-historias-de-usuario.md` | ≥3 HU con criterios de aceptación |
 | `6-tickets-de-trabajo.md` | ≥3 tickets (p. ej. backend/Rust, frontend, BD) |
 | `7-pull-requests.md` | ≥3 PRs documentadas |
@@ -316,7 +317,7 @@ faro/
   1-descripcion-general-del-producto.md
   2-arquitectura-del-sistema.md
   3-modelo-de-datos.md
-  4-especificaciones-de-la-api.md    # Tauri commands / contratos
+  4-comandos-y-eventos-ipc.md        # Tauri IPC commands + events (sección 4 entrega)
   5-historias-de-usuario.md
   6-tickets-de-trabajo.md
   7-pull-requests.md

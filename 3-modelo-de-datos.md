@@ -1,7 +1,8 @@
 # 3. Modelo de datos
 
-> Sincronizado con [`specs/001-eks-log-monitor/data-model.md`](specs/001-eks-log-monitor/data-model.md) (post `/speckit-plan` — SQLite durable + session cache).  
-> Diagrama editable: [`docs/architecture/04-sqlite-er.drawio`](docs/architecture/04-sqlite-er.drawio).
+> Sincronizado con [`specs/001-eks-log-monitor/data-model.md`](specs/001-eks-log-monitor/data-model.md) (SQLite durable + session + splash purge; HU1/HU2).  
+> Diagrama editable: [`docs/architecture/04-sqlite-er.drawio`](docs/architecture/04-sqlite-er.drawio).  
+> IPC que lee/escribe estas tablas: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).
 
 ## 3.1. Capas de persistencia
 

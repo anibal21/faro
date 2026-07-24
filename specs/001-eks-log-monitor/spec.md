@@ -18,101 +18,169 @@
 - Q: MVP Analyze entry points? What is a clickable “line”? → A: MVP = **click only** (no buffer-wide Analyze button). A clickable unit is a **complete stacktrace** (not a single physical log line).
 - Q: How does Raw vs Structured treat stream chunks / stacktraces? → A: **Raw** only emits terminal output with **no manipulation**. **Structured** groups by **each write** to the log stream (a stacktrace is usually one write and thus one group).
 
+### Session 2026-07-23 — Atomic user stories
+
+- Q: Should MVP keep 5 coarse stories or split for development control? → A: **10 atomic** user stories (US1–US10) aligned to plan/wireframes/IPC; no new product scope beyond existing FR/plan. Theme light/dark is **Should (P2)**; desktop packaging remains **Must (P3)**.
+
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Manage connection instances (Priority: P1)
+### User Story 1 - Splash startup and session purge (Priority: P1)
 
-A colleague who accesses several company environments (each with its own bastion host) opens Faro and creates a **connection instance** per environment: bastion host, SSH identity file path, cloud account settings needed to reach the cluster, and cluster identity. They can add as many instances as they have access to, edit them, and pick which one is active. Secrets themselves are never pasted into a shareable store—only references the user already has on their machine.
+On launch, the user sees a **minimal splash** (brand Faro, background-image slot, AWS tagline, *…preparando aplicación*) while Faro purges leftover **ephemeral** session/log data, then the main window opens. Durable environments and prefs are kept.
 
-**Why this priority**: Without saved connections, every session requires repeating fragile manual setup; this is the gateway to all value.
+**Why this priority**: Clean start after dirty exit without losing saved connections (FR-023, FR-024).
 
-**Independent Test**: Create two instances, restart the app, select each, and confirm details persist and only the selected instance is used for the next connect attempt.
-
-**Acceptance Scenarios**:
-
-1. **Given** a first-time user, **When** they create a connection instance with required fields and save, **Then** it appears in their instance list and survives app restart.
-2. **Given** multiple saved instances, **When** they select one and connect, **Then** Faro uses only that instance’s bastion and cluster settings.
-3. **Given** a saved instance, **When** they edit host or file path and save, **Then** subsequent connects use the updated values.
-4. **Given** any instance, **When** data is stored, **Then** only local file paths and non-secret identifiers are retained—not the contents of PEM or IAM credential files.
-
----
-
-### User Story 2 - Connect and browse Pods & ConfigMaps (Priority: P1)
-
-After connecting through the active instance’s bastion, the user chooses a **component type**. For the MVP they can choose **Pods** (presented via workloads/Deployments) or **ConfigMaps**. They browse what their access allows, filter by name, and open the item they care about—without using a separate terminal for SSH or cluster CLI.
-
-**Why this priority**: Discoverability of artifacts is the core monitoring job; Pods + ConfigMaps are the agreed MVP catalog.
-
-**Independent Test**: With a valid instance, connect, switch between Pods and ConfigMaps, filter a known name, and open one item of each type.
+**Independent Test**: Force-kill after a connected session; relaunch; splash runs; environments still listed; session catalog empty until reconnect.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid connection instance, **When** the user connects successfully, **Then** they see a component-type choice including Pods and ConfigMaps.
-2. **Given** component type Pods, **When** the list loads, **Then** workloads/Deployments the user can access are listed (not requiring the user to SSH manually).
-3. **Given** component type ConfigMaps, **When** the list loads, **Then** ConfigMaps in accessible namespaces are listed and the user can open a read-only view of keys/values they are allowed to see.
-4. **Given** a long list, **When** the user filters by name, **Then** matching items remain visible and others are hidden.
-5. **Given** bastion unreachable, bad key path, or insufficient cloud/cluster permissions, **When** connect or list fails, **Then** the user sees a clear, non-technical error and can retry or switch instance.
+1. **Given** cold start, **When** Faro launches, **Then** splash shows Faro + tagline + preparing status before main UI.
+2. **Given** leftover session-cache rows, **When** splash runs `session_purge_ephemeral`, **Then** those rows are gone and durable `connection_instance` rows remain.
+3. **Given** purge completed, **When** main window opens, **Then** user can proceed to empty workspace or saved environments.
 
 ---
 
-### User Story 3 - Live aggregated logs per Deployment (Priority: P1)
+### User Story 2 - CRUD connection environments (Priority: P1)
 
-When the user opens logs for a **Deployment / workload artifact**, Faro shows **one window** for that artifact. Logs from all replicas (pods) of that Deployment appear in that single window, updating continuously as new log lines are written. The user can open several such windows for different artifacts at once. They can search within the buffer and keep watching without refreshing manually.
+The user creates, edits, and deletes **connection instances** (bastion SSH, PEM path, IAM credentials path, `region_name`, `cluster_name`, optional namespace). Only paths and non-secret identifiers are stored.
 
-Each log window MUST offer **two view modes** the user can switch between:
+**Why this priority**: Gateway to all cluster work (FR-001–003).
 
-1. **Raw view** — a fast, simple, terminal-like stream (as if watching `kubectl logs -f` / a console tail).
-2. **Structured view** — the same live feed presented with **severity** and **detail** fields; when a line is detected as an **error**, it is actionable (clickable) so the user can invoke the rules engine for that line/context.
-
-**Why this priority**: This is the primary “monitor without terminal” outcome; aggregation, live update, and dual raw/structured viewing were explicit product decisions.
-
-**Independent Test**: Open one Deployment with ≥2 replicas; confirm a single window shows interleaved lines from replicas and new lines appear without manual refresh; switch between Raw and Structured modes; open a second artifact window concurrently.
+**Independent Test**: Create two instances, edit one path, delete one, restart — surviving instance fields match.
 
 **Acceptance Scenarios**:
 
-1. **Given** a Deployment with multiple replicas, **When** the user opens its logs, **Then** a single window shows combined output from those replicas, with each line attributable to a replica/pod identity.
-2. **Given** an open log window, **When** the workload writes new logs, **Then** the window updates continuously without the user pressing refresh (in the active view mode).
-3. **Given** two artifacts, **When** the user opens both, **Then** each has its own live window updating independently.
-4. **Given** visible logs, **When** the user searches for text, **Then** matching lines are highlighted or filtered according to the search control in the active view.
-5. **Given** a Deployment with zero ready pods, **When** the user opens logs, **Then** the UI explains there is nothing to stream yet and recovers when pods appear (if still open).
-6. **Given** an open log window, **When** it first opens, **Then** **Structured** view is active by default.
-7. **Given** an open log window, **When** the user activates **Raw** via the dedicated control (button), **Then** they see an unmodified terminal-like dump of the stream (no grouping/columns/manipulation).
-8. **Given** Structured view, **When** the pod writes to the log, **Then** each **write** appears as one structured entry (severity/detail); a typical stacktrace write is one entry.
-9. **Given** Structured view and a write-group marked as a likely error (e.g. stacktrace write), **When** the user clicks it, **Then** the full rules engine runs for that group and a panel shows severity, plain-language explanation, and recommendation.
+1. **Given** first-time user, **When** they save a valid environment form, **Then** it appears in the list and survives restart.
+2. **Given** a saved instance, **When** they edit host or path and save, **Then** later connects use updated values.
+3. **Given** any instance, **When** stored, **Then** no PEM/IAM secret contents are in SQLite.
 
 ---
 
-### User Story 4 - Spring Boot rules analysis (plain language) (Priority: P2)
+### User Story 3 - Load one or many environments; one active (Priority: P1)
 
-Analysis is available from **Structured** view by **clicking a write-group** (typically a complete stacktrace write) that lightweight live detection marked as a likely error. Faro then applies the **full** **Spring Boot** rules engine for that group. Matches show severity, a **simple explanation** for non-technical readers, and a recommended action. No generative model is required; analysis runs locally. A separate **buffer-wide Analyze** control is **out of scope for MVP**.
+Via **Ambiente** menu the user loads one or several saved environments into the sidebar and marks exactly one **active** for cluster ops.
 
-**Why this priority**: Differentiates Faro from a raw tail; click-to-analyze on error write-groups/stacktraces is the primary path for non-technical users.
+**Why this priority**: Multi-env UX without concurrent tunnels (plan IA).
 
-**Independent Test**: In Structured view, click a known Spring Boot error **stacktrace write-group**; panel shows severity, plain explanation, and recommended action.
+**Independent Test**: Load two environments; only active drives connect; switch active; prior live windows invalidate.
 
 **Acceptance Scenarios**:
 
-1. **Given** Structured view with a stacktrace marked as a likely error, **When** the user clicks that stacktrace block, **Then** a findings panel shows severity, short plain-language explanation, and recommended action for that stacktrace.
-2. **Given** no matching rules for the clicked stacktrace, **When** analysis runs, **Then** they see an explicit empty/no-match result (not a crash).
-3. **Given** analysis results, **When** shown to a non-technical colleague, **Then** explanations avoid unexplained jargon or define it in plain terms.
-4. **Given** the MVP UI, **When** inspecting the log window chrome, **Then** there is **no** buffer-wide Analyze button (click-on-stacktrace is the analysis entry point).
+1. **Given** saved instances, **When** user loads several, **Then** all appear in sidebar.
+2. **Given** multiple loaded, **When** user sets active, **Then** only that instance is used for connect/catalog.
+3. **Given** open log windows, **When** active changes, **Then** windows close or show invalidated.
 
 ---
 
-### User Story 5 - Installable desktop on major OSes (Priority: P3)
+### User Story 4 - Connect and disconnect via bastion (Priority: P1)
 
-The product is delivered as a **desktop application** with installable/runnable packages for **Windows, macOS, and Linux**, so colleagues can run Faro without a public web URL.
+The user connects the active environment (SSH tunnel + IAM file → EKS token) and can disconnect; errors are clear and non-secret.
 
-**Why this priority**: Required product shape for distribution; can be validated after core flows exist.
+**Why this priority**: Enables catalog and logs without manual SSH (FR-004, FR-016).
 
-**Independent Test**: Obtain the package for each target OS and launch Faro to the connection screen.
+**Independent Test**: Connect with valid paths; disconnect; fail connect with bad PEM and see actionable error.
 
 **Acceptance Scenarios**:
 
-1. **Given** a supported OS package, **When** the user installs or runs it per project instructions, **Then** Faro starts and reaches the connection-instance UI.
-2. **Given** no public hosted URL, **When** evaluators review the product, **Then** a live or recorded desktop demo plus local install instructions suffice.
+1. **Given** valid active instance, **When** connect succeeds, **Then** status is connected and catalog hydrate may run once.
+2. **Given** connected, **When** disconnect, **Then** tunnel/kube tear down and session cache for that instance is cleared.
+3. **Given** bad path or bastion down, **When** connect fails, **Then** error has no secret material.
 
 ---
+
+### User Story 5 - Browse Deployments/Pods (cached catalog) (Priority: P1)
+
+After connect, user browses **Deployments/Pods**, filters by name; list comes from session catalog hydrated **once per connect** (optional refresh).
+
+**Why this priority**: Core discoverability for logs (FR-005–006).
+
+**Independent Test**: Connect; list Deployments; navigate away/back without full re-list; `catalog_refresh` updates list.
+
+**Acceptance Scenarios**:
+
+1. **Given** connected, **When** Pods/Deployments selected, **Then** accessible workloads are listed.
+2. **Given** long list, **When** filter by name, **Then** only matches show.
+3. **Given** hydrate done, **When** user browses again in same session, **Then** UI may use session cache without mandatory full AWS re-list.
+
+---
+
+### User Story 6 - Browse ConfigMaps read-only (Priority: P1)
+
+User lists ConfigMaps and opens a **read-only** key/value view (Raw-style; safe truncation for large/binary).
+
+**Why this priority**: Agreed MVP second component type (FR-011).
+
+**Independent Test**: Open a known ConfigMap; confirm keys visible; binary/large values truncated safely.
+
+**Acceptance Scenarios**:
+
+1. **Given** connected, **When** ConfigMaps selected, **Then** accessible ConfigMaps list.
+2. **Given** a ConfigMap, **When** opened, **Then** keys/values are read-only.
+3. **Given** large/binary value, **When** shown, **Then** UI remains safe/understandable (truncate/placeholder).
+
+---
+
+### User Story 7 - Live logs Structured + Raw (Priority: P1)
+
+User opens one log window per Deployment: aggregated replicas, live follow, multi-window, search; **Structured** default and **Raw** via button without dropping follow.
+
+**Why this priority**: Primary monitoring outcome (FR-007–010, FR-018–022).
+
+**Independent Test**: Deployment with ≥2 replicas; Structured default; switch Raw; second window; search.
+
+**Acceptance Scenarios**:
+
+1. **Given** multi-replica Deployment, **When** logs open, **Then** one window shows attributable lines from >1 pod.
+2. **Given** open window, **When** new logs write, **Then** UI updates within demo SLA without refresh.
+3. **Given** open window, **When** first shown, **Then** Structured is active; Raw via button is unmodified dump.
+4. **Given** two artifacts, **When** both opened, **Then** each follows independently; search works in active view.
+
+---
+
+### User Story 8 - Spring Boot analysis on click (Priority: P1)
+
+In Structured view, user clicks a likely-error write-group/stacktrace; local rules return severity, plain explanation, recommendation. No buffer-wide Analyze.
+
+**Why this priority**: Differentiator for non-technical readers (FR-012–014, FR-020). *Priority raised to P1 Must for atomic MVP delivery control (was P2 in coarse model).*
+
+**Independent Test**: Click prepared stacktrace; panel shows finding or empty; no Analyze-all button.
+
+**Acceptance Scenarios**:
+
+1. **Given** marked stacktrace, **When** clicked, **Then** panel shows severity + plain explanation + recommendation.
+2. **Given** no rule match, **When** analyze runs, **Then** empty result is explicit.
+3. **Given** MVP chrome, **When** inspected, **Then** no buffer-wide Analyze / no Export.
+
+---
+
+### User Story 9 - Light / dark theme (Priority: P2)
+
+Via **Ver** menu the user switches **Modo claro** / **Modo oscuro**; preference persists across restart.
+
+**Why this priority**: Explicit product UX; not blocking connect/logs (Should).
+
+**Independent Test**: Set dark; restart; theme still dark.
+
+**Acceptance Scenarios**:
+
+1. **Given** main window, **When** user selects Modo oscuro, **Then** chrome uses dark theme.
+2. **Given** theme set, **When** app restarts, **Then** theme is restored from prefs.
+3. **Given** Raw log panel, **When** theme changes, **Then** app chrome follows theme (Raw may keep terminal contrast).
+
+---
+
+### User Story 10 - Desktop packages Win / macOS / Linux (Priority: P3)
+
+Faro ships as installable/runnable desktop apps for Windows, macOS, and Linux; no public URL required for evaluation.
+
+**Why this priority**: Delivery shape (FR-015, SC-007).
+
+**Independent Test**: Launch package on each OS to splash or connection UI.
+
+**Acceptance Scenarios**:
+
+1. **Given** a supported OS package, **When** installed/run, **Then** Faro reaches splash or main connection UI.
+2. **Given** no public URL, **When** evaluated, **Then** local demo / recording suffices.
 
 ### Edge Cases
 
@@ -154,6 +222,7 @@ The product is delivered as a **desktop application** with installable/runnable 
 - **FR-022**: When a log window opens, it MUST start in **Structured** view; **Raw** MUST be reachable via an explicit control (e.g. button), not as the default.
 - **FR-023**: On application launch, Faro MUST first show a **minimal splash window** with the product name **Faro**, a **background image** (lighthouse / brand visual, full-bleed within the splash window; concrete image asset is supplied at implementation), the tagline *Herramienta de monitoreo infraestructura para ambiente AWS*, and a preparing status (*…preparando aplicación*) before the main workspace appears.
 - **FR-024**: During the splash, Faro MUST purge leftover **ephemeral session / log-related** local data from a prior run (including dirty exit). Faro MUST **NOT** delete durable data needed across sessions: connection instances (environments), UI preferences, light analysis history metadata, or schema metadata. After purge completes, the main window MAY open.
+- **FR-025**: Users MUST be able to switch application chrome between **light** and **dark** theme via the **Ver** menu; the choice MUST persist across restarts in local prefs (US9).
 
 ### Key Entities
 

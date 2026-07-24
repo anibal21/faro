@@ -1,0 +1,105 @@
+<mxfile host="app.diagrams.net" agent="Faro Spec Kit" version="22.1.0" type="device">
+  <diagram id="faro-ipc" name="IPC Commands Events">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="canvas" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="1360" height="960" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="Faro — IPC: Commands (invoke) vs Events (emit)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2A4A;strokeColor=#1B2A4A;fontColor=#FFFFFF;align=left;verticalAlign=middle;fontStyle=1;fontSize=16;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="24" width="560" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="leg" value="Sin HTTP. CRUD = commands. Stream logs = events." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;fontColor=#0F172A;align=left;spacingLeft=10;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="24" width="360" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ui" value="React UI&#xa;(invoke / listen)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#1E3A5F;fontColor=#0F172A;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ipc" value="Tauri IPC&#xa;bridge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2A4A;strokeColor=#0F172A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="320" y="100" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rust" value="Rust backend&#xa;(commands + emit)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BAE6FD;strokeColor=#0369A1;fontColor=#0C4A6E;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="560" y="100" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eInv" value="invoke(command)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0369A1;strokeWidth=2;fontColor=#0F172A;fontStyle=1;fontSize=11;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;" edge="1" parent="1" source="ui" target="ipc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eInv2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0369A1;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="ipc" target="rust">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eRes" value="Result / Error" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#047857;strokeWidth=2;fontColor=#0F172A;fontStyle=1;fontSize=11;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;" edge="1" parent="1" source="rust" target="ui">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="200" />
+              <mxPoint x="150" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eEv" value="emit(event)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B45309;strokeWidth=2;fontColor=#0F172A;fontStyle=1;fontSize=11;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;" edge="1" parent="1" source="rust" target="ui">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="230" />
+              <mxPoint x="150" y="230" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="cmdBox" value="COMMANDS (invoke) — request/response" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#047857;verticalAlign=top;fontStyle=1;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontColor=#064E3B;" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="640" height="420" as="geometry" />
+        </mxCell>
+
+        <mxCell id="c1" value="Startup&#xa;session_purge_ephemeral&#xa;prefs_get / prefs_set" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="60" y="320" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="Ambientes CRUD + sesion&#xa;env_list / upsert / delete&#xa;env_load / set_active&#xa;env_connect / disconnect" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="360" y="320" width="300" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="Catalogo (RO)&#xa;k8s_list_deployments&#xa;k8s_list_configmaps&#xa;k8s_get_configmap&#xa;catalog_refresh" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="280" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="Logs + analisis&#xa;logs_open / close / set_view&#xa;analyze_write_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="360" y="440" width="300" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="cNote" value="CRUD ambientes = solo commands (SQLite durable). No events." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D1FAE5;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="580" width="600" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cNote2" value="logs_open (command) abre el canal; el caudal llega por events." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D1FAE5;strokeColor=#047857;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="630" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="evBox" value="EVENTS (emit) — push 0..N" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#B45309;verticalAlign=top;fontStyle=1;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontColor=#78350F;" vertex="1" parent="1">
+          <mxGeometry x="720" y="280" width="620" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ev1" value="logs_chunk&#xa;write payload + pod_name + timestamp?" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="740" y="320" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ev2" value="logs_status&#xa;following | idle | error | no_pods" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="320" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="evNote" value="Solo stream de logs. No hay events de env_* / prefs / analyze." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEDD5;strokeColor=#B45309;fontColor=#0F172A;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="740" y="420" width="580" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="flowBox" value="Flujo tipico logs" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;verticalAlign=top;fontStyle=1;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="720" y="520" width="620" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="flow" value="1. UI invoke logs_open&#xa;2. Rust responde window_id&#xa;3. Rust emit logs_status(following)&#xa;4. Rust emit logs_chunk (N veces)&#xa;5. UI invoke analyze_write_group (opcional)&#xa;6. UI invoke logs_close" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#64748B;fontColor=#0F172A;align=left;spacingLeft=10;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="740" y="555" width="580" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="foot" value="Ver mapa completo: specs/001-eks-log-monitor/contracts/ipc-commands-events.md" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#64748B;fontColor=#0F172A;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="740" width="640" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

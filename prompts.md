@@ -24,7 +24,7 @@ Al documentar un prompt, skill o acción en este archivo:
 1. [Descripción general del producto](#1-descripción-general-del-producto)
 2. [Arquitectura del sistema](#2-arquitectura-del-sistema)
 3. [Modelo de datos](#3-modelo-de-datos)
-4. [Especificación de la API](#4-especificación-de-la-api)
+4. [Comandos y eventos IPC](#4-especificación-de-la-api)
 5. [Historias de usuario](#5-historias-de-usuario)
 6. [Tickets de trabajo](#6-tickets-de-trabajo)
 7. [Pull requests](#7-pull-requests)
@@ -159,10 +159,23 @@ Quiero que la aplicación pueda contar con una persistencia de datos que pueda r
 
 ## 4. Especificación de la API
 
+> Sync AI4Devs post-plan (2026-07-23): splash, SQLite tiers, **IPC = comandos/eventos** (`4-comandos-y-eventos-ipc.md`, diagrama 05).
+
 **Prompt 1: Contratos IPC + auth IAM file path**
 *Mismo primer mensaje que Arquitectura Prompt 3 (`PEM + SSH + ruta IAM + region_name + cluster_name`).*
 
-**Cómo se guió al asistente:** `env_upsert` / `env_connect` leen `iam_credentials_path` al conectar; sync a [`4-especificaciones-de-la-api.md`](4-especificaciones-de-la-api.md). Follow-up plan: `session_purge_ephemeral`, `catalog_refresh`, preferencia de cache en listados.
+**Cómo se guió al asistente:** `env_upsert` / `env_connect` leen `iam_credentials_path` al conectar; sync a doc 4. Follow-up: `session_purge_ephemeral`, `catalog_refresh`.
+
+---
+
+**Prompt 2: Renombrar API → Comandos y eventos + mapa IPC visual**
+*Skill: `/speckit-plan`*
+
+```
+/speckit-plan Entonces cambia las documentaciones de APIs a Comandos y eventos. y mapealos en la documentación. Necesito visualizar las comunicaciones IPC.
+```
+
+**Cómo se guió al asistente:** contrato canónico `ipc-commands-events.md`; AI4Devs `4-comandos-y-eventos-ipc.md`; diagrama `05-ipc-commands-events`; se eliminó el doc legado `4-especificaciones-de-la-api.md`.
 
 ## 5. Historias de usuario
 
@@ -174,7 +187,15 @@ Las HU formales salen del **Prompt 2** de la sección 1 (specify) y refinamiento
 /speckit-clarify Algunos detalles extras de la aplicación desktop es que cuando se habra una instancia de logs tendrá dos tipos de vistauan vista simple rápida y simple que sería como una vista raw muy clonada de como se vería en la terminal viendo como va avanzando el log, y otra donde los logs van a apareciendo pero en un formato estructurado el cuál te muestra la información con severidad, detalle y si se detecta como error se podrá hacer click para visualizar el motor de reglas hacer su trabajo y mostrarnos un apartado con la severidad, explicación simple y recomendación.
 ```
 
-**Cómo se guió al asistente:** se integró en `spec.md` (US3/US4, FR-018–022, SC-009); clarify cerró default Structured, detección ligera + click en stacktrace/escritura, Raw sin manipulación; sync AI4Devs post-clarify. Plan posterior: HU0 splash (FR-023/024) en [`5-historias-de-usuario.md`](5-historias-de-usuario.md).
+**Cómo se guió al asistente:** se integró en `spec.md` (US3/US4, FR-018–022, SC-009); clarify cerró default Structured, detección ligera + click en stacktrace/escritura, Raw sin manipulación; sync AI4Devs post-clarify. Plan 2026-07-23: desglose a **10 US atómicas** en `spec.md` + [`5-historias-de-usuario.md`](5-historias-de-usuario.md).
+
+**Prompt 2: Sync AI4Devs tras 10 HU atómicas**
+
+```
+sync AI4Devs
+```
+
+**Cómo se guió al asistente:** alineó `0`/`1`/`README`/`6`/`docs/SPEC.md`/`ui-ia.md` con US1–US10 + FR-025; tickets borrador mapean HU1–HU8; sin regenerar tasks.
 
 ---
 

@@ -1,96 +1,140 @@
 # 5. Historias de usuario
 
-> Spec Kit: [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md) (post-clarify + plan: splash FR-023/024, session cache).
+> Spec Kit: [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md) — **10 historias atómicas** (US1–US10) para control de desarrollo.  
+> IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).
 
 ---
 
-## Historia de Usuario 0 — Arranque splash y purge de sesión (P1)
+## HU1 — Splash y purge de sesión (P1 / Must)
 
 **Como** usuario de Faro  
-**Quiero** ver una ventana mínima de preparación al abrir la app y que se limpien residuos de sesión/logs de un cierre anterior  
-**Para** arrancar limpio sin perder mis ambientes guardados.
+**Quiero** un splash al abrir que limpie residuos de sesión/logs  
+**Para** arrancar limpio sin perder ambientes guardados.
 
 ### Criterios de aceptación
-- [ ] Al launch: splash con título **Faro**, imagen de fondo (asset en implement), tagline *Herramienta de monitoreo infraestructura para ambiente AWS*, *…preparando aplicación* (FR-023).
-- [ ] Durante splash: `session_purge_ephemeral` borra solo datos efímeros de sesión/logs (FR-024).
-- [ ] Ambientes (`connection_instance`), prefs e historial ligero **persisten** tras el purge y tras reinicio (SC-006).
-- [ ] Tras purge → ventana principal (workspace vacío o según prefs).
+- [ ] Splash: Faro + BG image (asset en implement) + tagline AWS + *…preparando aplicación* (FR-023).
+- [ ] `session_purge_ephemeral` solo borra `«session»` (FR-024).
+- [ ] Ambientes/prefs/historial ligero persisten (SC-006).
+- [ ] Tras purge → ventana principal.
 
 ---
 
-## Historia de Usuario 1 — Instancias de conexión (P1)
+## HU2 — CRUD de ambientes (P1 / Must)
 
 **Como** ingeniero/ops  
-**Quiero** guardar varias instancias (bastión SSH + ruta PEM + ruta archivo IAM + `region_name` + `cluster_name`)  
-**Para** entrar a distintos entornos sin repetir configuración ni depender de AWS CLI.
+**Quiero** crear/editar/eliminar instancias (PEM+SSH+IAM path+region+cluster)  
+**Para** no repetir configuración frágil.
 
 ### Criterios de aceptación
-- [ ] Crear, editar, eliminar y seleccionar N instancias.
-- [ ] Persisten al reiniciar la app (no afectadas por splash purge).
-- [ ] Solo rutas e identificadores; nunca contenido del `.pem` ni Access Key/Secret en SQLite (se leen del archivo IAM al conectar).
+- [ ] CRUD completo de instancias.
+- [ ] Persisten al reiniciar.
+- [ ] Solo paths e identificadores; sin secretos en SQLite (FR-001–003).
 
 ---
 
-## Historia de Usuario 2 — Explorar Pods y ConfigMaps (P1)
+## HU3 — Cargar uno/varios; un activo (P1 / Must)
 
 **Como** ingeniero/ops  
-**Quiero** conectarme vía bastión y elegir tipo de componente (Pods / ConfigMaps)  
-**Para** encontrar artefactos sin SSH/kubectl manual.
+**Quiero** cargar uno o varios ambientes y marcar uno activo  
+**Para** trabajar con varios perfiles sin túneles concurrentes.
 
 ### Criterios de aceptación
-- [ ] Conexión exitosa muestra selector de tipo de componente.
-- [ ] Pods se listan agrupados por Deployment/workload (catálogo hydrate 1× por connect; UI lee cache de sesión).
-- [ ] ConfigMaps listables en vista de solo lectura.
-- [ ] Filtro por nombre y errores claros si falla bastión/credenciales/RBAC.
-- [ ] Disconnect / cierre / splash regeneran catálogo efímero; no pierden ambientes durables.
+- [ ] Menú Ambiente: cargar / cargar varios.
+- [ ] Solo el activo alimenta connect/catálogo.
+- [ ] Cambio de activo invalida ventanas live previas.
 
 ---
 
-## Historia de Usuario 3 — Logs en vivo: Structured y Raw (P1)
+## HU4 — Conectar / desconectar (P1 / Must)
 
 **Como** ingeniero/ops  
-**Quiero** una ventanilla de logs por Deployment (réplicas agregadas, en vivo) con vista Structured (default) y Raw (botón)  
-**Para** monitorear en formato útil o como terminal pura.
+**Quiero** conectar vía bastión y desconectar  
+**Para** operar el cluster sin SSH manual.
 
 ### Criterios de aceptación
-- [ ] Una ventana por Deployment; follow en vivo; multi-ventana; búsqueda.
-- [ ] Al abrir: **Structured** por defecto.
-- [ ] **Raw** vía botón: volcado tipo terminal **sin manipulación**.
-- [ ] **Structured:** un ítem por **escritura** al log (un stacktrace suele ser una escritura); severidad/detalle; errores clickables.
-- [ ] Buffers de logs en memoria; no dumps completos en SQLite.
+- [ ] Connect: túnel + IAM file → token; hydrate catálogo 1× (FR-004).
+- [ ] Disconnect limpia session cache del ambiente.
+- [ ] Errores claros sin secretos (FR-016).
 
 ---
 
-## Historia de Usuario 4 — Análisis Spring Boot al click (P2)
+## HU5 — Explorar Deployments/Pods (cache) (P1 / Must)
+
+**Como** ingeniero/ops  
+**Quiero** listar Deployments/Pods con catálogo cacheado  
+**Para** encontrar workloads rápido sin re-listar siempre.
+
+### Criterios de aceptación
+- [ ] Lista de workloads accesibles; filtro por nombre (FR-005–006).
+- [ ] UI puede leer cache de sesión tras hydrate.
+- [ ] `catalog_refresh` regenera epoch.
+
+---
+
+## HU6 — Explorar ConfigMaps (P1 / Must)
+
+**Como** ingeniero/ops  
+**Quiero** listar y abrir ConfigMaps en solo lectura  
+**Para** ver configuración sin kubectl.
+
+### Criterios de aceptación
+- [ ] Lista de ConfigMaps accesibles (FR-011).
+- [ ] Vista keys/values read-only (estilo Raw).
+- [ ] Valores grandes/binarios truncados de forma segura.
+
+---
+
+## HU7 — Logs Structured + Raw (P1 / Must)
+
+**Como** ingeniero/ops  
+**Quiero** logs agregados en vivo con Structured (default) y Raw  
+**Para** monitorear sin terminal.
+
+### Criterios de aceptación
+- [ ] Una ventana por Deployment; multi-ventana; follow; búsqueda (FR-007–010).
+- [ ] Structured default; Raw sin manipulación (FR-018–022).
+- [ ] Buffers en RAM; no dumps en SQLite.
+
+---
+
+## HU8 — Análisis Spring Boot al click (P1 / Must)
 
 **Como** colega técnico o no técnico  
-**Quiero** hacer click en un error/stacktrace (escritura) en Structured y ver el motor de reglas  
-**Para** obtener severidad, explicación simple y acción recomendada.
+**Quiero** click en un error/stacktrace Structured  
+**Para** ver severidad, explicación simple y acción.
 
 ### Criterios de aceptación
-- [ ] Detección ligera en vivo marca errores; click ejecuta el motor completo Spring Boot.
-- [ ] Panel: severidad + explicación plain-language + acción.
-- [ ] Sin coincidencias → vacío explícito.
-- [ ] Sin botón Analizar de buffer en MVP.
-- [ ] Análisis local; sin enviar logs/credenciales a terceros.
+- [ ] Detección ligera + click → motor completo (FR-012–014, FR-020).
+- [ ] Vacío explícito si no hay match.
+- [ ] Sin Analizar-todo / sin Export en MVP.
 
 ---
 
-## Historia de Usuario 5 — Desktop multi-OS (P3)
+## HU9 — Tema claro / oscuro (P2 / Should)
 
-**Como** evaluador/colega  
-**Quiero** instalar o ejecutar Faro en Windows, macOS o Linux  
-**Para** demostrar el producto sin URL pública obligatoria.
+**Como** usuario  
+**Quiero** cambiar modo claro/oscuro en **Ver**  
+**Para** comodidad visual; que persista al reiniciar.
 
 ### Criterios de aceptación
-- [ ] Paquetes/runnables para Win/macOS/Linux alcanzan al menos el splash / pantalla de conexión.
+- [ ] Ver → Modo claro / Modo oscuro (FR-025).
+- [ ] Preferencia en `ui_preferences` sobrevive restart.
+- [ ] Chrome sigue el tema (Raw puede mantener contraste terminal).
+
+---
+
+## HU10 — Desktop Win / macOS / Linux (P3 / Must)
+
+**Como** evaluador/colega  
+**Quiero** instalar o ejecutar Faro en los tres SO  
+**Para** demostrar sin URL pública.
+
+### Criterios de aceptación
+- [ ] Paquetes alcanzan splash o UI de conexión (FR-015, SC-007).
+- [ ] Demo local/grabación aceptable sin URL pública.
 
 ---
 
 ## Fuera de alcance (MVP)
 
-- Exportar logs a archivo.
-- Botón Analizar de todo el buffer.
-- Colas, eventos y otros tipos de componente.
-- Reglas Flask/NestJS (solo Spring Boot).
-- Mutar el cluster; IA generativa en la app.
+- Exportar logs; Analizar buffer completo; colas/eventos; reglas no-Spring Boot; mutar cluster; IA generativa.
