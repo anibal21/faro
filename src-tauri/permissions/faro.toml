@@ -1,0 +1,99 @@
+[[permission]]
+identifier = "allow-session-purge-ephemeral"
+description = "Allow session_purge_ephemeral (splash)"
+commands.allow = ["session_purge_ephemeral"]
+
+[[permission]]
+identifier = "allow-prefs-get"
+description = "Allow prefs_get"
+commands.allow = ["prefs_get"]
+
+[[permission]]
+identifier = "allow-prefs-set"
+description = "Allow prefs_set"
+commands.allow = ["prefs_set"]
+
+[[permission]]
+identifier = "allow-env-list"
+description = "Allow env_list"
+commands.allow = ["env_list"]
+
+[[permission]]
+identifier = "allow-env-upsert"
+description = "Allow env_upsert"
+commands.allow = ["env_upsert"]
+
+[[permission]]
+identifier = "allow-env-delete"
+description = "Allow env_delete"
+commands.allow = ["env_delete"]
+
+[[permission]]
+identifier = "allow-env-load"
+description = "Allow env_load"
+commands.allow = ["env_load"]
+
+[[permission]]
+identifier = "allow-env-set-active"
+description = "Allow env_set_active"
+commands.allow = ["env_set_active"]
+
+[[permission]]
+identifier = "allow-env-workspace-get"
+description = "Allow env_workspace_get"
+commands.allow = ["env_workspace_get"]
+
+[[permission]]
+identifier = "allow-env-connect"
+description = "Allow env_connect"
+commands.allow = ["env_connect"]
+
+[[permission]]
+identifier = "allow-env-disconnect"
+description = "Allow env_disconnect"
+commands.allow = ["env_disconnect"]
+
+[[permission]]
+identifier = "allow-demo-fixture-paths"
+description = "Allow demo_fixture_paths"
+commands.allow = ["demo_fixture_paths"]
+
+[[permission]]
+identifier = "allow-k8s-list-deployments"
+description = "Allow k8s_list_deployments"
+commands.allow = ["k8s_list_deployments"]
+
+[[permission]]
+identifier = "allow-k8s-list-configmaps"
+description = "Allow k8s_list_configmaps"
+commands.allow = ["k8s_list_configmaps"]
+
+[[permission]]
+identifier = "allow-k8s-get-configmap"
+description = "Allow k8s_get_configmap"
+commands.allow = ["k8s_get_configmap"]
+
+[[permission]]
+identifier = "allow-catalog-refresh"
+description = "Allow catalog_refresh"
+commands.allow = ["catalog_refresh"]
+
+[[permission]]
+identifier = "allow-logs-open"
+description = "Allow logs_open"
+commands.allow = ["logs_open"]
+
+[[permission]]
+identifier = "allow-logs-close"
+description = "Allow logs_close"
+commands.allow = ["logs_close"]
+
+[[permission]]
+identifier = "allow-logs-set-view"
+description = "Allow logs_set_view"
+commands.allow = ["logs_set_view"]
+
+[[permission]]
+identifier = "allow-analyze-write-group"
+description = "Allow analyze_write_group"
+commands.allow = ["analyze_write_group"]
