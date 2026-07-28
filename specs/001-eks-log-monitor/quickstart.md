@@ -19,6 +19,8 @@ npm run tauri dev
 
 Confirm SQLite DB created locally; no secrets in repo.
 
+**Demo offline**: new-environment modal → **Usar fixtures demo** (`fixtures/demo.pem`, `fixtures/demo-iam-credentials`). Connect hydrates a demo catalog (payments-api / payments-config) and demo log follow.
+
 ## Validation scenarios
 
 ### V0 — Splash / preparando

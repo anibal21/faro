@@ -1,11 +1,12 @@
 //! Connect / disconnect — SSH path validate + IAM file + catalog hydrate.
+//! Multi-session: connecting B does not disconnect A.
 
 use crate::db::connection_instance;
 use crate::db::session_cache;
 use crate::db::DbState;
 use crate::error::{FaroError, FaroResult};
 use crate::k8s::{catalog, eks_auth};
-use crate::runtime::RuntimeState;
+use crate::runtime::{RuntimeState, SessionEntry};
 use crate::ssh::tunnel;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -23,7 +24,6 @@ pub fn demo_fixture_paths() -> FaroResult<Value> {
             bases.push(parent.to_path_buf());
         }
     }
-    // src-tauri → repo root
     bases.push(PathBuf::from(".."));
     bases.push(PathBuf::from("."));
     for base in bases {
@@ -48,6 +48,7 @@ pub struct ConnectResult {
     pub status: String,
     pub cluster_name: String,
     pub catalog_epoch: String,
+    pub instance_id: String,
 }
 
 #[tauri::command]
@@ -70,20 +71,20 @@ pub fn env_connect(
         FaroError::Message("environment not found — load it before connecting".into())
     })?;
 
-    // Tear down any prior live connection first
+    // Tear down only this instance if reconnecting; leave other sessions alone
     {
         let mut rt = runtime
             .inner
             .lock()
             .map_err(|_| FaroError::Message("runtime lock".into()))?;
-        if let Some(prev) = rt.connected_instance_id.take() {
-            if let Some(h) = rt.tunnel.take() {
+        if let Some(mut prev) = rt.sessions.remove(&id) {
+            if let Some(h) = prev.tunnel.take() {
                 let _ = tunnel::close_tunnel(&h);
             }
-            for (_, cancel) in rt.log_cancels.drain() {
+            for (_, cancel) in prev.log_cancels.drain() {
                 cancel.store(true, std::sync::atomic::Ordering::SeqCst);
             }
-            session_cache::purge_for_instance(&conn, &prev)?;
+            session_cache::purge_for_instance(&conn, &id)?;
         }
     }
 
@@ -95,7 +96,6 @@ pub fn env_connect(
     )?;
     let _presence = eks_auth::validate_iam_credentials_file(&env.iam_credentials_path)?;
     let _token = eks_auth::mint_eks_token_stub(&env.region_name, &env.cluster_name)?;
-    // Drop token immediately — never persist
     drop(_token);
 
     let catalog_epoch = Uuid::new_v4().to_string();
@@ -116,15 +116,22 @@ pub fn env_connect(
             .inner
             .lock()
             .map_err(|_| FaroError::Message("runtime lock".into()))?;
-        rt.connected_instance_id = Some(id.clone());
-        rt.catalog_epoch = Some(catalog_epoch.clone());
-        rt.tunnel = Some(handle);
+        rt.sessions.insert(
+            id.clone(),
+            SessionEntry {
+                catalog_epoch: Some(catalog_epoch.clone()),
+                tunnel: Some(handle),
+                log_cancels: Default::default(),
+            },
+        );
+        rt.focused_instance_id = Some(id.clone());
     }
 
     Ok(json!(ConnectResult {
         status: "connected".into(),
         cluster_name: env.cluster_name,
         catalog_epoch,
+        instance_id: id,
     }))
 }
 
@@ -132,6 +139,7 @@ pub fn env_connect(
 pub fn env_disconnect(
     db: State<'_, DbState>,
     runtime: State<'_, RuntimeState>,
+    instance_id: Option<String>,
 ) -> FaroResult<()> {
     let conn = db
         .conn
@@ -142,15 +150,45 @@ pub fn env_disconnect(
         .lock()
         .map_err(|_| FaroError::Message("runtime lock".into()))?;
 
-    for (_, cancel) in rt.log_cancels.drain() {
-        cancel.store(true, std::sync::atomic::Ordering::SeqCst);
-    }
-    if let Some(h) = rt.tunnel.take() {
-        tunnel::close_tunnel(&h)?;
-    }
-    if let Some(id) = rt.connected_instance_id.take() {
+    let id = match instance_id {
+        Some(id) if !id.trim().is_empty() => id,
+        _ => rt
+            .focused_instance_id
+            .clone()
+            .ok_or_else(|| FaroError::Message("not connected".into()))?,
+    };
+
+    if let Some(mut entry) = rt.sessions.remove(&id) {
+        for (_, cancel) in entry.log_cancels.drain() {
+            cancel.store(true, std::sync::atomic::Ordering::SeqCst);
+        }
+        if let Some(h) = entry.tunnel.take() {
+            tunnel::close_tunnel(&h)?;
+        }
         session_cache::purge_for_instance(&conn, &id)?;
     }
-    rt.catalog_epoch = None;
+
+    if rt.focused_instance_id.as_deref() == Some(id.as_str()) {
+        rt.focused_instance_id = rt.sessions.keys().next().cloned();
+    }
     Ok(())
+}
+
+#[tauri::command]
+pub fn env_connection_states(runtime: State<'_, RuntimeState>) -> FaroResult<Value> {
+    let rt = runtime
+        .inner
+        .lock()
+        .map_err(|_| FaroError::Message("runtime lock".into()))?;
+    let list: Vec<Value> = rt
+        .sessions
+        .keys()
+        .map(|instance_id| {
+            json!({
+                "instanceId": instance_id,
+                "status": "connected",
+            })
+        })
+        .collect();
+    Ok(json!(list))
 }

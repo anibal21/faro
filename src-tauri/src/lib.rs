@@ -29,6 +29,7 @@ pub fn run() {
             commands::env_workspace_get,
             commands::env_connect,
             commands::env_disconnect,
+            commands::env_connection_states,
             commands::demo_fixture_paths,
             commands::k8s_list_deployments,
             commands::k8s_list_configmaps,
@@ -38,6 +39,7 @@ pub fn run() {
             commands::logs_close,
             commands::logs_set_view,
             commands::analyze_write_group,
+            commands::workload_summary,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Faro");

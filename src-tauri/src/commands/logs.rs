@@ -28,14 +28,16 @@ pub fn logs_open(
         .inner
         .lock()
         .map_err(|_| FaroError::Message("runtime lock".into()))?;
-    if rt.connected_instance_id.is_none() {
-        return Err(FaroError::Message(
-            "not connected — connect before opening logs".into(),
-        ));
-    }
+    let focused = rt.focused_instance_id.clone().ok_or_else(|| {
+        FaroError::Message("not connected — connect before opening logs".into())
+    })?;
+    let entry = rt.sessions.get_mut(&focused).ok_or_else(|| {
+        FaroError::Message("not connected — connect before opening logs".into())
+    })?;
     let window_id = Uuid::new_v4().to_string();
     let cancel = Arc::new(AtomicBool::new(false));
-    rt.log_cancels
+    entry
+        .log_cancels
         .insert(window_id.clone(), Arc::clone(&cancel));
     drop(rt);
 
@@ -49,8 +51,11 @@ pub fn logs_close(runtime: State<'_, RuntimeState>, window_id: String) -> FaroRe
         .inner
         .lock()
         .map_err(|_| FaroError::Message("runtime lock".into()))?;
-    if let Some(cancel) = rt.log_cancels.remove(&window_id) {
-        cancel.store(true, std::sync::atomic::Ordering::SeqCst);
+    for entry in rt.sessions.values_mut() {
+        if let Some(cancel) = entry.log_cancels.remove(&window_id) {
+            cancel.store(true, std::sync::atomic::Ordering::SeqCst);
+            break;
+        }
     }
     Ok(())
 }
@@ -63,6 +68,5 @@ pub fn logs_set_view(window_id: String, view: String) -> FaroResult<()> {
             "view must be 'structured' or 'raw'".into(),
         ));
     }
-    // View mode is primarily UI state; command exists for IPC contract parity.
     Ok(())
 }

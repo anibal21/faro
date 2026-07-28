@@ -79,9 +79,9 @@ CRUD de `connection_instance` (PEM path, SSH, IAM path, region, cluster); modal 
 Túnel SSH (PEM path), token EKS desde archivo IAM, `env_connect` / `env_disconnect`, hydrate session cache (esqueleto), errores sin secretos.
 
 ### Criterios de aceptación
-- [ ] Connect OK con ambiente de prueba (o mocks).
-- [ ] Disconnect purga session del ambiente.
-- [ ] Tests T034–T035 verdes.
+- [x] Connect OK con ambiente de prueba (o mocks).
+- [x] Disconnect purga session del ambiente.
+- [x] Tests T034–T035 verdes.
 
 ---
 
@@ -98,9 +98,9 @@ Túnel SSH (PEM path), token EKS desde archivo IAM, `env_connect` / `env_disconn
 Listado desde cache de sesión; filtro por nombre; `catalog_refresh` / epoch; rail wireframe 04.
 
 ### Criterios de aceptación
-- [ ] UI lee cache post-hydrate (no re-list K8s en cada click).
-- [ ] Refresh regenera epoch.
-- [ ] Tests T042–T043 verdes.
+- [x] UI lee cache post-hydrate (no re-list K8s en cada click).
+- [x] Refresh regenera epoch.
+- [x] Tests T042–T043 verdes.
 
 ---
 
@@ -117,9 +117,9 @@ Listado desde cache de sesión; filtro por nombre; `catalog_refresh` / epoch; ra
 List/get ConfigMaps; vista Raw RO; truncado seguro de valores grandes/binarios.
 
 ### Criterios de aceptación
-- [ ] Solo lectura; sin mutaciones K8s.
-- [ ] Truncado seguro.
-- [ ] Tests T049–T050 verdes.
+- [x] Solo lectura; sin mutaciones K8s.
+- [x] Truncado seguro.
+- [x] Tests T049–T050 verdes.
 
 ---
 
@@ -136,9 +136,9 @@ List/get ConfigMaps; vista Raw RO; truncado seguro de valores grandes/binarios.
 `logs_open`/`close` + events `logs_chunk`/`logs_status`; Structured default; Raw sin manipulación; multi-ventana; búsqueda; buffers en RAM.
 
 ### Criterios de aceptación
-- [ ] FR-018–022.
-- [ ] Sin dumps de logs en SQLite.
-- [ ] Tests T055–T056 verdes.
+- [x] FR-018–022.
+- [x] Sin dumps de logs en SQLite.
+- [x] Tests T055–T056 verdes.
 
 ---
 
@@ -155,9 +155,9 @@ List/get ConfigMaps; vista Raw RO; truncado seguro de valores grandes/binarios.
 Detección ligera + `analyze_write_group` local; panel hallazgo; rule pack `rules/springboot/`; sin Analizar-todo / Export.
 
 ### Criterios de aceptación
-- [ ] Click → severidad + explicación + acción.
-- [ ] Sin egress del payload de análisis.
-- [ ] Tests T064–T065 verdes.
+- [x] Click → severidad + explicación + acción.
+- [x] Sin egress del payload de análisis.
+- [x] Tests T064–T065 verdes.
 
 ---
 
@@ -174,8 +174,8 @@ Detección ligera + `analyze_write_group` local; panel hallazgo; rule pack `rule
 Menú Ver → claro/oscuro; persistencia `prefs_*` (FR-025).
 
 ### Criterios de aceptación
-- [ ] Preferencia sobrevive restart.
-- [ ] Test T072 verde.
+- [x] Preferencia sobrevive restart.
+- [x] Test T072 verde.
 
 ---
 
@@ -192,8 +192,8 @@ Menú Ver → claro/oscuro; persistencia `prefs_*` (FR-025).
 Bundles Tauri Win/macOS/Linux; demo Windows primero; artefactos llegan a splash o UI de conexión.
 
 ### Criterios de aceptación
-- [ ] FR-015 / SC-007.
-- [ ] Build documentado en README/quickstart.
+- [x] FR-015 / SC-007.
+- [x] Build documentado en README/quickstart.
 
 ---
 
@@ -211,6 +211,60 @@ Para el formato clásico “≥3 tickets por capa”, agrupar así en PRs si hac
 
 ---
 
+## Ticket HU11 — Layout acordeón (002)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend |
+| **HU / US** | HU11 / US1–US4 (002) |
+| **Tasks** | T001–T037 (`specs/002-accordion-nav-layout/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Sustituye el workspace de 3 columnas por acordeón | main: click en Deployment/ConfigMap abre pestañas (dedupe), fan-in multi-réplica, `workload_summary`, strip de métricas N/D.
+
+### Criterios de aceptación
+- [x] Sin buscador / Abrir logs / rail derecho ConfigMaps.
+- [x] Tests unit/integration/E2E outline 002 verdes.
+
+---
+
+## Ticket HU12 — Professional workspace chrome (004)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend |
+| **HU / US** | HU12 / US1–US3 (P1 Must) |
+| **Tasks** | T001–T036 (`specs/004-pro-workspace-chrome/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+shadcn/Tailwind; AppMenubar Ambientes|Temas; EnvTreeNav; LogWorkspace + AnalysisDrawer; sessions map multi-connect.
+
+### Criterios de aceptación
+- [x] Chrome denso sin header bulky.
+- [x] Árbol + drawer + tests 004 verdes.
+
+---
+
+## Ticket HU13 — UI chrome polish (005)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Config Tauri |
+| **HU / US** | HU13 / US1–US4 (P1 Must) |
+| **Tasks** | T001–T034 (`specs/005-ui-chrome-polish/tasks.md`) |
+| **Estimación** | 3 |
+
+### Descripción
+13px UI; lucide +/−; Ambientes mínimo; Monitor + version; TitleBar undecorated; splash dwell 5s.
+
+### Criterios de aceptación
+- [x] Contratos ui-chrome + splash-dwell cumplidos.
+- [x] Tests 005 verdes.
+
+---
+
 ## Orden sugerido de implementación
 
 ```text
@@ -219,4 +273,7 @@ Setup+Foundation (T001–T015)
   → HU5 ∥ HU6
   → HU7 → HU8
   → HU9 (Should) → HU10 → E2E T080
+  → HU11 (002 accordion T001–T037)
+  → HU12 (004 pro chrome T001–T036)
+  → HU13 (005 ui chrome polish T001–T034)
 ```

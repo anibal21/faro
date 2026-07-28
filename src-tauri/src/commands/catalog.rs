@@ -91,7 +91,9 @@ pub fn catalog_refresh(
             .inner
             .lock()
             .map_err(|_| FaroError::Message("runtime lock".into()))?;
-        rt.catalog_epoch = Some(catalog_epoch.clone());
+        if let Some(entry) = rt.sessions.get_mut(&instance_id) {
+            entry.catalog_epoch = Some(catalog_epoch.clone());
+        }
     }
     Ok(CatalogRefreshResult { catalog_epoch })
 }
@@ -101,7 +103,7 @@ fn connected_instance(runtime: &State<'_, RuntimeState>) -> FaroResult<String> {
         .inner
         .lock()
         .map_err(|_| FaroError::Message("runtime lock".into()))?;
-    rt.connected_instance_id.clone().ok_or_else(|| {
+    rt.focused_instance_id.clone().ok_or_else(|| {
         FaroError::Message("not connected — use Ambiente → Conectar first".into())
     })
 }

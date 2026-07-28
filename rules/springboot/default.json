@@ -1,0 +1,46 @@
+{
+  "rules": [
+    {
+      "id": "springboot.npe",
+      "severity": "critical",
+      "match_contains": ["NullPointerException", "Cannot invoke"],
+      "explanation": "La aplicación intentó usar un objeto que estaba vacío (null). Suele ser un fallo de código o de datos de entrada.",
+      "recommendation": "Revisa el stacktrace (clase/método), valida entradas nulas y vuelve a desplegar tras el fix."
+    },
+    {
+      "id": "springboot.sql",
+      "severity": "critical",
+      "match_contains": ["SQLException", "jdbc", "DataAccessException"],
+      "explanation": "Hubo un error al hablar con la base de datos (consulta, conexión o timeout).",
+      "recommendation": "Verifica conectividad BD, credenciales fuera de Faro, y el SQL o pool de conexiones."
+    },
+    {
+      "id": "springboot.oauth",
+      "severity": "warn",
+      "match_contains": ["AccessDenied", "Unauthorized", "401", "403"],
+      "explanation": "Un acceso fue denegado o no autorizado.",
+      "recommendation": "Confirma roles/permisos del usuario o del servicio que llama a la API."
+    },
+    {
+      "id": "springboot.timeout",
+      "severity": "warn",
+      "match_contains": ["Timeout", "timed out", "SocketTimeout"],
+      "explanation": "Una llamada externa o interna tardó demasiado y se canceló.",
+      "recommendation": "Revisa latencia de dependencias y timeouts configurados."
+    },
+    {
+      "id": "springboot.oom",
+      "severity": "critical",
+      "match_contains": ["OutOfMemoryError", "Java heap space"],
+      "explanation": "El proceso se quedó sin memoria.",
+      "recommendation": "Aumenta heap, busca fugas de memoria o reduce carga."
+    },
+    {
+      "id": "springboot.generic_error",
+      "severity": "info",
+      "match_contains": ["ERROR"],
+      "explanation": "Se registró un evento de nivel ERROR en el log.",
+      "recommendation": "Lee el mensaje completo y el stacktrace asociado para acotar la causa."
+    }
+  ]
+}

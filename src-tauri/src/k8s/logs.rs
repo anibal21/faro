@@ -40,6 +40,7 @@ pub fn start_demo_follow(
         let pods = [
             format!("{deployment}-aaa"),
             format!("{deployment}-bbb"),
+            format!("{deployment}-ccc"),
         ];
         let mut i = 0u64;
         while !cancel.load(Ordering::SeqCst) {

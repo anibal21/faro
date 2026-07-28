@@ -5,6 +5,17 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
+    "core:window:allow-minimize",
+    "core:window:allow-maximize",
+    "core:window:allow-unmaximize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-close",
+    "core:window:allow-is-maximized",
+    "core:window:allow-start-dragging",
+    "core:window:allow-set-size",
+    "core:window:allow-set-resizable",
+    "core:window:allow-center",
+    "core:window:allow-current-monitor",
     "opener:default",
     "allow-session-purge-ephemeral",
     "allow-prefs-get",
@@ -17,6 +28,7 @@
     "allow-env-workspace-get",
     "allow-env-connect",
     "allow-env-disconnect",
+    "allow-env-connection-states",
     "allow-demo-fixture-paths",
     "allow-k8s-list-deployments",
     "allow-k8s-list-configmaps",
@@ -25,6 +37,7 @@
     "allow-logs-open",
     "allow-logs-close",
     "allow-logs-set-view",
-    "allow-analyze-write-group"
+    "allow-analyze-write-group",
+    "allow-workload-summary"
   ]
 }

@@ -10,13 +10,22 @@
 
 ```bash
 # Requisitos: Node.js 20+, Rust (stable), AWS CLI/credenciales, acceso SSH al bastión
-# (detalle en QUICK-START.md cuando esté disponible)
 
-# Clonar e instalar (tras scaffold Spec Kit / Tauri)
 cd faro
 npm install
 npm run tauri dev
 ```
+
+### Build instaladores (US10)
+
+```bash
+npm run tauri build
+# Artefactos: src-tauri/target/release/bundle/ (nsis / dmg / appimage)
+```
+
+Demo offline: en el modal de ambiente usa **Usar fixtures demo** (`fixtures/demo.pem` + `fixtures/demo-iam-credentials`).
+
+Validación: [`TESTING.md`](TESTING.md) · [`specs/001-eks-log-monitor/quickstart.md`](specs/001-eks-log-monitor/quickstart.md)
 
 > Spec Kit (producto): [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md)  
 > Semilla / plan interno: [`docs/SPEC.md`](docs/SPEC.md)  
@@ -36,7 +45,7 @@ npm run tauri dev
 | [**4-comandos-y-eventos-ipc.md**](4-comandos-y-eventos-ipc.md) | Comandos + eventos IPC (mapa + secuencias) | Actualizado (IPC map + diagrama 05) |
 | [**5-historias-de-usuario.md**](5-historias-de-usuario.md) | HU con criterios de aceptación | Actualizado (**10 HU atómicas** US1–US10) |
 | [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (1 por HU + capas BD/BE/FE) | Actualizado (`tasks.md` T001–T085) |
-| [**7-pull-requests.md**](7-pull-requests.md) | PRs del desarrollo | Plantilla lista (pendiente implement) |
+| [**7-pull-requests.md**](7-pull-requests.md) | PRs del desarrollo | Actualizado (**PR #1** entrega 1) |
 | [**prompts.md**](prompts.md) | Registro de uso de IA (≤3 prompts/sección) | Actualizado (tasks + sync) |
 | [**prompts-conversacion-inicial.md**](prompts-conversacion-inicial.md) | Consultas 1ª conversación (sin respuestas) | Completo |
 | [**prompts-flujo-trabajo-speckit.md**](prompts-flujo-trabajo-speckit.md) | Flujo Spec Kit + sync readme | Completo |
@@ -221,9 +230,9 @@ Ver documento detallado.
 
 > Documentar ≥3 Pull Requests del desarrollo.
 
-**Pull Request 1:** \[Pendiente — scaffold + splash / T001–T021\]  
-**Pull Request 2:** \[Pendiente — ambientes + connect / HU2–HU4\]  
-**Pull Request 3:** \[Pendiente — catálogo + logs + analyze / HU5–HU8\]  
+**Pull Request 1:** [feat: Se hace entrega número 1 proyecto AI4Devs](https://github.com/anibal21/faro/pull/1) — especificación + Spec Kit + docs AI4Devs (sin código app)  
+**Pull Request 2:** \[Pendiente — implementación\]  
+**Pull Request 3:** \[Pendiente — implementación\]  
 
 **Documentación completa:** [7-pull-requests.md](7-pull-requests.md)
 

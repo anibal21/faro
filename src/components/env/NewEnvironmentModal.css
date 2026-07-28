@@ -1,0 +1,110 @@
+.env-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: grid;
+  place-items: center;
+  z-index: 40;
+  padding: 1rem;
+}
+
+.env-modal {
+  width: min(40rem, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--faro-surface);
+  color: var(--faro-fg);
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--faro-muted) 35%, transparent);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.env-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--faro-muted) 30%, transparent);
+}
+
+.env-modal__header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.env-modal__close {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--faro-muted);
+}
+
+.env-modal__intro {
+  margin: 0.75rem 1rem 0;
+  font-size: 0.85rem;
+  color: var(--faro-muted);
+  line-height: 1.4;
+}
+
+.env-modal__link {
+  background: none;
+  border: none;
+  color: var(--faro-accent);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.env-modal__form {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+}
+
+.env-modal__form label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.env-modal__form input,
+.env-modal__form textarea {
+  padding: 0.45rem 0.55rem;
+  border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--faro-muted) 40%, transparent);
+  background: var(--faro-bg);
+  color: var(--faro-fg);
+  font: inherit;
+}
+
+.env-modal__error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+.env-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.env-modal__actions button {
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--faro-muted) 40%, transparent);
+  background: var(--faro-bg);
+  color: var(--faro-fg);
+  cursor: pointer;
+  font: inherit;
+}
+
+.env-modal__actions button[type="submit"] {
+  background: var(--faro-accent);
+  border-color: var(--faro-accent);
+  color: #0b1220;
+  font-weight: 600;
+}

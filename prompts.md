@@ -221,4 +221,36 @@ sync AI4Devs
 
 ## 7. Pull requests
 
-<!-- Hasta 3 prompts; texto completo ligado a cada PR relevante -->
+**Prompt 1: Documentar PR1 entrega 1 en AI4Devs**
+
+```
+Puedes documentar el 1er pull request de la entrega en el readme, necesario para AI4Devs
+```
+
+**Cómo se guió al asistente:** se registró [PR #1](https://github.com/anibal21/faro/pull/1) (`feature-entrega1-AERC` → `develop`) en [`7-pull-requests.md`](7-pull-requests.md) y resumen en `README.md` §7; alcance documental/Spec Kit sin implementación.
+
+**Prompt 2: `/speckit-implement` US1**
+
+```
+/speckit-implement Ejecutra la historia de usuario 1
+```
+
+**Cómo se guió al asistente:** checklist product PASS; scaffold Tauri 2 + React; SQLite rusqlite (durable/session); `session_purge_ephemeral` + SplashView → MainShell; Vitest US1 OK; `cargo test` OK con MSVC.
+
+**Prompt 3: `/speckit-implement` US2**
+
+```
+/speckit-implement implementa la historia de usuario 2
+```
+
+**Cómo se guió al asistente:** `env_list`/`env_upsert`/`env_delete` + repo `connection_instance`; modal + menú Ambiente; Vitest CRUD + cargo validation (paths only, reject PEM body).
+
+**Prompt 4: `/speckit-implement` US3**
+
+```
+/speckit-implement implementa la historia de usuario 3
+```
+
+**Cómo se guió al asistente:** `env_load`/`env_set_active`/`env_workspace_get` + prefs loaded/active/liveGeneration; selector + diálogos cargar; hook `useActiveEnvironment`.
+
+---

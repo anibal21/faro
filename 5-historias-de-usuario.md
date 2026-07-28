@@ -13,10 +13,11 @@
 **Para** arrancar limpio sin perder ambientes guardados.
 
 ### Criterios de aceptación
-- [ ] Splash: Faro + BG image (asset en implement) + tagline AWS + *…preparando aplicación* (FR-023).
+- [x] Splash: imagen branded full-bleed (lighthouse); sin título/tagline overlay centrado; status/error solo abajo-derecha u image-only (FR-001–003, 006).
 - [ ] `session_purge_ephemeral` solo borra `«session»` (FR-024).
 - [ ] Ambientes/prefs/historial ligero persisten (SC-006).
 - [ ] Tras purge → ventana principal.
+- [x] Ventana: splash **576×324** fija centrada; principal **900×600** centrada (007); iconos desde `src-tauri/icons/`.
 
 ---
 
@@ -139,3 +140,51 @@
 ## Fuera de alcance (MVP)
 
 - Exportar logs; Analizar buffer completo; colas/eventos; reglas no-Spring Boot; mutar cluster; IA generativa.
+
+---
+
+## HU11 — Navegación acordeón (002 / P1)
+
+> Spec Kit: [`specs/002-accordion-nav-layout/spec.md`](specs/002-accordion-nav-layout/spec.md) · tasks T001–T037.
+
+**Como** ingeniero/ops  
+**Quiero** un acordeón izquierdo (Pods / ConfigMaps) y área principal amplia  
+**Para** maximizar espacio de logs sin rails laterales ni “Abrir logs”.
+
+### Criterios de aceptación
+- [x] Accordion Pods/ConfigMaps; click abre pestaña (sin buscador ni CTA Abrir logs).
+- [x] Logs multi-réplica combinados + follow en background; summary réplicas/RAM/CPU/uptime o N/D.
+- [x] ConfigMaps en la misma tira de pestañas; dedupe por navKey.
+- [x] Collapse/empty/disconnect limpia pestañas.
+
+---
+
+## HU12 — Chrome profesional (004 / P1)
+
+> Spec Kit: [`specs/004-pro-workspace-chrome/spec.md`](specs/004-pro-workspace-chrome/spec.md) · tasks T001–T036.
+
+**Como** ingeniero/ops  
+**Quiero** menubar Ambientes|Temas, árbol de ambientes fijo, logs a ancho completo y panel de análisis plegable  
+**Para** una UI densa y profesional (shadcn/Tailwind) sin header voluminoso.
+
+### Criterios de aceptación
+- [x] Solo menubar Ambientes|Temas; sin brand/status/selector en header.
+- [x] Árbol: todos los ambientes; select solo en label; menú contextual Conectar/Desconectar/Editar.
+- [x] Logs full-width; AnalysisDrawer debajo (cerrar/redimensionar); multi-sesión runtime.
+- [x] Tests US1–US3 + outline E2E `pro_chrome_primary_flow`.
+
+---
+
+## HU13 — UI chrome polish (005 / P1)
+
+> Spec Kit: [`specs/005-ui-chrome-polish/spec.md`](specs/005-ui-chrome-polish/spec.md) · tasks T001–T034.
+
+**Como** ingeniero/ops  
+**Quiero** tipografía legible, iconos +/−, menú Ambientes mínimo, rail Monitor con versión, chrome tematizado y splash ≥5s  
+**Para** una experiencia de escritorio más profesional y clara.
+
+### Criterios de aceptación
+- [x] Texto ~escala VS Code; Plus/Minus lucide.
+- [x] Ambientes: Nuevo… / Desconectar todo (confirm siempre); rail Monitor + versión.
+- [x] TitleBar custom + Temas; splash mínimo 5s.
+- [x] Tests T007–T030 verdes.

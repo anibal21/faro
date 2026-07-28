@@ -1,0 +1,36 @@
+.splash {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #0a192f;
+}
+
+.splash__bg {
+  position: absolute;
+  inset: 0;
+  background-color: #0a192f;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.splash__status {
+  position: absolute;
+  z-index: 1;
+  right: 1rem;
+  bottom: 1rem;
+  margin: 0;
+  max-width: min(28rem, calc(100% - 2rem));
+  text-align: right;
+  font-size: 0.8125rem;
+  letter-spacing: 0.03em;
+  color: #e2e8f0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  opacity: 0.9;
+}
+
+.splash__status--error {
+  color: #fecaca;
+  opacity: 1;
+}

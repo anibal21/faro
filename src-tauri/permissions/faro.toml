@@ -54,6 +54,11 @@ description = "Allow env_disconnect"
 commands.allow = ["env_disconnect"]
 
 [[permission]]
+identifier = "allow-env-connection-states"
+description = "Allow env_connection_states"
+commands.allow = ["env_connection_states"]
+
+[[permission]]
 identifier = "allow-demo-fixture-paths"
 description = "Allow demo_fixture_paths"
 commands.allow = ["demo_fixture_paths"]
@@ -97,3 +102,8 @@ commands.allow = ["logs_set_view"]
 identifier = "allow-analyze-write-group"
 description = "Allow analyze_write_group"
 commands.allow = ["analyze_write_group"]
+
+[[permission]]
+identifier = "allow-workload-summary"
+description = "Allow workload_summary"
+commands.allow = ["workload_summary"]
