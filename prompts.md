@@ -254,3 +254,15 @@ Puedes documentar el 1er pull request de la entrega en el readme, necesario para
 **Cómo se guió al asistente:** `env_load`/`env_set_active`/`env_workspace_get` + prefs loaded/active/liveGeneration; selector + diálogos cargar; hook `useActiveEnvironment`.
 
 ---
+
+## Sync UI 006/007 (2026-07-27)
+
+**Prompt: Sync AI4Devs post-implement splash + ventanas**
+
+```
+sync AI4Devs
+```
+
+**Cómo se guió al asistente:** docs `0`/`1`/`2`/`5`/`6` + README: HU14 (006 splash branded + icons), HU15 (007 geometría 576×324 → 900×600); tickets y arranque en arquitectura.
+
+---

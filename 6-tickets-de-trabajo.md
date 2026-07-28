@@ -1,11 +1,11 @@
 # 6. Tickets de trabajo
 
-> Generados desde Spec Kit [`tasks.md`](specs/001-eks-log-monitor/tasks.md) (2026-07-23).  
-> **10 tickets** = 1 por historia atómica (US1–US10). Cada uno lista tareas Spec Kit.  
+> Generados desde Spec Kit (base [`tasks.md`](specs/001-eks-log-monitor/tasks.md) 2026-07-23 + UI 002–007).  
+> **Tickets HU1–HU15**. Cada uno lista tareas Spec Kit.  
 > Cubren backend (Rust/Tauri), frontend (React) y BD (SQLite) — requisito AI4Devs ≥3 tipos.  
 > Estimaciones en puntos relativos (1 = pequeño, 5 = grande). Ajustar en review.
 
-**Fuente de verdad de ejecución:** `specs/001-eks-log-monitor/tasks.md` (T001–T085).
+**Fuente de verdad de ejecución:** specs por feature (`001`…`007` `/tasks.md`).
 
 ---
 
@@ -19,12 +19,12 @@
 | **Estimación** | 3 |
 
 ### Descripción
-Splash mínimo (Faro + BG slot + tagline AWS + *…preparando*) y `session_purge_ephemeral` que borra solo tablas `«session»`, conservando ambientes/prefs.
+Splash branded (imagen lighthouse) y `session_purge_ephemeral` que borra solo tablas `«session»`, conservando ambientes/prefs. Geometría actual: ver HU14–HU15.
 
 ### Criterios de aceptación
-- [ ] FR-023 / FR-024 cumplidos.
-- [ ] Tras dirty exit, relaunch limpia session y conserva durables.
-- [ ] Tests T016–T017 verdes.
+- [x] FR-023 / FR-024 (purge) + splash visual 006/007.
+- [x] Tras dirty exit, relaunch limpia session y conserva durables.
+- [x] Tests splash/purge verdes.
 
 ---
 
@@ -205,7 +205,7 @@ Para el formato clásico “≥3 tickets por capa”, agrupar así en PRs si hac
 |------|----------------------|-------------------------|
 | **BD** | HU1 (purge), HU2 (durable), HU5–HU6 (session) | T007–T009, T015 |
 | **Backend** | HU4, HU5–HU8 | T036–T041, T044–T045, T057–T058, T066–T067 |
-| **Frontend** | HU1, HU3, HU7–HU9 | T019–T020, T026–T033, T060–T069, T073–T074 |
+| **Frontend** | HU1, HU3, HU7–HU9, HU11–HU15 | T019–T020, T026–T033, T060–T069, T073–T074 + tasks 002–007 |
 
 **Polish / E2E:** T080–T085 (no es HU; cierra primary flow).
 
@@ -265,6 +265,42 @@ shadcn/Tailwind; AppMenubar Ambientes|Temas; EnvTreeNav; LogWorkspace + Analysis
 
 ---
 
+## Ticket HU14 — Splash branded + iconos (006)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Config Tauri (bundle icons) |
+| **HU / US** | HU14 / US1–US3 (006) |
+| **Tasks** | T001–T019 (`specs/006-branded-splash-icons/tasks.md`) |
+| **Estimación** | 2 |
+
+### Descripción
+Splash full-bleed con `load_page` art; sin título overlay; status/error abajo-derecha; iconos `src-tauri/icons/` en bundle.
+
+### Criterios de aceptación
+- [x] Contratos splash-visual + window-icons (icon paths).
+- [x] Tests 006 verdes.
+
+---
+
+## Ticket HU15 — Ventanas compactas fijas (007)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Config Tauri |
+| **HU / US** | HU15 / US1–US2 (007) |
+| **Tasks** | T001–T014 (`specs/007-compact-fixed-windows/tasks.md`) |
+| **Estimación** | 2 |
+
+### Descripción
+Splash **576×324** fija/centrada; al ready **900×600** centrada (clamp a work area); `windowGeometry.ts` + capabilities set-size/center.
+
+### Criterios de aceptación
+- [x] Contrato window-geometry.
+- [x] Tests 007 verdes (conf + clamp + E2E outline).
+
+---
+
 ## Orden sugerido de implementación
 
 ```text
@@ -276,4 +312,6 @@ Setup+Foundation (T001–T015)
   → HU11 (002 accordion T001–T037)
   → HU12 (004 pro chrome T001–T036)
   → HU13 (005 ui chrome polish T001–T034)
+  → HU14 (006 branded splash T001–T019)
+  → HU15 (007 compact windows T001–T014)
 ```

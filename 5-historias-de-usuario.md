@@ -1,8 +1,8 @@
 # 5. Historias de usuario
 
-> Spec Kit: [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md) — **10 historias atómicas** (US1–US10) para control de desarrollo.  
+> Spec Kit: base [`specs/001-eks-log-monitor/`](specs/001-eks-log-monitor/) — **10 HU** atómicas + incrementos **HU11–HU15** (002–007).  
 > IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).  
-> Tickets / tasks: [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md) · [`tasks.md`](specs/001-eks-log-monitor/tasks.md) (T001–T085).
+> Tickets / tasks: [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md).
 
 ---
 
@@ -188,3 +188,35 @@
 - [x] Ambientes: Nuevo… / Desconectar todo (confirm siempre); rail Monitor + versión.
 - [x] TitleBar custom + Temas; splash mínimo 5s.
 - [x] Tests T007–T030 verdes.
+
+---
+
+## HU14 — Splash branded e iconos (006 / P1)
+
+> Spec Kit: [`specs/006-branded-splash-icons/spec.md`](specs/006-branded-splash-icons/spec.md) · tasks T001–T019.
+
+**Como** usuario de Faro  
+**Quiero** ver la imagen branded de carga (faro) sin título duplicado, e iconos de app actualizados  
+**Para** una primera impresión coherente con la marca.
+
+### Criterios de aceptación
+- [x] Splash full-bleed con artwork; sin brand/tagline overlay centrado.
+- [x] Status/error solo abajo-derecha (o image-only en boot sano).
+- [x] Bundle icons apuntan a `src-tauri/icons/` actualizados.
+- [x] Tests splash visual + icons verdes.
+
+---
+
+## HU15 — Ventanas compactas fijas (007 / P1)
+
+> Spec Kit: [`specs/007-compact-fixed-windows/spec.md`](specs/007-compact-fixed-windows/spec.md) · tasks T001–T014.
+
+**Como** usuario de Faro  
+**Quiero** una ventana de carga pequeña fija centrada y una principal de tamaño fijo que quepa en pantalla  
+**Para** un arranque como apps de escritorio profesionales (no una ventana gigante).
+
+### Criterios de aceptación
+- [x] Splash **576×324**, fija, centrada.
+- [x] Principal **900×600**, centrada (clamp si work area es menor); redimensionable tras ready.
+- [x] Dwell ≥5s y artwork branded se mantienen.
+- [x] Tests geometry + clamp + outline E2E verdes.
