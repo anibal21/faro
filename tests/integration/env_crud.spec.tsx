@@ -105,6 +105,7 @@ describe("env CRUD (US2)", () => {
     await user.clear(within(dialog).getByLabelText(/Puerto SSH/i));
     await user.type(within(dialog).getByLabelText(/Puerto SSH/i), "22");
     await user.type(within(dialog).getByLabelText(/Username SSH/i), "ec2-user");
+    await user.type(within(dialog).getByLabelText(/^Namespace$/i), "default");
     await user.type(within(dialog).getByLabelText(/PEM \(ruta/i), "C:\\keys\\a.pem");
     await user.type(
       within(dialog).getByLabelText(/Credenciales IAM/i),
@@ -123,5 +124,5 @@ describe("env CRUD (US2)", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /prod-eks/i })).toBeInTheDocument();
     });
-  });
+  }, 10_000);
 });

@@ -1,7 +1,7 @@
 # 6. Tickets de trabajo
 
 > Generados desde Spec Kit (base [`tasks.md`](specs/001-eks-log-monitor/tasks.md) 2026-07-23 + UI 002–007).  
-> **Tickets HU1–HU15**. Cada uno lista tareas Spec Kit.  
+> **Tickets HU1–HU16**. Cada uno lista tareas Spec Kit.  
 > Cubren backend (Rust/Tauri), frontend (React) y BD (SQLite) — requisito AI4Devs ≥3 tipos.  
 > Estimaciones en puntos relativos (1 = pequeño, 5 = grande). Ajustar en review.
 
@@ -205,7 +205,7 @@ Para el formato clásico “≥3 tickets por capa”, agrupar así en PRs si hac
 |------|----------------------|-------------------------|
 | **BD** | HU1 (purge), HU2 (durable), HU5–HU6 (session) | T007–T009, T015 |
 | **Backend** | HU4, HU5–HU8 | T036–T041, T044–T045, T057–T058, T066–T067 |
-| **Frontend** | HU1, HU3, HU7–HU9, HU11–HU15 | T019–T020, T026–T033, T060–T069, T073–T074 + tasks 002–007 |
+| **Frontend** | HU1, HU3, HU7–HU9, HU11–HU16 | T019–T020, T026–T033, T060–T069, T073–T074 + tasks 002–008 |
 
 **Polish / E2E:** T080–T085 (no es HU; cierra primary flow).
 
@@ -301,6 +301,42 @@ Splash **576×324** fija/centrada; al ready **900×600** centrada (clamp a work 
 
 ---
 
+## Ticket HU16 — Live cluster connect + demo (008)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Backend + Frontend + Config |
+| **HU / US** | HU16 / US1–US3 (008) |
+| **Tasks** | T001–T041 (`specs/008-live-cluster-connect/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Builtin **demo** (`faro-demo`); live envs con SSH+AWS CLI EKS+kube; namespace obligatorio; multi-connect aislado; sin fallback demo.
+
+### Criterios de aceptación
+- [x] Contratos connect-modes + live-k8s-session.
+- [x] Tests 008 verdes.
+
+---
+
+## Ticket HU17 — Examinar rutas PEM/IAM (009)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Tauri plugin |
+| **HU / US** | HU17 / US1–US4 (009) |
+| **Tasks** | T001–T030 (`specs/009-connection-file-browse/tasks.md`) |
+| **Estimación** | 2 |
+
+### Descripción
+Selector nativo (`@tauri-apps/plugin-dialog`) en modal de ambiente para PEM e IAM; paths only; Save bloqueado si Browse falla.
+
+### Criterios de aceptación
+- [x] Contratos file-browse-ui.
+- [x] Tests 009 verdes.
+
+---
+
 ## Orden sugerido de implementación
 
 ```text
@@ -314,4 +350,6 @@ Setup+Foundation (T001–T015)
   → HU13 (005 ui chrome polish T001–T034)
   → HU14 (006 branded splash T001–T019)
   → HU15 (007 compact windows T001–T014)
+  → HU16 (008 live cluster connect T001–T041)
+  → HU17 (009 connection file browse T001–T030)
 ```

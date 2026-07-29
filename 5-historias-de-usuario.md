@@ -1,6 +1,6 @@
 # 5. Historias de usuario
 
-> Spec Kit: base [`specs/001-eks-log-monitor/`](specs/001-eks-log-monitor/) — **10 HU** atómicas + incrementos **HU11–HU15** (002–007).  
+> Spec Kit: base [`specs/001-eks-log-monitor/`](specs/001-eks-log-monitor/) — **10 HU** atómicas + incrementos **HU11–HU17** (002–009).  
 > IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).  
 > Tickets / tasks: [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md).
 
@@ -220,3 +220,35 @@
 - [x] Principal **900×600**, centrada (clamp si work area es menor); redimensionable tras ready.
 - [x] Dwell ≥5s y artwork branded se mantienen.
 - [x] Tests geometry + clamp + outline E2E verdes.
+
+---
+
+## HU16 — Conexión live + demo builtin (008 / P1)
+
+> Spec Kit: [`specs/008-live-cluster-connect/spec.md`](specs/008-live-cluster-connect/spec.md) · tasks T001–T041.
+
+**Como** ingeniero/ops  
+**Quiero** un ambiente **demo** fijo y que todos los ambientes que agregue usen conexión real (túnel + EKS + catálogo/logs)  
+**Para** ver pods/configmaps reales y seguir pudiendo demostrar Faro offline.
+
+### Criterios de aceptación
+- [x] **demo** primero en el árbol; no editar/eliminar; desconectado al inicio; solo Conectar/Desconectar.
+- [x] Ambientes agregados = live (namespace obligatorio); sin seed demo en fallos.
+- [x] Multi-connect aislado; funciones existentes usan datos live en sesión live.
+- [x] Tests 008 verdes (`cargo test` + Vitest).
+
+---
+
+## HU17 — Examinar rutas PEM/IAM (009 / P1)
+
+> Spec Kit: [`specs/009-connection-file-browse/spec.md`](specs/009-connection-file-browse/spec.md) · tasks T001–T030.
+
+**Como** ingeniero/ops  
+**Quiero** buscar archivos PEM e IAM con un selector nativo en el formulario de ambiente  
+**Para** no tener que escribir a mano rutas largas y evitar errores tipográficos.
+
+### Criterios de aceptación
+- [x] Botón **Examinar** en PEM e IAM; selección rellena la ruta absoluta (solo path, sin contenido).
+- [x] Cancelar el selector no cambia el campo; tipeo/fixtures siguen válidos si Browse está sano.
+- [x] Si el selector falla, **Guardar** queda bloqueado hasta que Examinar funcione de nuevo.
+- [x] Tests 009 verdes (unit `fileBrowse` + integration `env_file_browse`).

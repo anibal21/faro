@@ -4,6 +4,7 @@ import {
   type ConnectionInstance,
   type EnvUpsertInput,
 } from "../../lib/ipc";
+import { openPathPicker } from "../../lib/fileBrowse";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -32,6 +33,9 @@ const emptyForm = {
   notes: "",
 };
 
+const BROWSE_BLOCKED_MSG =
+  "No se puede guardar: el selector de archivos no está disponible. Reintenta Examinar.";
+
 export function NewEnvironmentModal({
   open,
   initial = null,
@@ -41,6 +45,7 @@ export function NewEnvironmentModal({
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [browseBroken, setBrowseBroken] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -61,10 +66,19 @@ export function NewEnvironmentModal({
       setForm(emptyForm);
     }
     setError(null);
+    setBrowseBroken(false);
   }, [open, initial]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (browseBroken) {
+      setError(BROWSE_BLOCKED_MSG);
+      return;
+    }
+    if (!form.namespaceDefault.trim()) {
+      setError("Namespace es obligatorio para ambientes live.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -94,13 +108,29 @@ export function NewEnvironmentModal({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  async function browseFor(field: "pemPath" | "iamCredentialsPath") {
+    setError(null);
+    try {
+      const path = await openPathPicker();
+      // Dialog opened successfully (select or cancel) → Browse is healthy again.
+      setBrowseBroken(false);
+      if (path === null) {
+        return;
+      }
+      setField(field, path);
+    } catch {
+      setBrowseBroken(true);
+      setError(BROWSE_BLOCKED_MSG);
+    }
+  }
+
   async function fillDemo() {
     setError(null);
     try {
       const paths = await demoFixturePaths();
       setForm((prev) => ({
         ...prev,
-        name: prev.name || "demo-local",
+        // Do not invent a "demo-local" env name — builtin demo is the only "demo".
         bastionHost: prev.bastionHost || "bastion.demo.local",
         sshUser: prev.sshUser || "ec2-user",
         pemPath: paths.pemPath,
@@ -113,6 +143,16 @@ export function NewEnvironmentModal({
       setError(err instanceof Error ? err.message : String(err));
     }
   }
+
+  const textFields = [
+    ["name", "Nombre de la conexion", "text"],
+    ["bastionHost", "Host (bastion)", "text"],
+    ["sshPort", "Puerto SSH", "number"],
+    ["sshUser", "Username SSH", "text"],
+    ["namespaceDefault", "Namespace", "text"],
+    ["regionName", "region_name", "text"],
+    ["clusterName", "cluster_name", "text"],
+  ] as const;
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -134,23 +174,11 @@ export function NewEnvironmentModal({
           </button>
         </p>
         <form className="grid gap-1.5" onSubmit={handleSubmit}>
-          {(
-            [
-              ["name", "Nombre de la conexion", "text"],
-              ["bastionHost", "Host (bastion)", "text"],
-              ["sshPort", "Puerto SSH", "number"],
-              ["sshUser", "Username SSH", "text"],
-              ["namespaceDefault", "Namespace (opcional)", "text"],
-              ["pemPath", "PEM (ruta)", "text"],
-              ["iamCredentialsPath", "Credenciales IAM (ruta)", "text"],
-              ["regionName", "region_name", "text"],
-              ["clusterName", "cluster_name", "text"],
-            ] as const
-          ).map(([key, label, type]) => (
+          {textFields.map(([key, label, type]) => (
             <label key={key} className="grid gap-0.5">
               <span className="text-muted-foreground">{label}</span>
               <input
-                required={key !== "namespaceDefault"}
+                required
                 type={type}
                 className="h-7 rounded-md border border-input bg-background px-2"
                 value={form[key]}
@@ -158,6 +186,48 @@ export function NewEnvironmentModal({
               />
             </label>
           ))}
+          <label className="grid gap-0.5">
+            <span className="text-muted-foreground">PEM (ruta)</span>
+            <div className="flex gap-1">
+              <input
+                required
+                type="text"
+                aria-label="PEM (ruta)"
+                className="h-7 min-w-0 flex-1 rounded-md border border-input bg-background px-2"
+                value={form.pemPath}
+                onChange={(e) => setField("pemPath", e.target.value)}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="h-7 shrink-0 px-2"
+                onClick={() => void browseFor("pemPath")}
+              >
+                Examinar
+              </Button>
+            </div>
+          </label>
+          <label className="grid gap-0.5">
+            <span className="text-muted-foreground">Credenciales IAM (ruta)</span>
+            <div className="flex gap-1">
+              <input
+                required
+                type="text"
+                aria-label="Credenciales IAM (ruta)"
+                className="h-7 min-w-0 flex-1 rounded-md border border-input bg-background px-2"
+                value={form.iamCredentialsPath}
+                onChange={(e) => setField("iamCredentialsPath", e.target.value)}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="h-7 shrink-0 px-2"
+                onClick={() => void browseFor("iamCredentialsPath")}
+              >
+                Examinar
+              </Button>
+            </div>
+          </label>
           <label className="grid gap-0.5">
             <span className="text-muted-foreground">Notas (sin secretos)</span>
             <textarea
@@ -172,7 +242,7 @@ export function NewEnvironmentModal({
             <Button type="button" variant="ghost" onClick={onClose} disabled={saving}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving || browseBroken}>
               {saving ? "Guardando…" : "Guardar"}
             </Button>
           </footer>

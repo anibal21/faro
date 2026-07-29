@@ -14,6 +14,7 @@ export type ConnectionInstance = {
   notes?: string | null;
   createdAt: string;
   updatedAt: string;
+  isBuiltinDemo?: boolean;
 };
 
 export type EnvUpsertInput = {

@@ -23,7 +23,7 @@ npm run tauri build
 # Artefactos: src-tauri/target/release/bundle/ (nsis / dmg / appimage)
 ```
 
-Demo offline: en el modal de ambiente usa **Usar fixtures demo** (`fixtures/demo.pem` + `fixtures/demo-iam-credentials`).
+Demo offline: en el modal de ambiente usa **Usar fixtures demo** (`fixtures/demo.pem` + `fixtures/demo-iam-credentials`). Para ambientes live, **Examinar** junto a PEM/IAM abre el selector nativo de archivos (ruta absoluta; sin filtros de extensión).
 
 Validación: [`TESTING.md`](TESTING.md) · [`specs/001-eks-log-monitor/quickstart.md`](specs/001-eks-log-monitor/quickstart.md)
 
@@ -43,8 +43,8 @@ Validación: [`TESTING.md`](TESTING.md) · [`specs/001-eks-log-monitor/quickstar
 | [**2-arquitectura-del-sistema.md**](2-arquitectura-del-sistema.md) | Diagramas, componentes y decisiones técnicas | Actualizado (arranque geometría 007) |
 | [**3-modelo-de-datos.md**](3-modelo-de-datos.md) | Entidades + Mermaid + ER SQLite | Actualizado (durable + session + splash purge) |
 | [**4-comandos-y-eventos-ipc.md**](4-comandos-y-eventos-ipc.md) | Comandos + eventos IPC (mapa + secuencias) | Actualizado (IPC map + diagrama 05) |
-| [**5-historias-de-usuario.md**](5-historias-de-usuario.md) | HU con criterios de aceptación | Actualizado (**HU1–HU15**; 006/007) |
-| [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (1 por HU + capas BD/BE/FE) | Actualizado (tickets HU14–HU15) |
+| [**5-historias-de-usuario.md**](5-historias-de-usuario.md) | HU con criterios de aceptación | Actualizado (**HU1–HU16**; 008 live) |
+| [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (1 por HU + capas BD/BE/FE) | Actualizado (ticket HU16) |
 | [**7-pull-requests.md**](7-pull-requests.md) | PRs del desarrollo | Actualizado (**PR #1** entrega 1) |
 | [**prompts.md**](prompts.md) | Registro de uso de IA (≤3 prompts/sección) | Actualizado (sync 006/007) |
 | [**prompts-conversacion-inicial.md**](prompts-conversacion-inicial.md) | Consultas 1ª conversación (sin respuestas) | Completo |

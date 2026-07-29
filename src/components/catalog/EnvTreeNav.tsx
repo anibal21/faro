@@ -101,7 +101,15 @@ export function EnvTreeNav({
           </p>
         ) : (
           <ul className="space-y-0.5">
-            {environments.map((env) => {
+            {[...environments]
+              .sort((a, b) => {
+                const aDemo = a.isBuiltinDemo || a.id === "faro-demo" ? 0 : 1;
+                const bDemo = b.isBuiltinDemo || b.id === "faro-demo" ? 0 : 1;
+                if (aDemo !== bDemo) return aDemo - bDemo;
+                return a.name.localeCompare(b.name);
+              })
+              .map((env) => {
+              const isDemo = env.isBuiltinDemo || env.id === "faro-demo";
               const isExp = expanded[env.id] ?? env.id === selectedId;
               const st = statusFor(env.id);
               const isSel = env.id === selectedId;
@@ -134,6 +142,11 @@ export function EnvTreeNav({
                           onClick={() => onSelect(env.id)}
                         >
                           {env.name}{" "}
+                          {isDemo && (
+                            <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                              demo
+                            </span>
+                          )}{" "}
                           <span className="font-normal text-muted-foreground">
                             {env.clusterName}
                           </span>
@@ -154,10 +167,14 @@ export function EnvTreeNav({
                           Conectar
                         </ContextMenuItem>
                       )}
-                      <ContextMenuSeparator />
-                      <ContextMenuItem onSelect={() => onEdit(env)}>
-                        Editar configuracion
-                      </ContextMenuItem>
+                      {!isDemo && (
+                        <>
+                          <ContextMenuSeparator />
+                          <ContextMenuItem onSelect={() => onEdit(env)}>
+                            Editar configuracion
+                          </ContextMenuItem>
+                        </>
+                      )}
                     </ContextMenuContent>
                   </ContextMenu>
 

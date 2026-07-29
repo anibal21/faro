@@ -51,6 +51,7 @@ export function MainShell({
   }
 
   function openEdit(env: ConnectionInstance) {
+    if (env.isBuiltinDemo || env.id === "faro-demo") return;
     setEditing(env);
     setModalOpen(true);
   }
