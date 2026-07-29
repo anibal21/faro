@@ -17,6 +17,7 @@
     "core:window:allow-center",
     "core:window:allow-current-monitor",
     "opener:default",
+    "dialog:allow-open",
     "allow-session-purge-ephemeral",
     "allow-prefs-get",
     "allow-prefs-set",

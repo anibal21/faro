@@ -34,6 +34,19 @@ pub fn demo_summary(namespace: &str, deployment: &str) -> WorkloadSummary {
     }
 }
 
+pub fn live_summary(namespace: &str, deployment: &str) -> WorkloadSummary {
+    WorkloadSummary {
+        namespace: namespace.to_string(),
+        deployment: deployment.to_string(),
+        replica_count: 0,
+        ready_replicas: None,
+        ram_consumed: None,
+        cpu_consumed: None,
+        uptime: None,
+        fetched_at: chrono::Utc::now().to_rfc3339(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

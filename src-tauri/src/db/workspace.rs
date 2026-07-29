@@ -193,7 +193,7 @@ mod tests {
             iam_credentials_path: r"C:\iam".into(),
             region_name: "us-east-1".into(),
             cluster_name: "c".into(),
-            namespace_default: None,
+            namespace_default: Some("default".into()),
             notes: None,
             is_favorite: None,
             sort_order: None,

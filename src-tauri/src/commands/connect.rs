@@ -6,7 +6,7 @@ use crate::db::session_cache;
 use crate::db::DbState;
 use crate::error::{FaroError, FaroResult};
 use crate::k8s::{catalog, eks_auth};
-use crate::runtime::{RuntimeState, SessionEntry};
+use crate::runtime::{ConnectMode, RuntimeState, SessionEntry};
 use crate::ssh::tunnel;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -78,8 +78,8 @@ pub fn env_connect(
             .lock()
             .map_err(|_| FaroError::Message("runtime lock".into()))?;
         if let Some(mut prev) = rt.sessions.remove(&id) {
-            if let Some(h) = prev.tunnel.take() {
-                let _ = tunnel::close_tunnel(&h);
+            if let Some(mut h) = prev.tunnel.take() {
+                let _ = tunnel::close_tunnel(&mut h);
             }
             for (_, cancel) in prev.log_cancels.drain() {
                 cancel.store(true, std::sync::atomic::Ordering::SeqCst);
@@ -88,17 +88,37 @@ pub fn env_connect(
         }
     }
 
-    let handle = tunnel::open_tunnel(
-        &env.bastion_host,
-        env.ssh_port,
-        &env.ssh_user,
-        &env.pem_path,
-    )?;
-    let _presence = eks_auth::validate_iam_credentials_file(&env.iam_credentials_path)?;
-    let _token = eks_auth::mint_eks_token_stub(&env.region_name, &env.cluster_name)?;
-    drop(_token);
-
     let catalog_epoch = Uuid::new_v4().to_string();
+    let (mode, handle, client, namespace) = if connection_instance::is_builtin_demo(&id) {
+        catalog::hydrate_demo_catalog(&conn, &id, &catalog_epoch)?;
+        (ConnectMode::Demo, None, None, None)
+    } else {
+        let namespace = env.namespace_default.clone().filter(|v| !v.trim().is_empty())
+            .ok_or_else(|| FaroError::Message("namespace_default is required for live environments".into()))?;
+        eks_auth::validate_iam_credentials_file(&env.iam_credentials_path)?;
+        let (api_host, ca_b64) = eks_auth::describe_cluster_endpoint(
+            &env.region_name, &env.cluster_name, &env.iam_credentials_path,
+        )?;
+        let mut handle = tunnel::open_tunnel(
+            &env.bastion_host, env.ssh_port, &env.ssh_user, &env.pem_path, &api_host,
+        )?;
+        let result = (|| {
+            let token = eks_auth::mint_eks_token(
+                &env.region_name, &env.cluster_name, &env.iam_credentials_path,
+            )?;
+            let client = crate::k8s::client::build_client(handle.local_port, &ca_b64, &token)?;
+            catalog::hydrate_live_catalog(&conn, &id, &catalog_epoch, &namespace, &client)?;
+            Ok::<_, FaroError>(client)
+        })();
+        match result {
+            Ok(client) => (ConnectMode::Live, Some(handle), Some(client), Some(namespace)),
+            Err(error) => {
+                let _ = tunnel::close_tunnel(&mut handle);
+                return Err(error);
+            }
+        }
+    };
+
     let session_id = Uuid::new_v4().to_string();
     session_cache::insert_session(
         &conn,
@@ -109,8 +129,6 @@ pub fn env_connect(
         None,
         None,
     )?;
-    catalog::hydrate_catalog(&conn, &id, &catalog_epoch)?;
-
     {
         let mut rt = runtime
             .inner
@@ -120,7 +138,10 @@ pub fn env_connect(
             id.clone(),
             SessionEntry {
                 catalog_epoch: Some(catalog_epoch.clone()),
-                tunnel: Some(handle),
+                tunnel: handle,
+                mode,
+                client,
+                namespace,
                 log_cancels: Default::default(),
             },
         );
@@ -162,8 +183,8 @@ pub fn env_disconnect(
         for (_, cancel) in entry.log_cancels.drain() {
             cancel.store(true, std::sync::atomic::Ordering::SeqCst);
         }
-        if let Some(h) = entry.tunnel.take() {
-            tunnel::close_tunnel(&h)?;
+        if let Some(mut h) = entry.tunnel.take() {
+            tunnel::close_tunnel(&mut h)?;
         }
         session_cache::purge_for_instance(&conn, &id)?;
     }

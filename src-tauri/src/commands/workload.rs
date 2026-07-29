@@ -2,7 +2,7 @@
 
 use crate::error::{FaroError, FaroResult};
 use crate::k8s::metrics::{self, WorkloadSummary};
-use crate::runtime::RuntimeState;
+use crate::runtime::{ConnectMode, RuntimeState};
 use tauri::State;
 
 #[tauri::command]
@@ -15,11 +15,18 @@ pub fn workload_summary(
         .inner
         .lock()
         .map_err(|_| FaroError::Message("runtime lock".into()))?;
+    let entry = rt.focused_session().ok_or_else(|| FaroError::Message(
+        "not connected — connect before requesting summary".into(),
+    ))?;
+    let mode = entry.mode;
     if rt.focused_instance_id.is_none() {
         return Err(FaroError::Message(
             "not connected — connect before requesting summary".into(),
         ));
     }
     drop(rt);
-    Ok(metrics::demo_summary(&namespace, &deployment))
+    Ok(match mode {
+        ConnectMode::Demo => metrics::demo_summary(&namespace, &deployment),
+        ConnectMode::Live => metrics::live_summary(&namespace, &deployment),
+    })
 }

@@ -5,10 +5,18 @@ use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConnectMode {
+    Demo,
+    Live,
+}
+
 pub struct SessionEntry {
     pub catalog_epoch: Option<String>,
     pub tunnel: Option<TunnelHandle>,
+    pub mode: ConnectMode,
+    pub client: Option<kube::Client>,
+    pub namespace: Option<String>,
     pub log_cancels: HashMap<String, Arc<AtomicBool>>,
 }
 

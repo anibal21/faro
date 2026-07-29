@@ -2,7 +2,7 @@
 
 use crate::error::{FaroError, FaroResult};
 use crate::k8s::logs;
-use crate::runtime::RuntimeState;
+use crate::runtime::{ConnectMode, RuntimeState};
 use serde::Serialize;
 use serde_json::{json, Value};
 use std::sync::atomic::AtomicBool;
@@ -23,7 +23,6 @@ pub fn logs_open(
     namespace: String,
     deployment: String,
 ) -> FaroResult<Value> {
-    let _ = namespace;
     let mut rt = runtime
         .inner
         .lock()
@@ -39,9 +38,17 @@ pub fn logs_open(
     entry
         .log_cancels
         .insert(window_id.clone(), Arc::clone(&cancel));
+    let mode = entry.mode;
+    let client = entry.client.clone();
     drop(rt);
 
-    logs::start_demo_follow(app, window_id.clone(), deployment, cancel);
+    match mode {
+        ConnectMode::Demo => logs::start_demo_follow(app, window_id.clone(), deployment, cancel),
+        ConnectMode::Live => {
+            let client = client.ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
+            logs::start_live_follow(app, window_id.clone(), namespace, deployment, client, cancel);
+        }
+    }
     Ok(json!(LogsOpenResult { window_id }))
 }
 

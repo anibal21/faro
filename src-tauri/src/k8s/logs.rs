@@ -6,6 +6,8 @@ use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 use tauri::{AppHandle, Emitter};
+use k8s_openapi::api::core::v1::Pod;
+use kube::{Api, Client};
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -78,5 +80,49 @@ pub fn start_demo_follow(
                 status: "idle".into(),
             },
         );
+    });
+}
+
+/// Best-effort live log read. The runtime session owns the client and cancellation flag.
+pub fn start_live_follow(
+    app: AppHandle,
+    window_id: String,
+    namespace: String,
+    deployment: String,
+    client: Client,
+    cancel: Arc<AtomicBool>,
+) {
+    thread::spawn(move || {
+        let _ = app.emit("logs_status", LogsStatus { window_id: window_id.clone(), status: "following".into() });
+        let result: Result<(String, String), ()> = tokio::runtime::Runtime::new()
+            .map_err(|_| ())
+            .and_then(|runtime| runtime.block_on(async {
+            let pods: Vec<Pod> = Api::namespaced(client.clone(), &namespace).list(&Default::default()).await?.items;
+            let pod = pods.into_iter().find_map(|pod| {
+                pod.metadata.name.as_ref()
+                    .filter(|name| name.starts_with(&deployment))
+                    .map(|name| name.clone())
+            });
+            match pod {
+                Some(pod) => Api::<Pod>::namespaced(client, &namespace).logs(&pod, &Default::default()).await.map(|text| (pod, text)),
+                None => Ok(("".into(), "".into())),
+            }
+        }).map_err(|_| ()));
+        if !cancel.load(Ordering::SeqCst) {
+            match result {
+                Ok((pod_name, text)) if !pod_name.is_empty() => {
+                    let _ = app.emit("logs_chunk", LogsChunk {
+                        window_id: window_id.clone(), pod_name, text, timestamp: chrono::Utc::now().to_rfc3339(),
+                    });
+                }
+                Ok(_) => {
+                    let _ = app.emit("logs_status", LogsStatus { window_id: window_id.clone(), status: "no matching pods".into() });
+                }
+                Err(_) => {
+                    let _ = app.emit("logs_status", LogsStatus { window_id: window_id.clone(), status: "live log request failed".into() });
+                }
+            }
+        }
+        let _ = app.emit("logs_status", LogsStatus { window_id, status: "idle".into() });
     });
 }

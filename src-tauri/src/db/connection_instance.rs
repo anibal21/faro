@@ -5,6 +5,12 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+pub const DEMO_INSTANCE_ID: &str = "faro-demo";
+
+pub fn is_builtin_demo(id: &str) -> bool {
+    id == DEMO_INSTANCE_ID
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ConnectionInstance {
@@ -23,6 +29,8 @@ pub struct ConnectionInstance {
     pub notes: Option<String>,
     pub created_at: String,
     pub updated_at: String,
+    #[serde(default)]
+    pub is_builtin_demo: bool,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -72,6 +80,9 @@ fn require_non_empty(label: &str, value: &str) -> FaroResult<String> {
 }
 
 pub fn validate_upsert(input: &EnvUpsertInput) -> FaroResult<()> {
+    if input.id.as_deref().is_some_and(is_builtin_demo) {
+        return Err(FaroError::Message("the built-in demo environment cannot be edited".into()));
+    }
     require_non_empty("name", &input.name)?;
     require_non_empty("bastion_host", &input.bastion_host)?;
     require_non_empty("ssh_user", &input.ssh_user)?;
@@ -79,6 +90,10 @@ pub fn validate_upsert(input: &EnvUpsertInput) -> FaroResult<()> {
     let iam = require_non_empty("iam_credentials_path", &input.iam_credentials_path)?;
     require_non_empty("region_name", &input.region_name)?;
     require_non_empty("cluster_name", &input.cluster_name)?;
+    require_non_empty(
+        "namespace_default",
+        input.namespace_default.as_deref().unwrap_or(""),
+    )?;
     if input.ssh_port <= 0 || input.ssh_port > 65535 {
         return Err(FaroError::Message("ssh_port must be 1–65535".into()));
     }
@@ -92,8 +107,10 @@ pub fn validate_upsert(input: &EnvUpsertInput) -> FaroResult<()> {
 
 fn map_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<ConnectionInstance> {
     let favorite: i64 = row.get(11)?;
+    let id: String = row.get(0)?;
     Ok(ConnectionInstance {
-        id: row.get(0)?,
+        is_builtin_demo: is_builtin_demo(&id),
+        id,
         name: row.get(1)?,
         bastion_host: row.get(2)?,
         ssh_port: row.get(3)?,
@@ -114,9 +131,27 @@ fn map_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<ConnectionInstance> {
 const SELECT_COLS: &str = "id, name, bastion_host, ssh_port, ssh_user, pem_path, iam_credentials_path,
     region_name, cluster_name, namespace_default, sort_order, is_favorite, notes, created_at, updated_at";
 
+/// Materialize the offline demo so it participates in normal workspace/list flows.
+/// Its connection fields are placeholders and are never used.
+pub fn ensure_demo(conn: &Connection) -> FaroResult<()> {
+    let now = chrono::Utc::now().to_rfc3339();
+    conn.execute(
+        "INSERT OR IGNORE INTO connection_instance (
+            id, name, bastion_host, ssh_port, ssh_user, pem_path, iam_credentials_path,
+            region_name, cluster_name, namespace_default, sort_order, is_favorite, notes,
+            created_at, updated_at
+         ) VALUES (?1, 'demo', 'offline', 22, 'offline', 'offline', 'offline',
+                   'offline', 'demo', 'default', 0, 0, NULL, ?2, ?2)",
+        params![DEMO_INSTANCE_ID, now],
+    )?;
+    Ok(())
+}
+
 pub fn list_all(conn: &Connection) -> FaroResult<Vec<ConnectionInstance>> {
+    ensure_demo(conn)?;
     let mut stmt = conn.prepare(&format!(
-        "SELECT {SELECT_COLS} FROM connection_instance ORDER BY COALESCE(sort_order, 999999), name"
+        "SELECT {SELECT_COLS} FROM connection_instance
+         ORDER BY CASE WHEN id = 'faro-demo' THEN 0 ELSE 1 END, COALESCE(sort_order, 999999), name"
     ))?;
     let rows = stmt.query_map([], map_row)?;
     let mut out = Vec::new();
@@ -127,6 +162,9 @@ pub fn list_all(conn: &Connection) -> FaroResult<Vec<ConnectionInstance>> {
 }
 
 pub fn get_by_id(conn: &Connection, id: &str) -> FaroResult<Option<ConnectionInstance>> {
+    if is_builtin_demo(id) {
+        ensure_demo(conn)?;
+    }
     let mut stmt = conn.prepare(&format!(
         "SELECT {SELECT_COLS} FROM connection_instance WHERE id = ?1"
     ))?;
@@ -221,6 +259,9 @@ pub fn upsert(conn: &Connection, input: EnvUpsertInput) -> FaroResult<Connection
 }
 
 pub fn delete_by_id(conn: &Connection, id: &str) -> FaroResult<()> {
+    if is_builtin_demo(id) {
+        return Err(FaroError::Message("the built-in demo environment cannot be deleted".into()));
+    }
     let n = conn.execute("DELETE FROM connection_instance WHERE id = ?1", [id])?;
     if n == 0 {
         return Err(FaroError::Message(format!("environment not found: {id}")));
@@ -275,7 +316,8 @@ mod tests {
         let a = upsert(&conn, sample("env-a")).unwrap();
         let b = upsert(&conn, sample("env-b")).unwrap();
         let list = list_all(&conn).unwrap();
-        assert_eq!(list.len(), 2);
+        assert_eq!(list.len(), 3);
+        assert_eq!(list[0].id, DEMO_INSTANCE_ID);
 
         let mut edit = sample("env-a-renamed");
         edit.id = Some(a.id.clone());
@@ -286,7 +328,20 @@ mod tests {
 
         delete_by_id(&conn, &b.id).unwrap();
         let list = list_all(&conn).unwrap();
-        assert_eq!(list.len(), 1);
-        assert_eq!(list[0].id, a.id);
+        assert_eq!(list.len(), 2);
+        assert_eq!(list[1].id, a.id);
+    }
+
+    #[test]
+    fn namespace_is_required_and_demo_is_protected() {
+        let mut input = sample("a");
+        input.namespace_default = None;
+        assert!(validate_upsert(&input).is_err());
+
+        let dir = tempdir().unwrap();
+        let db = DbState::open(dir.path().join("env.sqlite")).unwrap();
+        let conn = db.conn.lock().unwrap();
+        ensure_demo(&conn).unwrap();
+        assert!(delete_by_id(&conn, DEMO_INSTANCE_ID).is_err());
     }
 }

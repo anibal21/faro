@@ -4,7 +4,7 @@ use crate::db::session_cache::{self, ConfigMapEntryRow, ConfigMapRow, Deployment
 use crate::db::DbState;
 use crate::error::{FaroError, FaroResult};
 use crate::k8s::catalog;
-use crate::runtime::RuntimeState;
+use crate::runtime::{ConnectMode, RuntimeState};
 use serde::Serialize;
 use serde_json::{json, Value};
 use tauri::State;
@@ -59,6 +59,15 @@ pub fn k8s_get_configmap(
         .lock()
         .map_err(|_| FaroError::Message("db lock".into()))?;
     let instance_id = connected_instance(&runtime)?;
+    let live_client = {
+        let rt = runtime.inner.lock().map_err(|_| FaroError::Message("runtime lock".into()))?;
+        rt.sessions.get(&instance_id).and_then(|entry| {
+            (entry.mode == ConnectMode::Live).then(|| entry.client.clone()).flatten()
+        })
+    };
+    if let Some(client) = live_client {
+        return catalog::get_live_configmap(&client, &namespace, &name);
+    }
     let maps = session_cache::list_configmaps(&conn, &instance_id)?;
     let cm = maps
         .into_iter()
@@ -85,7 +94,20 @@ pub fn catalog_refresh(
         .map_err(|_| FaroError::Message("db lock".into()))?;
     let instance_id = connected_instance(&runtime)?;
     let catalog_epoch = Uuid::new_v4().to_string();
-    catalog::hydrate_catalog(&conn, &instance_id, &catalog_epoch)?;
+    let (mode, client, namespace) = {
+        let rt = runtime.inner.lock().map_err(|_| FaroError::Message("runtime lock".into()))?;
+        let entry = rt.sessions.get(&instance_id)
+            .ok_or_else(|| FaroError::Message("not connected".into()))?;
+        (entry.mode, entry.client.clone(), entry.namespace.clone())
+    };
+    match mode {
+        ConnectMode::Demo => catalog::hydrate_demo_catalog(&conn, &instance_id, &catalog_epoch)?,
+        ConnectMode::Live => {
+            let client = client.ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
+            let namespace = namespace.ok_or_else(|| FaroError::Message("live namespace unavailable".into()))?;
+            catalog::hydrate_live_catalog(&conn, &instance_id, &catalog_epoch, &namespace, &client)?;
+        }
+    }
     {
         let mut rt = runtime
             .inner
