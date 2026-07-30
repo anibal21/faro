@@ -1,6 +1,8 @@
 //! Catalog IPC — read session cache + refresh.
 
-use crate::db::session_cache::{self, ConfigMapEntryRow, ConfigMapRow, DeploymentRow};
+use crate::db::session_cache::{
+    self, ConfigMapEntryRow, ConfigMapRow, DeploymentRow, FlatPodRow, ServiceDetail, ServiceRow,
+};
 use crate::db::DbState;
 use crate::error::{FaroError, FaroResult};
 use crate::k8s::catalog;
@@ -45,6 +47,48 @@ pub fn k8s_list_configmaps(
         .map_err(|_| FaroError::Message("db lock".into()))?;
     let instance_id = connected_instance(&runtime)?;
     session_cache::list_configmaps(&conn, &instance_id)
+}
+
+#[tauri::command]
+pub fn k8s_list_pods(
+    db: State<'_, DbState>,
+    runtime: State<'_, RuntimeState>,
+) -> FaroResult<Vec<FlatPodRow>> {
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|_| FaroError::Message("db lock".into()))?;
+    let instance_id = connected_instance(&runtime)?;
+    session_cache::list_all_pods(&conn, &instance_id)
+}
+
+#[tauri::command]
+pub fn k8s_list_services(
+    db: State<'_, DbState>,
+    runtime: State<'_, RuntimeState>,
+) -> FaroResult<Vec<ServiceRow>> {
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|_| FaroError::Message("db lock".into()))?;
+    let instance_id = connected_instance(&runtime)?;
+    session_cache::list_services(&conn, &instance_id)
+}
+
+#[tauri::command]
+pub fn k8s_get_service(
+    db: State<'_, DbState>,
+    runtime: State<'_, RuntimeState>,
+    namespace: String,
+    name: String,
+) -> FaroResult<ServiceDetail> {
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|_| FaroError::Message("db lock".into()))?;
+    let instance_id = connected_instance(&runtime)?;
+    session_cache::get_service(&conn, &instance_id, &namespace, &name)?
+        .ok_or_else(|| FaroError::Message("Service not found in session cache".into()))
 }
 
 #[tauri::command]

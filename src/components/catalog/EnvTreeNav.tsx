@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Minus, Plus } from "lucide-react";
-import type { ConfigMapRow, ConnectionInstance, DeploymentRow } from "../../lib/ipc";
+import type {
+  ConfigMapRow,
+  ConnectionInstance,
+  DeploymentRow,
+  FlatPodRow,
+  ServiceRow,
+} from "../../lib/ipc";
 import { getAppVersionDisplay } from "../../lib/appVersion";
 import {
   ContextMenu,
@@ -20,6 +26,8 @@ type EnvTreeNavProps = {
   connectionErrorId: string | null;
   catalogFocusId: string | null;
   deployments: DeploymentRow[];
+  pods: FlatPodRow[];
+  services: ServiceRow[];
   configMaps: ConfigMapRow[];
   catalogLoading?: boolean;
   onSelect: (id: string) => void;
@@ -27,6 +35,8 @@ type EnvTreeNavProps = {
   onDisconnect: (id: string) => void;
   onEdit: (env: ConnectionInstance) => void;
   onOpenDeployment: (namespace: string, name: string) => void;
+  onOpenPod: (namespace: string, podName: string, deploymentName?: string | null) => void;
+  onOpenService: (namespace: string, name: string) => void;
   onOpenConfigMap: (namespace: string, name: string) => void;
   onRefreshCatalog?: () => void;
 };
@@ -36,6 +46,8 @@ function ExpandIcon({ open }: { open: boolean }) {
   return <Icon className="size-3.5 shrink-0" strokeWidth={2.25} aria-hidden />;
 }
 
+type SectionKey = "deployments" | "pods" | "services" | "configmaps";
+
 export function EnvTreeNav({
   environments,
   selectedId,
@@ -44,6 +56,8 @@ export function EnvTreeNav({
   connectionErrorId,
   catalogFocusId,
   deployments,
+  pods,
+  services,
   configMaps,
   catalogLoading,
   onSelect,
@@ -51,12 +65,15 @@ export function EnvTreeNav({
   onDisconnect,
   onEdit,
   onOpenDeployment,
+  onOpenPod,
+  onOpenService,
   onOpenConfigMap,
   onRefreshCatalog,
 }: EnvTreeNavProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [podsOpen, setPodsOpen] = useState<Record<string, boolean>>({});
-  const [cmsOpen, setCmsOpen] = useState<Record<string, boolean>>({});
+  const [sectionOpen, setSectionOpen] = useState<
+    Record<string, Record<SectionKey, boolean>>
+  >({});
   const [version, setVersion] = useState("v?");
 
   useEffect(() => {
@@ -74,6 +91,56 @@ export function EnvTreeNav({
     if (connectionErrorId === id) return "error";
     if (connectedIds.includes(id)) return "connected";
     return "disconnected";
+  }
+
+  function isSectionOpen(envId: string, key: SectionKey): boolean {
+    return sectionOpen[envId]?.[key] ?? true;
+  }
+
+  function toggleSection(envId: string, key: SectionKey) {
+    setSectionOpen((m) => ({
+      ...m,
+      [envId]: {
+        deployments: m[envId]?.deployments ?? true,
+        pods: m[envId]?.pods ?? true,
+        services: m[envId]?.services ?? true,
+        configmaps: m[envId]?.configmaps ?? true,
+        [key]: !(m[envId]?.[key] ?? true),
+      },
+    }));
+  }
+
+  function section(
+    envId: string,
+    key: SectionKey,
+    title: string,
+    showCatalog: boolean,
+    children: ReactNode,
+  ) {
+    const open = isSectionOpen(envId, key);
+    return (
+      <li className="env-tree__section">
+        <button
+          type="button"
+          className="env-tree__section-title inline-flex items-center gap-1 font-semibold text-muted-foreground"
+          aria-expanded={open}
+          onClick={() => toggleSection(envId, key)}
+        >
+          <ExpandIcon open={open} /> {title}
+        </button>
+        {open && (
+          <ul className="env-tree__section-items">
+            {!showCatalog && (
+              <li className="text-muted-foreground">Conecta para ver catalogo</li>
+            )}
+            {showCatalog && catalogLoading && (
+              <li className="text-muted-foreground">Cargando…</li>
+            )}
+            {showCatalog && !catalogLoading && children}
+          </ul>
+        )}
+      </li>
+    );
   }
 
   return (
@@ -109,164 +176,178 @@ export function EnvTreeNav({
                 return a.name.localeCompare(b.name);
               })
               .map((env) => {
-              const isDemo = env.isBuiltinDemo || env.id === "faro-demo";
-              const isExp = expanded[env.id] ?? env.id === selectedId;
-              const st = statusFor(env.id);
-              const isSel = env.id === selectedId;
-              const showCatalog =
-                env.id === catalogFocusId && st === "connected";
-              return (
-                <li key={env.id}>
-                  <ContextMenu>
-                    <ContextMenuTrigger asChild>
-                      <div
-                        className={cn(
-                          "flex items-center gap-1 rounded-sm px-0.5 py-0.5",
-                          isSel && "bg-accent/60",
-                        )}
-                      >
-                        <button
-                          type="button"
-                          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent"
-                          aria-expanded={isExp}
-                          aria-label={isExp ? "Contraer" : "Expandir"}
-                          onClick={() =>
-                            setExpanded((m) => ({ ...m, [env.id]: !isExp }))
-                          }
+                const isDemo = env.isBuiltinDemo || env.id === "faro-demo";
+                const isExp = expanded[env.id] ?? env.id === selectedId;
+                const st = statusFor(env.id);
+                const isSel = env.id === selectedId;
+                const showCatalog =
+                  env.id === catalogFocusId && st === "connected";
+                return (
+                  <li key={env.id}>
+                    <ContextMenu>
+                      <ContextMenuTrigger asChild>
+                        <div
+                          className={cn(
+                            "flex items-center gap-1 rounded-sm px-0.5 py-0.5",
+                            isSel && "bg-accent/60",
+                          )}
                         >
-                          <ExpandIcon open={isExp} />
-                        </button>
-                        <button
-                          type="button"
-                          className="min-w-0 flex-1 truncate text-left font-medium hover:underline"
-                          onClick={() => onSelect(env.id)}
-                        >
-                          {env.name}{" "}
-                          {isDemo && (
-                            <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                              demo
+                          <button
+                            type="button"
+                            className="flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent"
+                            aria-expanded={isExp}
+                            aria-label={isExp ? "Contraer" : "Expandir"}
+                            onClick={() =>
+                              setExpanded((m) => ({ ...m, [env.id]: !isExp }))
+                            }
+                          >
+                            <ExpandIcon open={isExp} />
+                          </button>
+                          <button
+                            type="button"
+                            className="min-w-0 flex-1 truncate text-left font-medium hover:underline"
+                            onClick={() => onSelect(env.id)}
+                          >
+                            {env.name}{" "}
+                            {isDemo && (
+                              <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                                demo
+                              </span>
+                            )}{" "}
+                            <span className="font-normal text-muted-foreground">
+                              {env.clusterName}
                             </span>
-                          )}{" "}
-                          <span className="font-normal text-muted-foreground">
-                            {env.clusterName}
-                          </span>
-                        </button>
-                        <EnvTreeStatusDot status={st} />
-                      </div>
-                    </ContextMenuTrigger>
-                    <ContextMenuContent>
-                      {st === "connected" ? (
-                        <ContextMenuItem onSelect={() => onDisconnect(env.id)}>
-                          Desconectar
-                        </ContextMenuItem>
-                      ) : (
-                        <ContextMenuItem
-                          disabled={st === "connecting"}
-                          onSelect={() => onConnect(env.id)}
-                        >
-                          Conectar
-                        </ContextMenuItem>
-                      )}
-                      {!isDemo && (
-                        <>
-                          <ContextMenuSeparator />
-                          <ContextMenuItem onSelect={() => onEdit(env)}>
-                            Editar configuracion
+                          </button>
+                          <EnvTreeStatusDot status={st} />
+                        </div>
+                      </ContextMenuTrigger>
+                      <ContextMenuContent>
+                        {st === "connected" ? (
+                          <ContextMenuItem onSelect={() => onDisconnect(env.id)}>
+                            Desconectar
                           </ContextMenuItem>
-                        </>
-                      )}
-                    </ContextMenuContent>
-                  </ContextMenu>
+                        ) : (
+                          <ContextMenuItem
+                            disabled={st === "connecting"}
+                            onSelect={() => onConnect(env.id)}
+                          >
+                            Conectar
+                          </ContextMenuItem>
+                        )}
+                        {!isDemo && (
+                          <>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem onSelect={() => onEdit(env)}>
+                              Editar configuracion
+                            </ContextMenuItem>
+                          </>
+                        )}
+                      </ContextMenuContent>
+                    </ContextMenu>
 
-                  {isExp && (
-                    <ul className="ml-4 space-y-0.5 border-l border-border pl-2">
-                      <li>
-                        <button
-                          type="button"
-                          className="inline-flex items-center gap-1 font-semibold text-muted-foreground"
-                          aria-expanded={podsOpen[env.id] ?? true}
-                          onClick={() =>
-                            setPodsOpen((m) => ({
-                              ...m,
-                              [env.id]: !(m[env.id] ?? true),
-                            }))
-                          }
-                        >
-                          <ExpandIcon open={podsOpen[env.id] ?? true} /> Pods
-                        </button>
-                        {(podsOpen[env.id] ?? true) && (
-                          <ul className="ml-2">
-                            {!showCatalog && (
-                              <li className="text-muted-foreground">
-                                Conecta para ver catalogo
+                    {isExp && (
+                      <ul className="ml-4 space-y-0.5 border-l border-border pl-2">
+                        {section(
+                          env.id,
+                          "deployments",
+                          "Deployments",
+                          showCatalog,
+                          deployments.length === 0 ? (
+                            <li className="text-muted-foreground">Sin deployments</li>
+                          ) : (
+                            deployments.map((d) => (
+                              <li key={d.id}>
+                                <button
+                                  type="button"
+                                  className="truncate text-left hover:underline"
+                                  onClick={() =>
+                                    onOpenDeployment(d.namespace, d.name)
+                                  }
+                                >
+                                  {d.name}
+                                </button>
                               </li>
-                            )}
-                            {showCatalog && catalogLoading && (
-                              <li className="text-muted-foreground">
-                                Cargando…
-                              </li>
-                            )}
-                            {showCatalog &&
-                              deployments.map((d) => (
-                                <li key={d.id}>
-                                  <button
-                                    type="button"
-                                    className="truncate text-left hover:underline"
-                                    onClick={() =>
-                                      onOpenDeployment(d.namespace, d.name)
-                                    }
-                                  >
-                                    {d.name}
-                                  </button>
-                                </li>
-                              ))}
-                          </ul>
+                            ))
+                          ),
                         )}
-                      </li>
-                      <li>
-                        <button
-                          type="button"
-                          className="inline-flex items-center gap-1 font-semibold text-muted-foreground"
-                          aria-expanded={cmsOpen[env.id] ?? true}
-                          onClick={() =>
-                            setCmsOpen((m) => ({
-                              ...m,
-                              [env.id]: !(m[env.id] ?? true),
-                            }))
-                          }
-                        >
-                          <ExpandIcon open={cmsOpen[env.id] ?? true} />{" "}
-                          ConfigMaps
-                        </button>
-                        {(cmsOpen[env.id] ?? true) && (
-                          <ul className="ml-2">
-                            {!showCatalog && (
-                              <li className="text-muted-foreground">
-                                Conecta para ver catalogo
+                        {section(
+                          env.id,
+                          "pods",
+                          "Pods",
+                          showCatalog,
+                          pods.length === 0 ? (
+                            <li className="text-muted-foreground">Sin pods</li>
+                          ) : (
+                            pods.map((p) => (
+                              <li key={p.id}>
+                                <button
+                                  type="button"
+                                  className="truncate text-left hover:underline"
+                                  onClick={() =>
+                                    onOpenPod(
+                                      p.namespace,
+                                      p.podName,
+                                      p.deploymentName,
+                                    )
+                                  }
+                                >
+                                  {p.podName}
+                                </button>
                               </li>
-                            )}
-                            {showCatalog &&
-                              configMaps.map((cm) => (
-                                <li key={cm.id}>
-                                  <button
-                                    type="button"
-                                    className="truncate text-left hover:underline"
-                                    onClick={() =>
-                                      onOpenConfigMap(cm.namespace, cm.name)
-                                    }
-                                  >
-                                    {cm.name}
-                                  </button>
-                                </li>
-                              ))}
-                          </ul>
+                            ))
+                          ),
                         )}
-                      </li>
-                    </ul>
-                  )}
-                </li>
-              );
-            })}
+                        {section(
+                          env.id,
+                          "services",
+                          "Services",
+                          showCatalog,
+                          services.length === 0 ? (
+                            <li className="text-muted-foreground">Sin services</li>
+                          ) : (
+                            services.map((s) => (
+                              <li key={s.id}>
+                                <button
+                                  type="button"
+                                  className="truncate text-left hover:underline"
+                                  onClick={() =>
+                                    onOpenService(s.namespace, s.name)
+                                  }
+                                >
+                                  {s.name}
+                                </button>
+                              </li>
+                            ))
+                          ),
+                        )}
+                        {section(
+                          env.id,
+                          "configmaps",
+                          "ConfigMaps",
+                          showCatalog,
+                          configMaps.length === 0 ? (
+                            <li className="text-muted-foreground">Sin configmaps</li>
+                          ) : (
+                            configMaps.map((cm) => (
+                              <li key={cm.id}>
+                                <button
+                                  type="button"
+                                  className="truncate text-left hover:underline"
+                                  onClick={() =>
+                                    onOpenConfigMap(cm.namespace, cm.name)
+                                  }
+                                >
+                                  {cm.name}
+                                </button>
+                              </li>
+                            ))
+                          ),
+                        )}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
           </ul>
         )}
       </div>

@@ -337,6 +337,42 @@ Selector nativo (`@tauri-apps/plugin-dialog`) en modal de ambiente para PEM e IA
 
 ---
 
+## Ticket HU18 — Live logs workspace UX (010)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend (Rust/kube) |
+| **HU / US** | HU18 / US1–US5 (010) |
+| **Tasks** | T001–T040 (`specs/010-live-logs-workspace/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Follow continuo, load-older ~500/pod, stick-to-bottom, Structured write-groups, ConfigMap full height, bastion token path.
+
+### Criterios de aceptación
+- [x] Contratos logs-session + log-workspace-ui.
+- [x] Tests 010 verdes + quickstart manual.
+
+---
+
+## Ticket HU19 — Workspace catalog & UI polish (011)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend (Rust/kube) |
+| **HU / US** | HU19 / US1–US7 (011) |
+| **Tasks** | T001–T041 (`specs/011-workspace-catalog-ux/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Summary provisionado `request / limit`, 4 secciones de catálogo (incl. Services + pod logs), export texto, stick/scrollbars/indent, status follow en español.
+
+### Criterios de aceptación
+- [x] Contratos catalog-nav-ui + workload-summary + export-text.
+- [x] Tests 011 verdes + quickstart manual.
+
+---
+
 ## Orden sugerido de implementación
 
 ```text
@@ -352,4 +388,6 @@ Setup+Foundation (T001–T015)
   → HU15 (007 compact windows T001–T014)
   → HU16 (008 live cluster connect T001–T041)
   → HU17 (009 connection file browse T001–T030)
+  → HU18 (010 live logs workspace T001–T040)
+  → HU19 (011 workspace catalog UX T001–T041)
 ```

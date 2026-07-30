@@ -17,12 +17,16 @@ describe("Monitor rail branding (US2)", () => {
         connectionErrorId={null}
         catalogFocusId={null}
         deployments={[]}
+        pods={[]}
+        services={[]}
         configMaps={[]}
         onSelect={() => undefined}
         onConnect={() => undefined}
         onDisconnect={() => undefined}
         onEdit={() => undefined}
         onOpenDeployment={() => undefined}
+        onOpenPod={() => undefined}
+        onOpenService={() => undefined}
         onOpenConfigMap={() => undefined}
       />,
     );

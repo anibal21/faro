@@ -43,6 +43,8 @@ describe("demo env first (008 US2)", () => {
         connectingIds={[]}
         catalogFocusId={null}
         deployments={[]}
+        pods={[]}
+        services={[]}
         configMaps={[]}
         catalogLoading={false}
         onSelect={() => undefined}
@@ -50,6 +52,8 @@ describe("demo env first (008 US2)", () => {
         onDisconnect={() => undefined}
         onEdit={() => undefined}
         onOpenDeployment={() => undefined}
+        onOpenPod={() => undefined}
+        onOpenService={() => undefined}
         onOpenConfigMap={() => undefined}
       />,
     );

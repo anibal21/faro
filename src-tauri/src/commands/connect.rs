@@ -1,5 +1,6 @@
 //! Connect / disconnect — SSH path validate + IAM file + catalog hydrate.
 //! Multi-session: connecting B does not disconnect A.
+//! Live connect runs on a blocking worker (Windows WebView2 must not block UI IPC).
 
 use crate::db::connection_instance;
 use crate::db::session_cache;
@@ -11,7 +12,7 @@ use crate::ssh::tunnel;
 use serde::Serialize;
 use serde_json::{json, Value};
 use std::path::PathBuf;
-use tauri::State;
+use tauri::{AppHandle, Manager, State};
 use uuid::Uuid;
 
 /// Resolve absolute paths to repo `fixtures/` demo files (offline connect).
@@ -52,27 +53,43 @@ pub struct ConnectResult {
 }
 
 #[tauri::command]
-pub fn env_connect(
-    db: State<'_, DbState>,
-    runtime: State<'_, RuntimeState>,
-    instance_id: Option<String>,
-) -> FaroResult<Value> {
-    let conn = db
-        .conn
-        .lock()
-        .map_err(|_| FaroError::Message("db lock".into()))?;
+pub async fn env_connect(app: AppHandle, instance_id: Option<String>) -> FaroResult<Value> {
+    tauri::async_runtime::spawn_blocking(move || env_connect_blocking(&app, instance_id))
+        .await
+        .map_err(|_| FaroError::Message("connect worker failed unexpectedly".into()))?
+}
 
-    let id = match instance_id {
-        Some(id) if !id.trim().is_empty() => id,
-        _ => session_cache::require_active_instance(&conn)?,
+fn env_connect_blocking(app: &AppHandle, instance_id: Option<String>) -> FaroResult<Value> {
+    let db = app.state::<DbState>();
+    let runtime = app.state::<RuntimeState>();
+
+    let id = {
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
+        match instance_id {
+            Some(id) if !id.trim().is_empty() => id,
+            _ => session_cache::require_active_instance(&conn)?,
+        }
     };
 
-    let env = connection_instance::get_by_id(&conn, &id)?.ok_or_else(|| {
-        FaroError::Message("environment not found — load it before connecting".into())
-    })?;
+    let env = {
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
+        connection_instance::get_by_id(&conn, &id)?.ok_or_else(|| {
+            FaroError::Message("environment not found — load it before connecting".into())
+        })?
+    };
 
     // Tear down only this instance if reconnecting; leave other sessions alone
     {
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
         let mut rt = runtime
             .inner
             .lock()
@@ -90,23 +107,50 @@ pub fn env_connect(
 
     let catalog_epoch = Uuid::new_v4().to_string();
     let (mode, handle, client, namespace) = if connection_instance::is_builtin_demo(&id) {
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
         catalog::hydrate_demo_catalog(&conn, &id, &catalog_epoch)?;
         (ConnectMode::Demo, None, None, None)
     } else {
-        let namespace = env.namespace_default.clone().filter(|v| !v.trim().is_empty())
-            .ok_or_else(|| FaroError::Message("namespace_default is required for live environments".into()))?;
+        let namespace = env
+            .namespace_default
+            .clone()
+            .filter(|v| !v.trim().is_empty())
+            .ok_or_else(|| {
+                FaroError::Message("namespace_default is required for live environments".into())
+            })?;
+
         eks_auth::validate_iam_credentials_file(&env.iam_credentials_path)?;
         let (api_host, ca_b64) = eks_auth::describe_cluster_endpoint(
-            &env.region_name, &env.cluster_name, &env.iam_credentials_path,
+            &env.region_name,
+            &env.cluster_name,
+            &env.iam_credentials_path,
         )?;
         let mut handle = tunnel::open_tunnel(
-            &env.bastion_host, env.ssh_port, &env.ssh_user, &env.pem_path, &api_host,
+            &env.bastion_host,
+            env.ssh_port,
+            &env.ssh_user,
+            &env.pem_path,
+            &api_host,
         )?;
         let result = (|| {
-            let token = eks_auth::mint_eks_token(
-                &env.region_name, &env.cluster_name, &env.iam_credentials_path,
+            // Token from bastion identity (same as kubectl there) — not local IAM.
+            let token = eks_auth::mint_eks_token_via_bastion(
+                &env.bastion_host,
+                env.ssh_port,
+                &env.ssh_user,
+                &env.pem_path,
+                &env.region_name,
+                &env.cluster_name,
             )?;
-            let client = crate::k8s::client::build_client(handle.local_port, &ca_b64, &token)?;
+            let client =
+                crate::k8s::client::build_client(handle.local_port, &api_host, &ca_b64, &token)?;
+            let conn = db
+                .conn
+                .lock()
+                .map_err(|_| FaroError::Message("db lock".into()))?;
             catalog::hydrate_live_catalog(&conn, &id, &catalog_epoch, &namespace, &client)?;
             Ok::<_, FaroError>(client)
         })();
@@ -119,16 +163,22 @@ pub fn env_connect(
         }
     };
 
-    let session_id = Uuid::new_v4().to_string();
-    session_cache::insert_session(
-        &conn,
-        &session_id,
-        &id,
-        "connected",
-        &catalog_epoch,
-        None,
-        None,
-    )?;
+    {
+        let conn = db
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
+        let session_id = Uuid::new_v4().to_string();
+        session_cache::insert_session(
+            &conn,
+            &session_id,
+            &id,
+            "connected",
+            &catalog_epoch,
+            None,
+            None,
+        )?;
+    }
     {
         let mut rt = runtime
             .inner

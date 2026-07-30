@@ -18,6 +18,7 @@
     "core:window:allow-current-monitor",
     "opener:default",
     "dialog:allow-open",
+    "dialog:allow-save",
     "allow-session-purge-ephemeral",
     "allow-prefs-get",
     "allow-prefs-set",
@@ -38,7 +39,12 @@
     "allow-logs-open",
     "allow-logs-close",
     "allow-logs-set-view",
+    "allow-logs-load-older",
     "allow-analyze-write-group",
-    "allow-workload-summary"
+    "allow-workload-summary",
+    "allow-export-write-text",
+    "allow-k8s-list-pods",
+    "allow-k8s-list-services",
+    "allow-k8s-get-service"
   ]
 }

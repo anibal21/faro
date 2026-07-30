@@ -75,9 +75,90 @@
   border-bottom: 1px solid color-mix(in srgb, var(--faro-muted) 25%, transparent);
 }
 
-.configmap-tab {
+.log-window__stick {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.log-window__stick input {
+  margin: 0;
+}
+
+.env-tree__section-title {
+  display: inline-flex;
+}
+
+.env-tree__section-items {
+  margin-left: 1.15rem;
+  padding-left: 0.35rem;
+}
+
+/* Thin themed scrollbars */
+.accordion-nav,
+.env-tree__section-items,
+.log-window__body,
+.raw-log,
+.structured-log,
+.configmap-tab__keys,
+.main-shell__body > aside,
+.min-h-0.flex-1.overflow-auto {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--faro-muted, #64748b) 70%, transparent)
+    color-mix(in srgb, var(--faro-muted, #64748b) 18%, transparent);
+}
+
+.accordion-nav::-webkit-scrollbar,
+.env-tree__section-items::-webkit-scrollbar,
+.log-window__body::-webkit-scrollbar,
+.raw-log::-webkit-scrollbar,
+.structured-log::-webkit-scrollbar,
+.configmap-tab__keys::-webkit-scrollbar,
+.main-shell__body > aside::-webkit-scrollbar,
+.min-h-0.flex-1.overflow-auto::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.accordion-nav::-webkit-scrollbar-thumb,
+.env-tree__section-items::-webkit-scrollbar-thumb,
+.log-window__body::-webkit-scrollbar-thumb,
+.raw-log::-webkit-scrollbar-thumb,
+.structured-log::-webkit-scrollbar-thumb,
+.configmap-tab__keys::-webkit-scrollbar-thumb,
+.main-shell__body > aside::-webkit-scrollbar-thumb,
+.min-h-0.flex-1.overflow-auto::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--faro-muted, #64748b) 65%, transparent);
+  border-radius: 4px;
+}
+
+.accordion-nav::-webkit-scrollbar-track,
+.env-tree__section-items::-webkit-scrollbar-track,
+.log-window__body::-webkit-scrollbar-track,
+.raw-log::-webkit-scrollbar-track,
+.structured-log::-webkit-scrollbar-track,
+.configmap-tab__keys::-webkit-scrollbar-track,
+.main-shell__body > aside::-webkit-scrollbar-track,
+.min-h-0.flex-1.overflow-auto::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--faro-muted, #64748b) 12%, transparent);
+}
+
+.configmap-tab-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
+}
+
+.configmap-tab {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
   padding: 0.5rem 0;
 }
 
@@ -86,6 +167,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .configmap-tab__head h3 {
@@ -96,6 +178,12 @@
 .configmap-tab__head span {
   font-size: 0.75rem;
   color: var(--faro-muted);
+}
+
+.configmap-tab__keys {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .configmap-tab__entry {
@@ -115,7 +203,7 @@
   border-radius: 4px;
   font-size: 0.75rem;
   overflow: auto;
-  max-height: 12rem;
+  max-height: none;
   white-space: pre-wrap;
 }
 

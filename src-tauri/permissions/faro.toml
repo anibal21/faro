@@ -107,3 +107,28 @@ commands.allow = ["analyze_write_group"]
 identifier = "allow-workload-summary"
 description = "Allow workload_summary"
 commands.allow = ["workload_summary"]
+
+[[permission]]
+identifier = "allow-logs-load-older"
+description = "Allow logs_load_older"
+commands.allow = ["logs_load_older"]
+
+[[permission]]
+identifier = "allow-export-write-text"
+description = "Allow export_write_text"
+commands.allow = ["export_write_text"]
+
+[[permission]]
+identifier = "allow-k8s-list-pods"
+description = "Allow k8s_list_pods"
+commands.allow = ["k8s_list_pods"]
+
+[[permission]]
+identifier = "allow-k8s-list-services"
+description = "Allow k8s_list_services"
+commands.allow = ["k8s_list_services"]
+
+[[permission]]
+identifier = "allow-k8s-get-service"
+description = "Allow k8s_get_service"
+commands.allow = ["k8s_get_service"]

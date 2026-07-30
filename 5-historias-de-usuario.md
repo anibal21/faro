@@ -1,6 +1,6 @@
 # 5. Historias de usuario
 
-> Spec Kit: base [`specs/001-eks-log-monitor/`](specs/001-eks-log-monitor/) — **10 HU** atómicas + incrementos **HU11–HU17** (002–009).  
+> Spec Kit: base [`specs/001-eks-log-monitor/`](specs/001-eks-log-monitor/) — **10 HU** atómicas + incrementos **HU11–HU19** (002–011).  
 > IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).  
 > Tickets / tasks: [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md).
 
@@ -252,3 +252,37 @@
 - [x] Cancelar el selector no cambia el campo; tipeo/fixtures siguen válidos si Browse está sano.
 - [x] Si el selector falla, **Guardar** queda bloqueado hasta que Examinar funcione de nuevo.
 - [x] Tests 009 verdes (unit `fileBrowse` + integration `env_file_browse`).
+
+---
+
+## HU18 — Live logs workspace UX (010 / P1)
+
+> Spec Kit: [`specs/010-live-logs-workspace/spec.md`](specs/010-live-logs-workspace/spec.md) · tasks T001–T040.
+
+**Como** ingeniero/ops  
+**Quiero** follow continuo de logs live, historial paginado, auto-scroll controlado y ConfigMaps a altura completa  
+**Para** investigar en el cluster sin dumps de una sola toma ni paneles vacíos.
+
+### Criterios de aceptación
+- [x] Follow live ~500 líneas/pod + fan-in; **Cargar 500 anteriores** por pod hasta el inicio.
+- [x] Switch **Pegar al final** (default on; scroll arriba lo apaga).
+- [x] Structured write-groups Spring; ConfigMap sin panel de análisis vacío.
+- [x] Token kube vía identidad del bastion (documentado/verificado).
+- [x] Tests 010 (scroll, load-older, stick, ConfigMap layout + structured existentes).
+
+---
+
+## HU19 — Workspace catalog & UI polish (011 / P1)
+
+> Spec Kit: [`specs/011-workspace-catalog-ux/spec.md`](specs/011-workspace-catalog-ux/spec.md) · tasks T001–T041.
+
+**Como** ingeniero/ops  
+**Quiero** métricas de summary correctas, catálogo en 4 secciones, export a texto y chrome UI pulido  
+**Para** navegar el cluster y compartir evidencia sin perder contexto visual.
+
+### Criterios de aceptación
+- [x] Summary: Replicas + RAM/CPU provisionados (`request / limit`, un pod) + Uptime; N/D solo si falta dato.
+- [x] Stick checkbox agrupado; scrollbars finos temáticos; hijos del catálogo indentados.
+- [x] Catálogo: Deployments → Pods → Services → ConfigMaps; Service detail RO; logs por pod.
+- [x] Export Raw log + ConfigMap a `.txt` (cancel no escribe); status follow en español.
+- [x] Tests 011 (summary, stick, scrollbars, export, catalog order, service detail, ES status).

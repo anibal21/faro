@@ -98,6 +98,20 @@ export type LogsStatus = {
   status: string;
 };
 
+export type PodTailBatch = {
+  podName: string;
+  tailText: string;
+  requestDepth: number;
+  exhausted: boolean;
+  olderOnly?: boolean;
+};
+
+export type LoadOlderResult = {
+  pods: PodTailBatch[];
+};
+
+export type LoadOlderStatus = "idle" | "loading" | "exhausted" | "error";
+
 export type AnalysisFinding = {
   severity: string;
   ruleId: string;
@@ -114,6 +128,32 @@ export type WorkloadSummary = {
   cpuConsumed?: string | null;
   uptime?: string | null;
   fetchedAt: string;
+};
+
+export type FlatPodRow = {
+  id: string;
+  namespace: string;
+  podName: string;
+  phase: string;
+  deploymentName?: string | null;
+};
+
+export type ServiceRow = {
+  id: string;
+  namespace: string;
+  name: string;
+  serviceType?: string | null;
+  clusterIp?: string | null;
+};
+
+export type ServiceDetail = {
+  id: string;
+  namespace: string;
+  name: string;
+  serviceType?: string | null;
+  clusterIp?: string | null;
+  portsJson?: string | null;
+  selectorJson?: string | null;
 };
 
 function isTauri(): boolean {
@@ -221,6 +261,21 @@ export async function k8sGetConfigmap(
   });
 }
 
+export async function k8sListPods(): Promise<FlatPodRow[]> {
+  return invokeCommand<FlatPodRow[]>("k8s_list_pods");
+}
+
+export async function k8sListServices(): Promise<ServiceRow[]> {
+  return invokeCommand<ServiceRow[]>("k8s_list_services");
+}
+
+export async function k8sGetService(
+  namespace: string,
+  name: string,
+): Promise<ServiceDetail> {
+  return invokeCommand<ServiceDetail>("k8s_get_service", { namespace, name });
+}
+
 export async function catalogRefresh(): Promise<{ catalogEpoch: string }> {
   return invokeCommand<{ catalogEpoch: string }>("catalog_refresh");
 }
@@ -228,15 +283,29 @@ export async function catalogRefresh(): Promise<{ catalogEpoch: string }> {
 export async function logsOpen(
   namespace: string,
   deployment: string,
+  podName?: string,
 ): Promise<{ windowId: string }> {
   return invokeCommand<{ windowId: string }>("logs_open", {
     namespace,
     deployment,
+    podName: podName ?? null,
   });
 }
 
 export async function logsClose(windowId: string): Promise<void> {
   return invokeCommand("logs_close", { windowId });
+}
+
+export async function logsLoadOlder(
+  namespace: string,
+  deployment: string,
+  depths: Record<string, number>,
+): Promise<LoadOlderResult> {
+  return invokeCommand<LoadOlderResult>("logs_load_older", {
+    namespace,
+    deployment,
+    depths,
+  });
 }
 
 export async function logsSetView(

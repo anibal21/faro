@@ -38,12 +38,16 @@ describe("EnvTreeNav label-only select (US2)", () => {
         connectionErrorId={null}
         catalogFocusId={null}
         deployments={[]}
+        pods={[]}
+        services={[]}
         configMaps={[]}
         onSelect={onSelect}
         onConnect={() => undefined}
         onDisconnect={() => undefined}
         onEdit={() => undefined}
         onOpenDeployment={() => undefined}
+        onOpenPod={() => undefined}
+        onOpenService={() => undefined}
         onOpenConfigMap={() => undefined}
       />,
     );

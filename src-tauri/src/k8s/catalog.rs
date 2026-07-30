@@ -3,7 +3,7 @@
 use crate::db::session_cache;
 use crate::error::{FaroError, FaroResult};
 use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::{ConfigMap, Pod};
+use k8s_openapi::api::core::v1::{ConfigMap, Pod, Service};
 use kube::{Api, Client};
 use serde_json::{json, Value};
 use rusqlite::Connection;
@@ -100,6 +100,18 @@ pub fn hydrate_demo_catalog(
         false,
         16,
     )?;
+    session_cache::insert_service(
+        conn,
+        &Uuid::new_v4().to_string(),
+        instance_id,
+        catalog_epoch,
+        "default",
+        "payments-api",
+        Some("ClusterIP"),
+        Some("10.96.0.10"),
+        r#"[{"port":8080,"targetPort":"8080","protocol":"TCP"}]"#,
+        r#"{"app":"payments-api"}"#,
+    )?;
     Ok(())
 }
 
@@ -116,17 +128,28 @@ pub fn hydrate_live_catalog(
     }
     let runtime = tokio::runtime::Runtime::new()
         .map_err(|_| FaroError::Message("unable to start Kubernetes task runtime".into()))?;
-    let (deployments, pods, configmaps) = runtime.block_on(async {
+    let (deployments, pods, configmaps, services) = runtime.block_on(async {
         let deployments: Vec<Deployment> = Api::namespaced(client.clone(), namespace)
-            .list(&Default::default()).await.map_err(|_| FaroError::Message("unable to list live deployments".into()))?
+            .list(&Default::default())
+            .await
+            .map_err(|e| kube_list_err("Deployments", namespace, &e))?
             .items;
         let pods: Vec<Pod> = Api::namespaced(client.clone(), namespace)
-            .list(&Default::default()).await.map_err(|_| FaroError::Message("unable to list live pods".into()))?
+            .list(&Default::default())
+            .await
+            .map_err(|e| kube_list_err("Pods", namespace, &e))?
             .items;
         let configmaps: Vec<ConfigMap> = Api::namespaced(client.clone(), namespace)
-            .list(&Default::default()).await.map_err(|_| FaroError::Message("unable to list live ConfigMaps".into()))?
+            .list(&Default::default())
+            .await
+            .map_err(|e| kube_list_err("ConfigMaps", namespace, &e))?
             .items;
-        Ok::<_, FaroError>((deployments, pods, configmaps))
+        let services: Vec<Service> = Api::namespaced(client.clone(), namespace)
+            .list(&Default::default())
+            .await
+            .map_err(|e| kube_list_err("Services", namespace, &e))?
+            .items;
+        Ok::<_, FaroError>((deployments, pods, configmaps, services))
     })?;
 
     session_cache::purge_for_instance(conn, instance_id)?;
@@ -141,17 +164,30 @@ pub fn hydrate_live_catalog(
         session_cache::insert_deployment(conn, &id, instance_id, catalog_epoch, namespace, &name, spec_replicas.into(), ready.into(), available)?;
         deployment_ids.insert(name, id);
     }
+    let unassigned_id = Uuid::new_v4().to_string();
+    session_cache::insert_deployment(
+        conn,
+        &unassigned_id,
+        instance_id,
+        catalog_epoch,
+        namespace,
+        session_cache::UNASSIGNED_DEPLOYMENT,
+        0,
+        0,
+        false,
+    )?;
     for pod in pods {
         let name = pod.metadata.name.unwrap_or_default();
         let owner = pod.metadata.owner_references.as_ref()
             .and_then(|owners| owners.iter().find(|o| o.kind == "ReplicaSet"))
             .map(|o| o.name.rsplit_once('-').map_or(o.name.as_str(), |(deployment, _)| deployment).to_string());
-        if let Some(deployment) = owner.and_then(|name| deployment_ids.get(&name).cloned()) {
-            let phase = pod.status.as_ref().and_then(|s| s.phase.as_deref()).unwrap_or("Unknown");
-            let containers = pod.spec.as_ref().map(|s| s.containers.iter().map(|c| c.name.clone()).collect::<Vec<_>>()).unwrap_or_default();
-            let containers_json = serde_json::to_string(&containers).unwrap_or_else(|_| "[]".into());
-            session_cache::insert_pod(conn, &Uuid::new_v4().to_string(), &deployment, &name, phase, &containers_json)?;
-        }
+        let deployment_id = owner
+            .and_then(|dep_name| deployment_ids.get(&dep_name).cloned())
+            .unwrap_or_else(|| unassigned_id.clone());
+        let phase = pod.status.as_ref().and_then(|s| s.phase.as_deref()).unwrap_or("Unknown");
+        let containers = pod.spec.as_ref().map(|s| s.containers.iter().map(|c| c.name.clone()).collect::<Vec<_>>()).unwrap_or_default();
+        let containers_json = serde_json::to_string(&containers).unwrap_or_else(|_| "[]".into());
+        session_cache::insert_pod(conn, &Uuid::new_v4().to_string(), &deployment_id, &name, phase, &containers_json)?;
     }
     for cm in configmaps {
         let name = cm.metadata.name.unwrap_or_default();
@@ -163,7 +199,82 @@ pub fn hydrate_live_catalog(
             session_cache::insert_configmap_entry(conn, &Uuid::new_v4().to_string(), &cm_id, &key, &value, truncated, false, value.len() as i64)?;
         }
     }
+    for svc in services {
+        let name = svc.metadata.name.unwrap_or_default();
+        let stype = svc.spec.as_ref().and_then(|s| s.type_.clone());
+        let cluster_ip = svc.spec.as_ref().and_then(|s| s.cluster_ip.clone());
+        let ports = svc
+            .spec
+            .as_ref()
+            .and_then(|s| s.ports.as_ref())
+            .map(|ports| {
+                ports
+                    .iter()
+                    .map(|p| {
+                        json!({
+                            "port": p.port,
+                            "targetPort": p.target_port.as_ref().map(|t| format!("{t:?}")),
+                            "protocol": p.protocol,
+                        })
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
+        let selector = svc
+            .spec
+            .as_ref()
+            .and_then(|s| s.selector.clone())
+            .unwrap_or_default();
+        let ports_json = serde_json::to_string(&ports).unwrap_or_else(|_| "[]".into());
+        let selector_json = serde_json::to_string(&selector).unwrap_or_else(|_| "{}".into());
+        session_cache::insert_service(
+            conn,
+            &Uuid::new_v4().to_string(),
+            instance_id,
+            catalog_epoch,
+            namespace,
+            &name,
+            stype.as_deref(),
+            cluster_ip.as_deref(),
+            &ports_json,
+            &selector_json,
+        )?;
+    }
     Ok(())
+}
+
+fn kube_list_err(kind: &str, namespace: &str, err: &kube::Error) -> FaroError {
+    let raw = err.to_string();
+    let lower = raw.to_lowercase();
+    let hint = if lower.contains("forbidden") || lower.contains("unauthorized") || lower.contains("401") || lower.contains("403") {
+        " IAM/user may lack RBAC (get/list deployments) or aws-auth mapping for this cluster"
+    } else if lower.contains("not found") || lower.contains("404") {
+        " check that the namespace exists on the cluster"
+    } else if lower.contains("timed out") || lower.contains("timeout") || lower.contains("connection") || lower.contains("tls") {
+        " check bastion tunnel reachability to the EKS API"
+    } else {
+        ""
+    };
+    let detail = sanitize_kube_err(&raw);
+    FaroError::Message(format!(
+        "unable to list live {kind} in namespace '{namespace}' ({detail}){hint}"
+    ))
+}
+
+fn sanitize_kube_err(raw: &str) -> String {
+    let mut out = raw.replace('\r', " ").replace('\n', " ");
+    for marker in ["Bearer ", "token:", "AKIA", "ASIA"] {
+        if let Some(idx) = out.find(marker) {
+            let end = (idx + marker.len() + 8).min(out.len());
+            out.replace_range(idx..end, "[redacted]");
+        }
+    }
+    let trimmed = out.trim();
+    if trimmed.len() > 240 {
+        format!("{}…", &trimmed[..240])
+    } else {
+        trimmed.to_string()
+    }
 }
 
 pub fn get_live_configmap(client: &Client, namespace: &str, name: &str) -> FaroResult<Value> {

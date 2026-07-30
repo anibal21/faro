@@ -14,6 +14,7 @@ pub const SESSION_TABLES: &[&str] = &[
     "cached_configmap_entry",
     "cached_pod_replica",
     "cached_configmap",
+    "cached_service",
     "cached_deployment",
     "cached_namespace",
     "connection_session",
@@ -51,6 +52,7 @@ impl DbState {
         let conn = self.conn.lock().map_err(|_| FaroError::Message("db lock".into()))?;
         conn.execute_batch(include_str!("migrations/001_durable.sql"))?;
         conn.execute_batch(include_str!("migrations/002_session.sql"))?;
+        conn.execute_batch(include_str!("migrations/003_services.sql"))?;
         Ok(())
     }
 

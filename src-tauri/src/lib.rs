@@ -39,8 +39,13 @@ pub fn run() {
             commands::logs_open,
             commands::logs_close,
             commands::logs_set_view,
+            commands::logs_load_older,
             commands::analyze_write_group,
             commands::workload_summary,
+            commands::export_write_text,
+            commands::k8s_list_pods,
+            commands::k8s_list_services,
+            commands::k8s_get_service,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Faro");

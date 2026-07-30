@@ -225,6 +225,151 @@ pub struct ConfigMapEntryRow {
     pub byte_length: Option<i64>,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ServiceRow {
+    pub id: String,
+    pub namespace: String,
+    pub name: String,
+    pub service_type: Option<String>,
+    pub cluster_ip: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ServiceDetail {
+    pub id: String,
+    pub namespace: String,
+    pub name: String,
+    pub service_type: Option<String>,
+    pub cluster_ip: Option<String>,
+    pub ports_json: Option<String>,
+    pub selector_json: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FlatPodRow {
+    pub id: String,
+    pub namespace: String,
+    pub pod_name: String,
+    pub phase: String,
+    pub deployment_name: Option<String>,
+}
+
+pub const UNASSIGNED_DEPLOYMENT: &str = "__unassigned__";
+
+pub fn insert_service(
+    conn: &Connection,
+    id: &str,
+    instance_id: &str,
+    epoch: &str,
+    namespace: &str,
+    name: &str,
+    service_type: Option<&str>,
+    cluster_ip: Option<&str>,
+    ports_json: &str,
+    selector_json: &str,
+) -> FaroResult<()> {
+    let now = chrono::Utc::now().to_rfc3339();
+    conn.execute(
+        "INSERT INTO cached_service (
+            id, connection_instance_id, catalog_epoch, namespace, name,
+            service_type, cluster_ip, ports_json, selector_json, fetched_at
+         ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)",
+        params![
+            id,
+            instance_id,
+            epoch,
+            namespace,
+            name,
+            service_type,
+            cluster_ip,
+            ports_json,
+            selector_json,
+            now
+        ],
+    )?;
+    Ok(())
+}
+
+pub fn list_services(conn: &Connection, instance_id: &str) -> FaroResult<Vec<ServiceRow>> {
+    let mut stmt = conn.prepare(
+        "SELECT id, namespace, name, service_type, cluster_ip FROM cached_service
+         WHERE connection_instance_id = ?1 ORDER BY namespace, name",
+    )?;
+    let rows = stmt.query_map([instance_id], |row| {
+        Ok(ServiceRow {
+            id: row.get(0)?,
+            namespace: row.get(1)?,
+            name: row.get(2)?,
+            service_type: row.get(3)?,
+            cluster_ip: row.get(4)?,
+        })
+    })?;
+    let mut out = Vec::new();
+    for row in rows {
+        out.push(row?);
+    }
+    Ok(out)
+}
+
+pub fn get_service(
+    conn: &Connection,
+    instance_id: &str,
+    namespace: &str,
+    name: &str,
+) -> FaroResult<Option<ServiceDetail>> {
+    let mut stmt = conn.prepare(
+        "SELECT id, namespace, name, service_type, cluster_ip, ports_json, selector_json
+         FROM cached_service
+         WHERE connection_instance_id = ?1 AND namespace = ?2 AND name = ?3",
+    )?;
+    let mut rows = stmt.query(params![instance_id, namespace, name])?;
+    if let Some(row) = rows.next()? {
+        Ok(Some(ServiceDetail {
+            id: row.get(0)?,
+            namespace: row.get(1)?,
+            name: row.get(2)?,
+            service_type: row.get(3)?,
+            cluster_ip: row.get(4)?,
+            ports_json: row.get(5)?,
+            selector_json: row.get(6)?,
+        }))
+    } else {
+        Ok(None)
+    }
+}
+
+pub fn list_all_pods(conn: &Connection, instance_id: &str) -> FaroResult<Vec<FlatPodRow>> {
+    let mut stmt = conn.prepare(
+        "SELECT p.id, d.namespace, p.pod_name, p.phase, d.name
+         FROM cached_pod_replica p
+         JOIN cached_deployment d ON d.id = p.cached_deployment_id
+         WHERE d.connection_instance_id = ?1
+         ORDER BY d.namespace, p.pod_name",
+    )?;
+    let rows = stmt.query_map([instance_id], |row| {
+        let dep_name: String = row.get(4)?;
+        Ok(FlatPodRow {
+            id: row.get(0)?,
+            namespace: row.get(1)?,
+            pod_name: row.get(2)?,
+            phase: row.get(3)?,
+            deployment_name: if dep_name == UNASSIGNED_DEPLOYMENT {
+                None
+            } else {
+                Some(dep_name)
+            },
+        })
+    })?;
+    let mut out = Vec::new();
+    for row in rows {
+        out.push(row?);
+    }
+    Ok(out)
+}
+
 pub fn list_deployments(
     conn: &Connection,
     instance_id: &str,
@@ -248,6 +393,9 @@ pub fn list_deployments(
     let mut out = Vec::new();
     for row in rows {
         let (id, namespace, name, replica_count, ready_replicas, available) = row?;
+        if name == UNASSIGNED_DEPLOYMENT {
+            continue;
+        }
         if let Some(f) = name_filter {
             if !name.to_lowercase().contains(&f.to_lowercase()) {
                 continue;

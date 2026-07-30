@@ -1,15 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   k8sGetConfigmap,
+  k8sGetService,
   listenEvent,
   logsClose,
+  logsLoadOlder,
   logsOpen,
   workloadSummary,
   type ConfigMapDetail,
+  type LoadOlderStatus,
   type LogsChunk,
   type LogsStatus,
+  type ServiceDetail,
   type WorkloadSummary,
 } from "../lib/ipc";
+import {
+  knownTextForPod,
+  LOG_PAGE_LINES,
+  olderPrefixFromTail,
+} from "../lib/logHistory";
 import { configmapNavKey, deploymentNavKey } from "./tabKeys";
 
 export type WorkspaceTab =
@@ -20,11 +29,18 @@ export type WorkspaceTab =
       windowId: string;
       namespace: string;
       deployment: string;
+      podName?: string;
       chunks: LogsChunk[];
       status: string;
       view: "structured" | "raw";
       search: string;
       summary: WorkloadSummary | null;
+      stickToBottom: boolean;
+      historyDepthByPod: Record<string, number>;
+      exhaustedPods: string[];
+      loadOlderStatus: LoadOlderStatus;
+      loadOlderMessage: string | null;
+      prependGeneration: number;
     }
   | {
       kind: "configmap";
@@ -33,9 +49,17 @@ export type WorkspaceTab =
       namespace: string;
       name: string;
       detail: ConfigMapDetail | null;
+    }
+  | {
+      kind: "service";
+      tabId: string;
+      navKey: string;
+      namespace: string;
+      name: string;
+      detail: ServiceDetail | null;
     };
 
-const MAX_CHUNKS = 500;
+const MAX_CHUNKS = 2000;
 
 export function useWorkspaceTabs(liveGeneration: number) {
   const [tabs, setTabs] = useState<WorkspaceTab[]>([]);
@@ -56,7 +80,11 @@ export function useWorkspaceTabs(liveGeneration: number) {
             if (chunks.length > MAX_CHUNKS) {
               chunks.splice(0, chunks.length - MAX_CHUNKS);
             }
-            return { ...t, chunks };
+            const historyDepthByPod = { ...t.historyDepthByPod };
+            if (historyDepthByPod[payload.podName] == null) {
+              historyDepthByPod[payload.podName] = LOG_PAGE_LINES;
+            }
+            return { ...t, chunks, historyDepthByPod };
           }),
         );
       });
@@ -77,7 +105,6 @@ export function useWorkspaceTabs(liveGeneration: number) {
       }
       u1();
       u2();
-      return () => undefined;
     }
     let cleanup: () => void = () => undefined;
     void bind().then((fn) => {
@@ -128,13 +155,62 @@ export function useWorkspaceTabs(liveGeneration: number) {
         namespace,
         deployment,
         chunks: [],
-        status: "starting",
+        status: "iniciando",
         view: "structured",
         search: "",
         summary,
+        stickToBottom: true,
+        historyDepthByPod: {},
+        exhaustedPods: [],
+        loadOlderStatus: "idle",
+        loadOlderMessage: null,
+        prependGeneration: 0,
       };
       setTabs((prev) => [...prev, tab]);
       setActiveTabId(tabId);
+    },
+    [],
+  );
+
+  const openPod = useCallback(
+    async (
+      namespace: string,
+      podName: string,
+      deploymentName?: string | null,
+    ) => {
+      const navKey = `pod:${namespace}/${podName}`;
+      const existing = tabsRef.current.find((t) => t.navKey === navKey);
+      if (existing) {
+        setActiveTabId(existing.tabId);
+        return;
+      }
+      const dep = deploymentName?.trim() || podName;
+      const [{ windowId }, summary] = await Promise.all([
+        logsOpen(namespace, dep, podName),
+        workloadSummary(namespace, dep).catch(() => null),
+      ]);
+      const tab: WorkspaceTab = {
+        kind: "deployment",
+        tabId: windowId,
+        navKey,
+        windowId,
+        namespace,
+        deployment: dep,
+        podName,
+        chunks: [],
+        status: "iniciando",
+        view: "structured",
+        search: "",
+        summary,
+        stickToBottom: true,
+        historyDepthByPod: {},
+        exhaustedPods: [],
+        loadOlderStatus: "idle",
+        loadOlderMessage: null,
+        prependGeneration: 0,
+      };
+      setTabs((prev) => [...prev, tab]);
+      setActiveTabId(windowId);
     },
     [],
   );
@@ -162,6 +238,26 @@ export function useWorkspaceTabs(liveGeneration: number) {
     },
     [],
   );
+
+  const openService = useCallback(async (namespace: string, name: string) => {
+    const navKey = `svc:${namespace}/${name}`;
+    const existing = tabsRef.current.find((t) => t.navKey === navKey);
+    if (existing) {
+      setActiveTabId(existing.tabId);
+      return;
+    }
+    const detail = await k8sGetService(namespace, name);
+    const tab: WorkspaceTab = {
+      kind: "service",
+      tabId: navKey,
+      navKey,
+      namespace,
+      name,
+      detail,
+    };
+    setTabs((prev) => [...prev, tab]);
+    setActiveTabId(navKey);
+  }, []);
 
   const closeTab = useCallback(async (tabId: string) => {
     const tab = tabsRef.current.find((t) => t.tabId === tabId);
@@ -205,15 +301,137 @@ export function useWorkspaceTabs(liveGeneration: number) {
     );
   }, []);
 
+  const setStickToBottom = useCallback((tabId: string, stickToBottom: boolean) => {
+    setTabs((prev) =>
+      prev.map((t) =>
+        t.kind === "deployment" && t.tabId === tabId
+          ? { ...t, stickToBottom }
+          : t,
+      ),
+    );
+  }, []);
+
+  const loadOlder = useCallback(async (tabId: string) => {
+    const tab = tabsRef.current.find((t) => t.tabId === tabId);
+    if (!tab || tab.kind !== "deployment") return;
+    if (tab.loadOlderStatus === "loading" || tab.loadOlderStatus === "exhausted") {
+      return;
+    }
+
+    setTabs((prev) =>
+      prev.map((t) =>
+        t.kind === "deployment" && t.tabId === tabId
+          ? { ...t, loadOlderStatus: "loading", loadOlderMessage: null }
+          : t,
+      ),
+    );
+
+    const depths: Record<string, number> = { ...tab.historyDepthByPod };
+    const podNames = [...new Set(tab.chunks.map((c) => c.podName))];
+    for (const p of podNames) {
+      if (depths[p] == null) depths[p] = LOG_PAGE_LINES;
+    }
+    // Ensure at least demo pods get a depth if no chunks yet
+    if (Object.keys(depths).length === 0) {
+      depths[`${tab.deployment}-aaa`] = LOG_PAGE_LINES;
+    }
+
+    try {
+      const result = await logsLoadOlder(tab.namespace, tab.deployment, depths);
+
+      const olderChunks: LogsChunk[] = [];
+      const historyDepthByPod = { ...depths };
+      const exhaustedPods = new Set(tab.exhaustedPods);
+      let anyOlder = false;
+
+      for (const batch of result.pods) {
+        let older = "";
+        if (batch.olderOnly) {
+          older = batch.tailText;
+          if (!older.trim() || batch.exhausted) {
+            exhaustedPods.add(batch.podName);
+          } else {
+            anyOlder = true;
+            historyDepthByPod[batch.podName] = batch.requestDepth;
+          }
+        } else {
+          const known = knownTextForPod(tab.chunks, batch.podName);
+          const diff = olderPrefixFromTail(batch.tailText, known);
+          older = diff.older;
+          if (diff.exhausted || batch.exhausted || !older.trim()) {
+            exhaustedPods.add(batch.podName);
+          } else {
+            anyOlder = true;
+            historyDepthByPod[batch.podName] = batch.requestDepth;
+          }
+        }
+        if (older.trim()) {
+          olderChunks.push({
+            windowId: tab.windowId,
+            podName: batch.podName,
+            text: older,
+            timestamp: new Date(0).toISOString(),
+          });
+        }
+      }
+
+      const allExhausted =
+        (result.pods.length === 0 ||
+          result.pods.every((p) => exhaustedPods.has(p.podName))) &&
+        !anyOlder;
+
+      setTabs((prev) =>
+        prev.map((t) => {
+          if (t.kind !== "deployment" || t.tabId !== tabId) return t;
+          const chunks = anyOlder ? [...olderChunks, ...t.chunks] : t.chunks;
+          if (chunks.length > MAX_CHUNKS) {
+            chunks.splice(0, chunks.length - MAX_CHUNKS);
+          }
+          return {
+            ...t,
+            chunks,
+            historyDepthByPod,
+            exhaustedPods: [...exhaustedPods],
+            loadOlderStatus: allExhausted ? "exhausted" : "idle",
+            loadOlderMessage: allExhausted
+              ? "Inicio del historial disponible"
+              : null,
+            prependGeneration: anyOlder
+              ? t.prependGeneration + 1
+              : t.prependGeneration,
+            stickToBottom: anyOlder ? false : t.stickToBottom,
+          };
+        }),
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setTabs((prev) =>
+        prev.map((t) =>
+          t.kind === "deployment" && t.tabId === tabId
+            ? {
+                ...t,
+                loadOlderStatus: "error",
+                loadOlderMessage: msg || "No se pudo cargar historial",
+              }
+            : t,
+        ),
+      );
+    }
+  }, []);
+
   return {
     tabs,
     activeTabId,
     setActiveTabId,
     openDeployment,
+    openPod,
     openConfigMap,
+    openService,
     closeTab,
     closeAll,
     setView,
     setSearch,
+    setStickToBottom,
+    loadOlder,
   };
 }

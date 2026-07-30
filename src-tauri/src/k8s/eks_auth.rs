@@ -180,7 +180,9 @@ pub fn describe_cluster_endpoint(
     Ok((host, ca.to_string()))
 }
 
-/// Mint a short-lived EKS bearer token in memory only.
+/// Mint a short-lived EKS bearer token in memory only (local AWS CLI + IAM file).
+/// Kept for offline/local testing; live connect uses [`mint_eks_token_via_bastion`].
+#[allow(dead_code)]
 pub fn mint_eks_token(region_name: &str, cluster_name: &str, iam_path: &str) -> FaroResult<String> {
     let data = aws_json(
         &[
@@ -200,6 +202,59 @@ pub fn mint_eks_token(region_name: &str, cluster_name: &str, iam_path: &str) -> 
         .and_then(|v| v.as_str())
         .map(str::to_owned)
         .ok_or_else(|| FaroError::Message("EKS token missing from AWS response".into()))
+}
+
+fn assert_safe_aws_ident(value: &str, label: &str) -> FaroResult<()> {
+    let v = value.trim();
+    if v.is_empty()
+        || !v
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+    {
+        return Err(FaroError::Message(format!(
+            "{label} contains invalid characters"
+        )));
+    }
+    Ok(())
+}
+
+/// Mint EKS token **on the bastion** (instance role / bastion AWS identity).
+/// Matches how operators already use `kubectl` on the bastion — no extra aws-auth
+/// mapping required for the operator's local IAM user.
+pub fn mint_eks_token_via_bastion(
+    bastion_host: &str,
+    ssh_port: i64,
+    ssh_user: &str,
+    pem_path: &str,
+    region_name: &str,
+    cluster_name: &str,
+) -> FaroResult<String> {
+    assert_safe_aws_ident(region_name, "region_name")?;
+    assert_safe_aws_ident(cluster_name, "cluster_name")?;
+    let remote = format!(
+        "aws eks get-token --region {} --cluster-name {} --output json",
+        region_name.trim(),
+        cluster_name.trim()
+    );
+    let stdout = crate::ssh::tunnel::ssh_exec(
+        bastion_host,
+        ssh_port,
+        ssh_user,
+        pem_path,
+        &remote,
+    )?;
+    let data: serde_json::Value = serde_json::from_str(stdout.trim()).map_err(|_| {
+        FaroError::Message(
+            "bastion aws eks get-token returned invalid JSON (is AWS CLI installed on the bastion?)"
+                .into(),
+        )
+    })?;
+    data.pointer("/status/token")
+        .and_then(|v| v.as_str())
+        .map(str::to_owned)
+        .ok_or_else(|| {
+            FaroError::Message("EKS token missing from bastion aws eks get-token response".into())
+        })
 }
 
 #[cfg(test)]
@@ -237,5 +292,13 @@ mod tests {
         .unwrap();
         let p = validate_iam_credentials_file(f.path().to_str().unwrap()).unwrap();
         assert!(p.has_access_key_id && p.has_secret_access_key);
+    }
+
+    #[test]
+    fn sanitize_aws_stderr_redacts_key_markers() {
+        let raw = "UnrecognizedClientException AKIAEXAMPLEKEYID more text";
+        let out = sanitize_aws_stderr(raw);
+        assert!(out.contains("[redacted]"));
+        assert!(!out.contains("AKIAEXAMPLE"));
     }
 }

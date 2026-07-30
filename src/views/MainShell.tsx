@@ -102,6 +102,8 @@ export function MainShell({
           connectionErrorId={errorId}
           catalogFocusId={connection.connectedInstanceId}
           deployments={catalog.deployments}
+          pods={catalog.pods}
+          services={catalog.services}
           configMaps={configMaps.items}
           catalogLoading={catalog.loading}
           onSelect={(id) => {
@@ -120,6 +122,12 @@ export function MainShell({
           onEdit={openEdit}
           onOpenDeployment={(ns, name) => {
             void workspace.openDeployment(ns, name);
+          }}
+          onOpenPod={(ns, pod, dep) => {
+            void workspace.openPod(ns, pod, dep);
+          }}
+          onOpenService={(ns, name) => {
+            void workspace.openService(ns, name);
           }}
           onOpenConfigMap={(ns, name) => {
             void workspace.openConfigMap(ns, name);
@@ -197,6 +205,10 @@ export function MainShell({
                 }}
                 onSetView={workspace.setView}
                 onSetSearch={workspace.setSearch}
+                onSetStickToBottom={workspace.setStickToBottom}
+                onLoadOlder={(id) => {
+                  void workspace.loadOlder(id);
+                }}
               />
               {workspace.tabs.length === 0 && (
                 <p className="p-2 text-[12px] text-muted-foreground">

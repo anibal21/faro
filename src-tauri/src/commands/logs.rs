@@ -5,6 +5,7 @@ use crate::k8s::logs;
 use crate::runtime::{ConnectMode, RuntimeState};
 use serde::Serialize;
 use serde_json::{json, Value};
+use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tauri::{AppHandle, State};
@@ -22,6 +23,7 @@ pub fn logs_open(
     runtime: State<'_, RuntimeState>,
     namespace: String,
     deployment: String,
+    pod_name: Option<String>,
 ) -> FaroResult<Value> {
     let mut rt = runtime
         .inner
@@ -43,10 +45,26 @@ pub fn logs_open(
     drop(rt);
 
     match mode {
-        ConnectMode::Demo => logs::start_demo_follow(app, window_id.clone(), deployment, cancel),
+        ConnectMode::Demo => logs::start_demo_follow(
+            app,
+            window_id.clone(),
+            deployment,
+            pod_name,
+            cancel,
+        ),
         ConnectMode::Live => {
-            let client = client.ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
-            logs::start_live_follow(app, window_id.clone(), namespace, deployment, client, cancel);
+            let client = client.ok_or_else(|| {
+                FaroError::Message("live Kubernetes session unavailable".into())
+            })?;
+            logs::start_live_follow(
+                app,
+                window_id.clone(),
+                namespace,
+                deployment,
+                pod_name,
+                client,
+                cancel,
+            );
         }
     }
     Ok(json!(LogsOpenResult { window_id }))
@@ -76,4 +94,39 @@ pub fn logs_set_view(window_id: String, view: String) -> FaroResult<()> {
         ));
     }
     Ok(())
+}
+
+/// Fetch a larger one-shot tail per pod without cancelling an active follow.
+#[tauri::command]
+pub fn logs_load_older(
+    runtime: State<'_, RuntimeState>,
+    namespace: String,
+    deployment: String,
+    depths: HashMap<String, i64>,
+) -> FaroResult<Value> {
+    let rt = runtime
+        .inner
+        .lock()
+        .map_err(|_| FaroError::Message("runtime lock".into()))?;
+    let focused = rt.focused_instance_id.clone().ok_or_else(|| {
+        FaroError::Message("not connected — connect before loading older logs".into())
+    })?;
+    let entry = rt.sessions.get(&focused).ok_or_else(|| {
+        FaroError::Message("not connected — connect before loading older logs".into())
+    })?;
+    let mode = entry.mode;
+    let client = entry.client.clone();
+    drop(rt);
+
+    let result = match mode {
+        ConnectMode::Demo => logs::load_older_demo(&deployment, &depths),
+        ConnectMode::Live => {
+            let client = client.ok_or_else(|| {
+                FaroError::Message("live Kubernetes session unavailable".into())
+            })?;
+            logs::load_older_live(namespace, deployment, client, depths)
+                .map_err(FaroError::Message)?
+        }
+    };
+    Ok(json!(result))
 }
