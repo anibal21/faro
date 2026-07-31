@@ -1,4 +1,4 @@
-//! Connect / disconnect — SSH path validate + IAM file + catalog hydrate.
+//! Connect / disconnect — PEM + bastion describe/token + catalog hydrate.
 //! Multi-session: connecting B does not disconnect A.
 //! Live connect runs on a blocking worker (Windows WebView2 must not block UI IPC).
 
@@ -15,7 +15,7 @@ use std::path::PathBuf;
 use tauri::{AppHandle, Manager, State};
 use uuid::Uuid;
 
-/// Resolve absolute paths to repo `fixtures/` demo files (offline connect).
+/// Resolve absolute paths to repo `fixtures/` demo files (offline connect helpers).
 #[tauri::command]
 pub fn demo_fixture_paths() -> FaroResult<Value> {
     let mut bases = Vec::new();
@@ -30,16 +30,19 @@ pub fn demo_fixture_paths() -> FaroResult<Value> {
     for base in bases {
         let pem = base.join("fixtures").join("demo.pem");
         let iam = base.join("fixtures").join("demo-iam-credentials");
-        if pem.is_file() && iam.is_file() {
+        if pem.is_file() {
             return Ok(json!({
                 "pemPath": pem.canonicalize().unwrap_or(pem).to_string_lossy(),
-                "iamCredentialsPath": iam.canonicalize().unwrap_or(iam).to_string_lossy(),
+                "iamCredentialsPath": if iam.is_file() {
+                    iam.canonicalize().unwrap_or(iam).to_string_lossy().to_string()
+                } else {
+                    String::new()
+                },
             }));
         }
     }
     Err(FaroError::Message(
-        "demo fixtures not found — create fixtures/demo.pem and fixtures/demo-iam-credentials"
-            .into(),
+        "demo fixtures not found — create fixtures/demo.pem".into(),
     ))
 }
 
@@ -122,11 +125,14 @@ fn env_connect_blocking(app: &AppHandle, instance_id: Option<String>) -> FaroRes
                 FaroError::Message("namespace_default is required for live environments".into())
             })?;
 
-        eks_auth::validate_iam_credentials_file(&env.iam_credentials_path)?;
-        let (api_host, ca_b64) = eks_auth::describe_cluster_endpoint(
+        // Discovery + kube token via bastion identity — no laptop IAM file.
+        let (api_host, ca_b64) = eks_auth::describe_cluster_endpoint_via_bastion(
+            &env.bastion_host,
+            env.ssh_port,
+            &env.ssh_user,
+            &env.pem_path,
             &env.region_name,
             &env.cluster_name,
-            &env.iam_credentials_path,
         )?;
         let mut handle = tunnel::open_tunnel(
             &env.bastion_host,
@@ -136,7 +142,6 @@ fn env_connect_blocking(app: &AppHandle, instance_id: Option<String>) -> FaroRes
             &api_host,
         )?;
         let result = (|| {
-            // Token from bastion identity (same as kubectl there) — not local IAM.
             let token = eks_auth::mint_eks_token_via_bastion(
                 &env.bastion_host,
                 env.ssh_port,

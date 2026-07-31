@@ -42,6 +42,7 @@ pub struct EnvUpsertInput {
     pub ssh_port: i64,
     pub ssh_user: String,
     pub pem_path: String,
+    #[serde(default)]
     pub iam_credentials_path: String,
     pub region_name: String,
     pub cluster_name: String,
@@ -87,7 +88,8 @@ pub fn validate_upsert(input: &EnvUpsertInput) -> FaroResult<()> {
     require_non_empty("bastion_host", &input.bastion_host)?;
     require_non_empty("ssh_user", &input.ssh_user)?;
     let pem = require_non_empty("pem_path", &input.pem_path)?;
-    let iam = require_non_empty("iam_credentials_path", &input.iam_credentials_path)?;
+    // IAM path is optional/legacy — empty allowed; still reject secret-looking content if set.
+    let iam = input.iam_credentials_path.trim().to_string();
     require_non_empty("region_name", &input.region_name)?;
     require_non_empty("cluster_name", &input.cluster_name)?;
     require_non_empty(
@@ -98,7 +100,9 @@ pub fn validate_upsert(input: &EnvUpsertInput) -> FaroResult<()> {
         return Err(FaroError::Message("ssh_port must be 1–65535".into()));
     }
     reject_secret_material("pem_path", &pem)?;
-    reject_secret_material("iam_credentials_path", &iam)?;
+    if !iam.is_empty() {
+        reject_secret_material("iam_credentials_path", &iam)?;
+    }
     if let Some(notes) = &input.notes {
         reject_secret_material("notes", notes)?;
     }
@@ -298,6 +302,29 @@ mod tests {
         let mut input = sample("a");
         input.pem_path = "  ".into();
         assert!(validate_upsert(&input).is_err());
+    }
+
+    #[test]
+    fn upsert_allows_empty_iam_path() {
+        let mut input = sample("pem-only");
+        input.iam_credentials_path = "".into();
+        assert!(validate_upsert(&input).is_ok());
+        let dir = tempdir().unwrap();
+        let db = DbState::open(dir.path().join("env.sqlite")).unwrap();
+        let conn = db.conn.lock().unwrap();
+        let saved = upsert(&conn, input).unwrap();
+        assert!(saved.iam_credentials_path.is_empty());
+    }
+
+    #[test]
+    fn upsert_keeps_legacy_iam_path() {
+        let input = sample("legacy-iam");
+        assert!(validate_upsert(&input).is_ok());
+        let dir = tempdir().unwrap();
+        let db = DbState::open(dir.path().join("env.sqlite")).unwrap();
+        let conn = db.conn.lock().unwrap();
+        let saved = upsert(&conn, input).unwrap();
+        assert_eq!(saved.iam_credentials_path, r"C:\aws\creds");
     }
 
     #[test]

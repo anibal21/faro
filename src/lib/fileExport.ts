@@ -71,3 +71,27 @@ export function buildConfigMapExport(
   }
   return lines.join("\n");
 }
+
+/** Page through older history until exhausted, cancelled, or max pages. */
+export async function exhaustLogHistory(options: {
+  maxPages?: number;
+  isCancelled: () => boolean;
+  loadPage: () => Promise<"more" | "exhausted" | "error" | "skipped">;
+  onProgress?: (page: number) => void;
+}): Promise<"exhausted" | "cancelled" | "error"> {
+  const max = options.maxPages ?? 200;
+  for (let page = 1; page <= max; page++) {
+    if (options.isCancelled()) return "cancelled";
+    options.onProgress?.(page);
+    const result = await options.loadPage();
+    if (options.isCancelled()) return "cancelled";
+    if (result === "exhausted") return "exhausted";
+    if (result === "error") return "error";
+    if (result === "skipped") {
+      await new Promise((r) => setTimeout(r, 30));
+      page -= 1;
+      continue;
+    }
+  }
+  return "exhausted";
+}

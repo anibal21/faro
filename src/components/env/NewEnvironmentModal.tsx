@@ -27,7 +27,6 @@ const emptyForm = {
   sshUser: "",
   namespaceDefault: "",
   pemPath: "",
-  iamCredentialsPath: "",
   regionName: "",
   clusterName: "",
   notes: "",
@@ -57,7 +56,6 @@ export function NewEnvironmentModal({
         sshUser: initial.sshUser,
         namespaceDefault: initial.namespaceDefault ?? "",
         pemPath: initial.pemPath,
-        iamCredentialsPath: initial.iamCredentialsPath,
         regionName: initial.regionName,
         clusterName: initial.clusterName,
         notes: initial.notes ?? "",
@@ -89,7 +87,7 @@ export function NewEnvironmentModal({
         sshPort: Number(form.sshPort) || 22,
         sshUser: form.sshUser,
         pemPath: form.pemPath,
-        iamCredentialsPath: form.iamCredentialsPath,
+        iamCredentialsPath: "",
         regionName: form.regionName,
         clusterName: form.clusterName,
         namespaceDefault: form.namespaceDefault || undefined,
@@ -108,16 +106,15 @@ export function NewEnvironmentModal({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function browseFor(field: "pemPath" | "iamCredentialsPath") {
+  async function browsePem() {
     setError(null);
     try {
       const path = await openPathPicker();
-      // Dialog opened successfully (select or cancel) → Browse is healthy again.
       setBrowseBroken(false);
       if (path === null) {
         return;
       }
-      setField(field, path);
+      setField("pemPath", path);
     } catch {
       setBrowseBroken(true);
       setError(BROWSE_BLOCKED_MSG);
@@ -130,11 +127,9 @@ export function NewEnvironmentModal({
       const paths = await demoFixturePaths();
       setForm((prev) => ({
         ...prev,
-        // Do not invent a "demo-local" env name — builtin demo is the only "demo".
         bastionHost: prev.bastionHost || "bastion.demo.local",
         sshUser: prev.sshUser || "ec2-user",
         pemPath: paths.pemPath,
-        iamCredentialsPath: paths.iamCredentialsPath,
         regionName: prev.regionName || "us-east-1",
         clusterName: prev.clusterName || "demo-eks",
         namespaceDefault: prev.namespaceDefault || "default",
@@ -163,8 +158,8 @@ export function NewEnvironmentModal({
           </DialogTitle>
         </DialogHeader>
         <p className="mb-2 text-[11px] text-muted-foreground">
-          PEM + SSH + ruta IAM + region_name + cluster_name. Solo rutas e
-          identificadores.{" "}
+          PEM + SSH + region_name + cluster_name. Solo rutas e identificadores
+          (sin archivo IAM).{" "}
           <button
             type="button"
             className="text-primary underline"
@@ -201,28 +196,7 @@ export function NewEnvironmentModal({
                 type="button"
                 variant="outline"
                 className="h-7 shrink-0 px-2"
-                onClick={() => void browseFor("pemPath")}
-              >
-                Examinar
-              </Button>
-            </div>
-          </label>
-          <label className="grid gap-0.5">
-            <span className="text-muted-foreground">Credenciales IAM (ruta)</span>
-            <div className="flex gap-1">
-              <input
-                required
-                type="text"
-                aria-label="Credenciales IAM (ruta)"
-                className="h-7 min-w-0 flex-1 rounded-md border border-input bg-background px-2"
-                value={form.iamCredentialsPath}
-                onChange={(e) => setField("iamCredentialsPath", e.target.value)}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                className="h-7 shrink-0 px-2"
-                onClick={() => void browseFor("iamCredentialsPath")}
+                onClick={() => void browsePem()}
               >
                 Examinar
               </Button>

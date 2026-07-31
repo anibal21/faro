@@ -45,6 +45,7 @@
     "allow-export-write-text",
     "allow-k8s-list-pods",
     "allow-k8s-list-services",
-    "allow-k8s-get-service"
+    "allow-k8s-get-service",
+    "allow-k8s-get-deployment-yaml"
   ]
 }

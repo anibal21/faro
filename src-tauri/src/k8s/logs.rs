@@ -1,8 +1,9 @@
 //! Demo + live log follow streams (RAM only; never persist full dumps).
 
 use futures::{AsyncBufReadExt, StreamExt};
+use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Pod;
-use kube::api::LogParams;
+use kube::api::{ListParams, LogParams};
 use kube::{Api, Client};
 use serde::Serialize;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -152,11 +153,10 @@ pub fn start_live_follow(
             }
         };
         rt.block_on(async {
-            let api: Api<Pod> = Api::namespaced(client.clone(), &namespace);
             let pod_names = if let Some(only) = pod_filter {
                 vec![only]
             } else {
-                match list_deployment_pods(&api, &deployment).await {
+                match list_deployment_pods(&client, &namespace, &deployment).await {
                     Ok(names) => names,
                     Err(_) => {
                         let _ = app.emit(
@@ -188,6 +188,7 @@ pub fn start_live_follow(
                 },
             );
 
+            let api: Api<Pod> = Api::namespaced(client.clone(), &namespace);
             let mut set = JoinSet::new();
             for pod_name in pod_names {
                 let app = app.clone();
@@ -225,8 +226,37 @@ pub fn start_live_follow(
     });
 }
 
-async fn list_deployment_pods(api: &Api<Pod>, deployment: &str) -> Result<Vec<String>, kube::Error> {
-    let pods = api.list(&Default::default()).await?.items;
+async fn list_deployment_pods(
+    client: &Client,
+    namespace: &str,
+    deployment: &str,
+) -> Result<Vec<String>, kube::Error> {
+    let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
+    // Prefer Deployment selector (small list) over listing every pod in the namespace.
+    let pods = {
+        let dep_api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
+        match dep_api.get(deployment).await {
+            Ok(dep) => {
+                let label_sel = dep
+                    .spec
+                    .as_ref()
+                    .and_then(|s| s.selector.match_labels.as_ref())
+                    .map(|ml| {
+                        ml.iter()
+                            .map(|(k, v)| format!("{k}={v}"))
+                            .collect::<Vec<_>>()
+                            .join(",")
+                    })
+                    .filter(|s| !s.is_empty());
+                if let Some(sel) = label_sel {
+                    api.list(&ListParams::default().labels(&sel)).await?.items
+                } else {
+                    api.list(&ListParams::default()).await?.items
+                }
+            }
+            Err(_) => api.list(&ListParams::default()).await?.items,
+        }
+    };
     let mut names: Vec<String> = pods
         .into_iter()
         .filter(|p| pod_matches_deployment(p, deployment))
@@ -347,8 +377,8 @@ pub fn load_older_live(
 ) -> Result<LoadOlderResult, String> {
     let rt = tokio::runtime::Runtime::new().map_err(|_| "live log runtime failed".to_string())?;
     rt.block_on(async {
-        let api: Api<Pod> = Api::namespaced(client, &namespace);
-        let pod_names = list_deployment_pods(&api, &deployment)
+        let api: Api<Pod> = Api::namespaced(client.clone(), &namespace);
+        let pod_names = list_deployment_pods(&client, &namespace, &deployment)
             .await
             .map_err(|_| "unable to list pods for load older".to_string())?;
         if pod_names.is_empty() {

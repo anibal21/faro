@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { configmapNavKey, deploymentNavKey } from "../../src/hooks/tabKeys";
+import {
+  configmapNavKey,
+  deploymentNavKey,
+  deployLogsNavKey,
+} from "../../src/hooks/tabKeys";
 
 describe("workspace tab navKeys (US2)", () => {
-  it("builds stable deployment and configmap keys", () => {
+  it("builds stable deployment-yaml, deploy-logs, and configmap keys", () => {
     expect(deploymentNavKey("default", "payments-api")).toBe(
-      "deployment:default/payments-api",
+      "deployment-yaml:default/payments-api",
+    );
+    expect(deployLogsNavKey("default", "payments-api")).toBe(
+      "deploy-logs:default/payments-api",
     );
     expect(configmapNavKey("default", "payments-config")).toBe(
       "configmap:default/payments-config",

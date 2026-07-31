@@ -24,7 +24,8 @@ export type EnvUpsertInput = {
   sshPort: number;
   sshUser: string;
   pemPath: string;
-  iamCredentialsPath: string;
+  /** Optional/legacy — empty string for PEM-only live connect. */
+  iamCredentialsPath?: string;
   regionName: string;
   clusterName: string;
   namespaceDefault?: string;
@@ -118,6 +119,18 @@ export type AnalysisFinding = {
   explanation: string;
   recommendation: string;
 };
+
+export type AnalyzeResult = {
+  findings: AnalysisFinding[];
+  packId: string;
+  packDisplayName: string;
+};
+
+/** Packs aligned with embedded Rust assets under rules/<pack>/default.json. */
+export const RULE_PACKS = [
+  { id: "springboot", displayName: "Spring Boot / JVM" },
+  { id: "nodejs", displayName: "Node.js" },
+] as const;
 
 export type WorkloadSummary = {
   namespace: string;
@@ -276,6 +289,22 @@ export async function k8sGetService(
   return invokeCommand<ServiceDetail>("k8s_get_service", { namespace, name });
 }
 
+export type DeploymentYamlDoc = {
+  namespace: string;
+  name: string;
+  yamlText: string;
+};
+
+export async function k8sGetDeploymentYaml(
+  namespace: string,
+  name: string,
+): Promise<DeploymentYamlDoc> {
+  return invokeCommand<DeploymentYamlDoc>("k8s_get_deployment_yaml", {
+    namespace,
+    name,
+  });
+}
+
 export async function catalogRefresh(): Promise<{ catalogEpoch: string }> {
   return invokeCommand<{ catalogEpoch: string }>("catalog_refresh");
 }
@@ -318,9 +347,14 @@ export async function logsSetView(
 export async function analyzeWriteGroup(
   text: string,
   sourceHint?: string,
-): Promise<AnalysisFinding[]> {
-  return invokeCommand<AnalysisFinding[]>("analyze_write_group", {
-    payload: { text, sourceHint: sourceHint ?? null },
+  rulePack?: string | null,
+): Promise<AnalyzeResult> {
+  return invokeCommand<AnalyzeResult>("analyze_write_group", {
+    payload: {
+      text,
+      sourceHint: sourceHint ?? null,
+      rulePack: rulePack ?? null,
+    },
   });
 }
 

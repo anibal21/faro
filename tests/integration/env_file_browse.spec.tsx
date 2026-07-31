@@ -30,7 +30,11 @@ vi.mock("../../src/lib/ipc", () => ({
   logsOpen: vi.fn(),
   logsClose: vi.fn(),
   logsSetView: vi.fn(),
-  analyzeWriteGroup: vi.fn(async () => []),
+  analyzeWriteGroup: vi.fn(async () => ({
+    findings: [],
+    packId: "springboot",
+    packDisplayName: "Spring Boot / JVM",
+  })),
   prefsGet: vi.fn(async () => ({ theme: "light" })),
   prefsSet: vi.fn(),
   listenEvent: vi.fn(async () => () => undefined),
@@ -44,7 +48,7 @@ function sample(partial: Partial<ConnectionInstance> = {}): ConnectionInstance {
     sshPort: 22,
     sshUser: "ec2-user",
     pemPath: "C:\\keys\\a.pem",
-    iamCredentialsPath: "C:\\aws\\creds",
+    iamCredentialsPath: "",
     regionName: "us-east-1",
     clusterName: "demo",
     namespaceDefault: "default",
@@ -111,30 +115,25 @@ describe("env file browse", () => {
     setPathPickerForTests(null);
   });
 
-  it("fills PEM and IAM paths via Examinar and saves path-only payload", async () => {
+  it("fills PEM path via Examinar and saves without IAM field", async () => {
     const user = userEvent.setup();
-    let call = 0;
-    setPathPickerForTests(async () => {
-      call += 1;
-      return call === 1 ? "C:\\keys\\picked.pem" : "C:\\aws\\picked-creds";
-    });
+    setPathPickerForTests(async () => "C:\\keys\\picked.pem");
 
     const dialog = await openNewEnvDialog(user);
     await fillRequiredExceptPaths(user, dialog);
 
+    expect(
+      within(dialog).queryByLabelText(/Credenciales IAM/i),
+    ).toBeNull();
     const examinar = within(dialog).getAllByRole("button", { name: "Examinar" });
-    expect(examinar).toHaveLength(2);
+    expect(examinar).toHaveLength(1);
     await user.click(examinar[0]);
-    await user.click(examinar[1]);
 
     await waitFor(() => {
       expect(within(dialog).getByLabelText(/PEM \(ruta/i)).toHaveValue(
         "C:\\keys\\picked.pem",
       );
     });
-    expect(within(dialog).getByLabelText(/Credenciales IAM/i)).toHaveValue(
-      "C:\\aws\\picked-creds",
-    );
 
     list.mockResolvedValue([sample()]);
     await user.click(within(dialog).getByRole("button", { name: "Guardar" }));
@@ -144,11 +143,13 @@ describe("env file browse", () => {
     });
     const payload = upsert.mock.calls[0][0] as Record<string, unknown>;
     expect(payload.pemPath).toBe("C:\\keys\\picked.pem");
-    expect(payload.iamCredentialsPath).toBe("C:\\aws\\picked-creds");
+    expect(payload.iamCredentialsPath === "" || payload.iamCredentialsPath == null).toBe(
+      true,
+    );
     expect(JSON.stringify(payload)).not.toMatch(/BEGIN|AKIA|aws_secret/i);
   }, 15_000);
 
-  it("keeps path unchanged and Save enabled on cancel", async () => {
+  it("keeps PEM path unchanged and Save enabled on cancel", async () => {
     const user = userEvent.setup();
     setPathPickerForTests(async () => null);
 
@@ -157,10 +158,6 @@ describe("env file browse", () => {
     await user.type(
       within(dialog).getByLabelText(/PEM \(ruta/i),
       "C:\\keys\\typed.pem",
-    );
-    await user.type(
-      within(dialog).getByLabelText(/Credenciales IAM/i),
-      "C:\\aws\\typed",
     );
 
     await user.click(within(dialog).getAllByRole("button", { name: "Examinar" })[0]);
@@ -189,10 +186,6 @@ describe("env file browse", () => {
       within(dialog).getByLabelText(/PEM \(ruta/i),
       "C:\\keys\\a.pem",
     );
-    await user.type(
-      within(dialog).getByLabelText(/Credenciales IAM/i),
-      "C:\\aws\\creds",
-    );
 
     await user.click(within(dialog).getAllByRole("button", { name: "Examinar" })[0]);
 
@@ -213,11 +206,11 @@ describe("env file browse", () => {
     });
   }, 15_000);
 
-  it("still fills paths from Usar fixtures demo", async () => {
+  it("still fills PEM from Usar fixtures demo", async () => {
     const user = userEvent.setup();
     demoFixturePaths.mockResolvedValue({
       pemPath: "C:\\fixtures\\demo.pem",
-      iamCredentialsPath: "C:\\fixtures\\demo-iam",
+      iamCredentialsPath: "",
     });
 
     const dialog = await openNewEnvDialog(user);
@@ -228,8 +221,8 @@ describe("env file browse", () => {
         "C:\\fixtures\\demo.pem",
       );
     });
-    expect(within(dialog).getByLabelText(/Credenciales IAM/i)).toHaveValue(
-      "C:\\fixtures\\demo-iam",
-    );
+    expect(
+      within(dialog).queryByLabelText(/Credenciales IAM/i),
+    ).toBeNull();
   }, 15_000);
 });

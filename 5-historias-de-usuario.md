@@ -1,6 +1,6 @@
 # 5. Historias de usuario
 
-> Spec Kit: base [`specs/001-eks-log-monitor/`](specs/001-eks-log-monitor/) — **10 HU** atómicas + incrementos **HU11–HU19** (002–011).  
+> Spec Kit: base [`specs/001-eks-log-monitor/`](specs/001-eks-log-monitor/) — **10 HU** atómicas + incrementos **HU11–HU20** (002–012).  
 > IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).  
 > Tickets / tasks: [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md).
 
@@ -286,3 +286,68 @@
 - [x] Catálogo: Deployments → Pods → Services → ConfigMaps; Service detail RO; logs por pod.
 - [x] Export Raw log + ConfigMap a `.txt` (cancel no escribe); status follow en español.
 - [x] Tests 011 (summary, stick, scrollbars, export, catalog order, service detail, ES status).
+
+---
+
+## HU20 — Deployment YAML, Pod fan-in & full export (012 / P1)
+
+> Spec Kit: [`specs/012-deployment-yaml-full-export/spec.md`](specs/012-deployment-yaml-full-export/spec.md) · tasks T001–T031.
+
+**Como** ingeniero/ops  
+**Quiero** ver el YAML del Deployment, logs fan-in desde Pods, export del historial completo y chrome sin “iniciando”  
+**Para** separar configuración de logs y compartir evidencia completa.
+
+### Criterios de aceptación
+- [x] Deployments → YAML solo lectura (sin follow).
+- [x] Pods (con owner) → fan-in de todas las réplicas; huérfanos → un pod.
+- [x] Summary RAM/CPU desde template del Deployment; export pagina hasta agotar historial.
+- [x] Sin status “iniciando” en toolbar; tests 012.
+
+---
+
+## HU21 — Pods menú: logs combinados por Deployment (013 / P1)
+
+> Spec Kit: [`specs/013-pods-combined-replicas/spec.md`](specs/013-pods-combined-replicas/spec.md) · tasks T001–T018.
+
+**Como** ingeniero/ops  
+**Quiero** ver en Pods una fila agrupada por Deployment (`nombre (N)`) que abre el follow combinado de todas las réplicas  
+**Para** no saltar entre réplicas peer y exportar evidencia de todo el Deployment.
+
+### Criterios de aceptación
+- [x] Pods: una fila por Deployment con conteo; huérfanos individuales; sin peers por réplica.
+- [x] Click grupo → fan-in activo (`logs_open` sin filtro de pod); pestaña = nombre del Deployment.
+- [x] Export Raw incluye todas las réplicas del scope fan-in (exhaust 012).
+- [x] Tests 013 verdes.
+
+---
+
+## HU22 — Live connect solo PEM (014 / P1)
+
+> Spec Kit: [`specs/014-pem-only-live-connect/spec.md`](specs/014-pem-only-live-connect/spec.md) · tasks T001–T022.
+
+**Como** operador sin conocimiento AWS  
+**Quiero** configurar y conectar un ambiente solo con PEM + datos del formulario (sin archivo credentials IAM)  
+**Para** acceder vía la identidad del bastion sin renovar STS en el laptop.
+
+### Criterios de aceptación
+- [x] Formulario sin campo IAM; upsert acepta IAM vacío.
+- [x] Connect live: describe-cluster + get-token vía bastion; sin leer IAM local.
+- [x] Demo y filas legacy con path IAM siguen funcionando (path ignorado).
+- [x] Tests 014 verdes.
+
+---
+
+## HU23 — Motor de reglas multi-pack (015 / P1)
+
+> Spec Kit: [`specs/015-rules-multi-pack/spec.md`](specs/015-rules-multi-pack/spec.md) · tasks T001–T027.
+
+**Como** operador técnico  
+**Quiero** análisis local con packs Spring Boot/JVM y Node.js, auto-hint del stack y override de paquete en el panel  
+**Para** obtener hallazgos útiles al click en write-groups Structured sin IA generativa.
+
+### Criterios de aceptación
+- [x] Pack `springboot` enriquecido (NPE/SQL/timeout/OOM/auth; ERROR gated).
+- [x] Pack `nodejs` embebido; `rulePack` explícito honrado; desconocido → springboot.
+- [x] Auto-hint JVM vs Node; ambiguo → springboot.
+- [x] Respuesta `{ findings, packId, packDisplayName }`; UI muestra pack y permite override.
+- [x] Tests 015 verdes (cargo + Vitest).

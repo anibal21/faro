@@ -29,7 +29,11 @@ vi.mock("../../src/lib/ipc", () => ({
   logsOpen: vi.fn(),
   logsClose: vi.fn(),
   logsSetView: vi.fn(),
-  analyzeWriteGroup: vi.fn(async () => []),
+  analyzeWriteGroup: vi.fn(async () => ({
+    findings: [],
+    packId: "springboot",
+    packDisplayName: "Spring Boot / JVM",
+  })),
   prefsGet: vi.fn(async () => ({ theme: "light" })),
   prefsSet: vi.fn(),
   listenEvent: vi.fn(async () => () => undefined),
@@ -107,10 +111,6 @@ describe("env CRUD (US2)", () => {
     await user.type(within(dialog).getByLabelText(/Username SSH/i), "ec2-user");
     await user.type(within(dialog).getByLabelText(/^Namespace$/i), "default");
     await user.type(within(dialog).getByLabelText(/PEM \(ruta/i), "C:\\keys\\a.pem");
-    await user.type(
-      within(dialog).getByLabelText(/Credenciales IAM/i),
-      "C:\\aws\\creds",
-    );
     await user.type(within(dialog).getByLabelText(/region_name/i), "us-east-1");
     await user.type(within(dialog).getByLabelText(/cluster_name/i), "demo");
 
@@ -120,6 +120,10 @@ describe("env CRUD (US2)", () => {
     await waitFor(() => {
       expect(upsert).toHaveBeenCalled();
     });
+    const payload = upsert.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.iamCredentialsPath === "" || payload.iamCredentialsPath == null).toBe(
+      true,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /prod-eks/i })).toBeInTheDocument();

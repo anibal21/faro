@@ -206,13 +206,15 @@ export function MainShell({
                 onSetView={workspace.setView}
                 onSetSearch={workspace.setSearch}
                 onSetStickToBottom={workspace.setStickToBottom}
-                onLoadOlder={(id) => {
-                  void workspace.loadOlder(id);
-                }}
+                onLoadOlder={(id) => workspace.loadOlder(id)}
+                onGatherExport={(tabId, isCancelled, onProgress) =>
+                  workspace.gatherForExport(tabId, isCancelled, onProgress)
+                }
               />
               {workspace.tabs.length === 0 && (
                 <p className="p-2 text-[12px] text-muted-foreground">
-                  Elige un Deployment o ConfigMap en el arbol izquierdo.
+                  Elige un Deployment (YAML), Pod (logs), Service o ConfigMap en
+                  el arbol izquierdo.
                 </p>
               )}
             </>

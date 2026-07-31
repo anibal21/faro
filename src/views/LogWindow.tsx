@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   analyzeWriteGroup,
-  type AnalysisFinding,
+  type AnalyzeResult,
+  type LogsChunk,
 } from "../lib/ipc";
 import type { WorkspaceTab } from "../hooks/useWorkspaceTabs";
 import {
@@ -13,6 +14,7 @@ import { RawLogView } from "../components/logs/RawLogView";
 import { WorkloadSummaryStrip } from "../components/logs/WorkloadSummaryStrip";
 import { ConfigMapTab } from "../components/catalog/ConfigMapTab";
 import { ServiceDetailTab } from "../components/catalog/ServiceDetailTab";
+import { DeploymentYamlTab } from "../components/catalog/DeploymentYamlTab";
 import { LogWorkspace } from "../components/logs/LogWorkspace";
 import { useAnalysisDrawer } from "../hooks/useAnalysisDrawer";
 import {
@@ -20,6 +22,11 @@ import {
   buildRawLogExport,
   saveTextFile,
 } from "../lib/fileExport";
+
+type GatherResult =
+  | { status: "ok"; chunks: LogsChunk[]; deployment: string }
+  | { status: "cancelled" }
+  | { status: "error" };
 
 type LogWindowProps = {
   tabs: WorkspaceTab[];
@@ -29,24 +36,35 @@ type LogWindowProps = {
   onSetView: (id: string, view: "structured" | "raw") => void;
   onSetSearch: (id: string, search: string) => void;
   onSetStickToBottom: (id: string, value: boolean) => void;
-  onLoadOlder: (id: string) => void;
+  onLoadOlder: (
+    id: string,
+  ) => Promise<"more" | "exhausted" | "error" | "skipped" | void>;
+  onGatherExport: (
+    tabId: string,
+    isCancelled: () => boolean,
+    onProgress?: (page: number) => void,
+  ) => Promise<GatherResult>;
 };
 
 function tabLabel(t: WorkspaceTab): string {
   if (t.kind === "deployment") {
-    return t.podName ?? t.deployment;
+    // Combined fan-in tabs: show Deployment name, not a single replica
+    return t.deployment;
   }
+  if (t.kind === "deployment-yaml") return t.name;
   if (t.kind === "service") return `Svc: ${t.name}`;
   return t.name;
 }
 
-function localizeStatus(status: string): string {
-  if (/following/i.test(status)) {
-    return status.replace(/following/gi, "siguiendo");
+function localizeStatus(status: string): string | null {
+  const s = status.trim();
+  if (!s) return null;
+  if (/^(iniciando|starting)$/i.test(s)) return null;
+  if (/following/i.test(s)) {
+    return s.replace(/following/gi, "siguiendo");
   }
-  if (status === "idle") return "inactivo";
-  if (status === "starting") return "iniciando";
-  return status;
+  if (s === "idle") return "inactivo";
+  return s;
 }
 
 export function LogWindow({
@@ -58,9 +76,16 @@ export function LogWindow({
   onSetSearch,
   onSetStickToBottom,
   onLoadOlder,
+  onGatherExport,
 }: LogWindowProps) {
-  const [findings, setFindings] = useState<AnalysisFinding[] | null>(null);
+  const [analyzeResult, setAnalyzeResult] = useState<AnalyzeResult | null>(
+    null,
+  );
+  const [packOverride, setPackOverride] = useState<string | null>(null);
   const [exportMsg, setExportMsg] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const exportCancelRef = useRef(false);
+  const lastGroupRef = useRef<WriteGroup | null>(null);
   const drawer = useAnalysisDrawer();
   const active = tabs.find((t) => t.tabId === activeTabId) ?? tabs[0];
 
@@ -69,29 +94,62 @@ export function LogWindow({
     return chunksToWriteGroups(active.chunks, active.search);
   }, [active]);
 
-  async function handleAnalyze(group: WriteGroup) {
+  async function handleAnalyze(group: WriteGroup, rulePack?: string | null) {
     if (!active || active.kind !== "deployment") return;
+    lastGroupRef.current = group;
+    const pack = rulePack !== undefined ? rulePack : packOverride;
     const result = await analyzeWriteGroup(
       group.text,
       `${active.namespace}/${active.deployment}`,
+      pack,
     );
-    setFindings(result);
+    setAnalyzeResult(result);
     drawer.openDrawer();
+  }
+
+  async function handlePackChange(packId: string) {
+    setPackOverride(packId);
+    const group = lastGroupRef.current;
+    if (group) {
+      await handleAnalyze(group, packId);
+    }
   }
 
   async function exportActive() {
     setExportMsg(null);
     if (!active) return;
     if (active.kind === "deployment") {
-      if (active.chunks.length === 0) {
-        setExportMsg("No hay logs para exportar");
-        return;
+      exportCancelRef.current = false;
+      setExporting(true);
+      setExportMsg("Reuniendo historial…");
+      try {
+        const gathered = await onGatherExport(
+          active.tabId,
+          () => exportCancelRef.current,
+          (page) => setExportMsg(`Reuniendo historial… (${page})`),
+        );
+        if (gathered.status === "cancelled") {
+          setExportMsg(null);
+          return;
+        }
+        if (gathered.status === "error") {
+          setExportMsg("No se pudo reunir el historial");
+          return;
+        }
+        if (gathered.chunks.length === 0) {
+          setExportMsg("No hay logs para exportar");
+          return;
+        }
+        const body = buildRawLogExport(gathered.chunks);
+        const result = await saveTextFile(
+          `${gathered.deployment}-logs.txt`,
+          body,
+        );
+        if (result === "cancelled") setExportMsg(null);
+        else setExportMsg("Exportado");
+      } finally {
+        setExporting(false);
       }
-      const body = buildRawLogExport(active.chunks);
-      const name = `${active.podName ?? active.deployment}-logs.txt`;
-      const result = await saveTextFile(name, body);
-      if (result === "cancelled") setExportMsg(null);
-      else setExportMsg("Exportado");
       return;
     }
     if (active.kind === "configmap") {
@@ -114,6 +172,9 @@ export function LogWindow({
     return null;
   }
 
+  const statusLabel =
+    active?.kind === "deployment" ? localizeStatus(active.status) : null;
+
   return (
     <section className="log-window flex min-h-0 flex-1 flex-col text-xs">
       <div className="log-window__tabs flex flex-wrap gap-0.5 border-b border-border pb-0.5">
@@ -129,6 +190,7 @@ export function LogWindow({
             onClick={() => onSelect(t.tabId)}
           >
             {t.kind === "configmap" ? "CM: " : ""}
+            {t.kind === "deployment-yaml" ? "Dep: " : ""}
             {tabLabel(t)}
             <span
               role="button"
@@ -152,10 +214,15 @@ export function LogWindow({
       {active?.kind === "deployment" && (
         <LogWorkspace
           drawerOpen={drawer.open}
-          findings={findings}
+          findings={analyzeResult?.findings ?? null}
+          packId={analyzeResult?.packId ?? packOverride}
+          packDisplayName={analyzeResult?.packDisplayName ?? null}
+          onPackChange={(id) => {
+            void handlePackChange(id);
+          }}
           onCloseDrawer={() => {
             drawer.closeDrawer();
-            setFindings(null);
+            setAnalyzeResult(null);
           }}
           onOpenDrawer={drawer.openDrawer}
         >
@@ -194,9 +261,12 @@ export function LogWindow({
                 type="button"
                 disabled={
                   active.loadOlderStatus === "loading" ||
-                  active.loadOlderStatus === "exhausted"
+                  active.loadOlderStatus === "exhausted" ||
+                  exporting
                 }
-                onClick={() => onLoadOlder(active.tabId)}
+                onClick={() => {
+                  void onLoadOlder(active.tabId);
+                }}
               >
                 {active.loadOlderStatus === "loading"
                   ? "Cargando…"
@@ -206,22 +276,32 @@ export function LogWindow({
               </button>
               <button
                 type="button"
-                disabled={active.chunks.length === 0}
+                disabled={exporting}
                 onClick={() => {
                   void exportActive();
                 }}
               >
-                Exportar
+                {exporting ? "Exportando…" : "Exportar"}
               </button>
+              {exporting && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    exportCancelRef.current = true;
+                  }}
+                >
+                  Abortar
+                </button>
+              )}
               <input
                 type="search"
                 placeholder="Buscar en logs…"
                 value={active.search}
                 onChange={(e) => onSetSearch(active.tabId, e.target.value)}
               />
-              <span className="log-window__status">
-                {localizeStatus(active.status)}
-              </span>
+              {statusLabel && (
+                <span className="log-window__status">{statusLabel}</span>
+              )}
               {active.loadOlderMessage && (
                 <span className="log-window__status">{active.loadOlderMessage}</span>
               )}
@@ -258,6 +338,15 @@ export function LogWindow({
             </div>
           </div>
         </LogWorkspace>
+      )}
+      {active?.kind === "deployment-yaml" && (
+        <div className="configmap-tab-shell min-h-0 flex flex-1 flex-col overflow-hidden">
+          <DeploymentYamlTab
+            name={active.name}
+            namespace={active.namespace}
+            yamlText={active.yamlText}
+          />
+        </div>
       )}
       {active?.kind === "configmap" && (
         <div className="configmap-tab-shell min-h-0 flex flex-1 flex-col overflow-hidden">

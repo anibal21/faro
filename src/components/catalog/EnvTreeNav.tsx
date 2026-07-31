@@ -17,6 +17,10 @@ import {
 } from "../ui/context-menu";
 import { EnvTreeStatusDot, type EnvConnStatus } from "./EnvTreeStatusDot";
 import { cn } from "@/lib/utils";
+import {
+  combinedPodLabel,
+  groupPodsByDeployment,
+} from "@/lib/podGroups";
 
 type EnvTreeNavProps = {
   environments: ConnectionInstance[];
@@ -275,27 +279,53 @@ export function EnvTreeNav({
                           "pods",
                           "Pods",
                           showCatalog,
-                          pods.length === 0 ? (
-                            <li className="text-muted-foreground">Sin pods</li>
-                          ) : (
-                            pods.map((p) => (
-                              <li key={p.id}>
-                                <button
-                                  type="button"
-                                  className="truncate text-left hover:underline"
-                                  onClick={() =>
-                                    onOpenPod(
-                                      p.namespace,
-                                      p.podName,
-                                      p.deploymentName,
-                                    )
-                                  }
-                                >
-                                  {p.podName}
-                                </button>
-                              </li>
-                            ))
-                          ),
+                          (() => {
+                            const { groups, orphans } =
+                              groupPodsByDeployment(pods);
+                            if (groups.length === 0 && orphans.length === 0) {
+                              return (
+                                <li className="text-muted-foreground">
+                                  Sin pods
+                                </li>
+                              );
+                            }
+                            return (
+                              <>
+                                {groups.map((g) => (
+                                  <li
+                                    key={`grp:${g.namespace}/${g.deploymentName}`}
+                                  >
+                                    <button
+                                      type="button"
+                                      className="truncate text-left hover:underline"
+                                      onClick={() =>
+                                        onOpenPod(
+                                          g.namespace,
+                                          g.samplePodName,
+                                          g.deploymentName,
+                                        )
+                                      }
+                                    >
+                                      {combinedPodLabel(g)}
+                                    </button>
+                                  </li>
+                                ))}
+                                {orphans.map((o) => (
+                                  <li key={o.id}>
+                                    <button
+                                      type="button"
+                                      className="truncate text-left hover:underline"
+                                      onClick={() =>
+                                        onOpenPod(o.namespace, o.podName, null)
+                                      }
+                                    >
+                                      {o.podName}
+                                    </button>
+                                  </li>
+                                ))}
+                              </>
+                            );
+                          })(),
                         )}
                         {section(
                           env.id,

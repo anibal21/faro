@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   k8sGetConfigmap,
+  k8sGetDeploymentYaml,
   k8sGetService,
   listenEvent,
   logsClose,
@@ -19,7 +20,11 @@ import {
   LOG_PAGE_LINES,
   olderPrefixFromTail,
 } from "../lib/logHistory";
-import { configmapNavKey, deploymentNavKey } from "./tabKeys";
+import {
+  configmapNavKey,
+  deploymentNavKey,
+  deployLogsNavKey,
+} from "./tabKeys";
 
 export type WorkspaceTab =
   | {
@@ -41,6 +46,14 @@ export type WorkspaceTab =
       loadOlderStatus: LoadOlderStatus;
       loadOlderMessage: string | null;
       prependGeneration: number;
+    }
+  | {
+      kind: "deployment-yaml";
+      tabId: string;
+      navKey: string;
+      namespace: string;
+      name: string;
+      yamlText: string | null;
     }
   | {
       kind: "configmap";
@@ -142,23 +155,47 @@ export function useWorkspaceTabs(liveGeneration: number) {
         setActiveTabId(existing.tabId);
         return;
       }
-      const [{ windowId }, summary] = await Promise.all([
-        logsOpen(namespace, deployment),
-        workloadSummary(namespace, deployment).catch(() => null),
-      ]);
-      const tabId = windowId;
+      const doc = await k8sGetDeploymentYaml(namespace, deployment);
+      const tabId = navKey;
+      const tab: WorkspaceTab = {
+        kind: "deployment-yaml",
+        tabId,
+        navKey,
+        namespace,
+        name: deployment,
+        yamlText: doc.yamlText,
+      };
+      setTabs((prev) => [...prev, tab]);
+      setActiveTabId(tabId);
+    },
+    [],
+  );
+
+  /** Fan-in logs for all replicas of a Deployment (no pod filter). */
+  const openCombinedLogs = useCallback(
+    async (namespace: string, deploymentName: string) => {
+      const owner = deploymentName.trim();
+      if (!owner || owner === "__unassigned__") return;
+      const navKey = deployLogsNavKey(namespace, owner);
+      const existing = tabsRef.current.find((t) => t.navKey === navKey);
+      if (existing) {
+        setActiveTabId(existing.tabId);
+        return;
+      }
+      // Open tab as soon as follow starts; summary fills in async (bastion RTT).
+      const { windowId } = await logsOpen(namespace, owner);
       const tab: WorkspaceTab = {
         kind: "deployment",
-        tabId,
+        tabId: windowId,
         navKey,
         windowId,
         namespace,
-        deployment,
+        deployment: owner,
         chunks: [],
-        status: "iniciando",
+        status: "",
         view: "structured",
         search: "",
-        summary,
+        summary: null,
         stickToBottom: true,
         historyDepthByPod: {},
         exhaustedPods: [],
@@ -167,7 +204,18 @@ export function useWorkspaceTabs(liveGeneration: number) {
         prependGeneration: 0,
       };
       setTabs((prev) => [...prev, tab]);
-      setActiveTabId(tabId);
+      setActiveTabId(windowId);
+      void workloadSummary(namespace, owner)
+        .then((summary) => {
+          setTabs((prev) =>
+            prev.map((t) =>
+              t.tabId === windowId && t.kind === "deployment"
+                ? { ...t, summary }
+                : t,
+            ),
+          );
+        })
+        .catch(() => undefined);
     },
     [],
   );
@@ -178,17 +226,22 @@ export function useWorkspaceTabs(liveGeneration: number) {
       podName: string,
       deploymentName?: string | null,
     ) => {
+      const owner = deploymentName?.trim();
+      const isOrphan = !owner || owner === "__unassigned__";
+
+      if (!isOrphan && owner) {
+        await openCombinedLogs(namespace, owner);
+        return;
+      }
+
       const navKey = `pod:${namespace}/${podName}`;
       const existing = tabsRef.current.find((t) => t.navKey === navKey);
       if (existing) {
         setActiveTabId(existing.tabId);
         return;
       }
-      const dep = deploymentName?.trim() || podName;
-      const [{ windowId }, summary] = await Promise.all([
-        logsOpen(namespace, dep, podName),
-        workloadSummary(namespace, dep).catch(() => null),
-      ]);
+      const dep = owner?.trim() || podName;
+      const { windowId } = await logsOpen(namespace, dep, podName);
       const tab: WorkspaceTab = {
         kind: "deployment",
         tabId: windowId,
@@ -198,10 +251,10 @@ export function useWorkspaceTabs(liveGeneration: number) {
         deployment: dep,
         podName,
         chunks: [],
-        status: "iniciando",
+        status: "",
         view: "structured",
         search: "",
-        summary,
+        summary: null,
         stickToBottom: true,
         historyDepthByPod: {},
         exhaustedPods: [],
@@ -211,8 +264,19 @@ export function useWorkspaceTabs(liveGeneration: number) {
       };
       setTabs((prev) => [...prev, tab]);
       setActiveTabId(windowId);
+      void workloadSummary(namespace, dep)
+        .then((summary) => {
+          setTabs((prev) =>
+            prev.map((t) =>
+              t.tabId === windowId && t.kind === "deployment"
+                ? { ...t, summary }
+                : t,
+            ),
+          );
+        })
+        .catch(() => undefined);
     },
-    [],
+    [openCombinedLogs],
   );
 
   const openConfigMap = useCallback(
@@ -311,12 +375,11 @@ export function useWorkspaceTabs(liveGeneration: number) {
     );
   }, []);
 
-  const loadOlder = useCallback(async (tabId: string) => {
+  const loadOlder = useCallback(async (tabId: string): Promise<"more" | "exhausted" | "error" | "skipped"> => {
     const tab = tabsRef.current.find((t) => t.tabId === tabId);
-    if (!tab || tab.kind !== "deployment") return;
-    if (tab.loadOlderStatus === "loading" || tab.loadOlderStatus === "exhausted") {
-      return;
-    }
+    if (!tab || tab.kind !== "deployment") return "skipped";
+    if (tab.loadOlderStatus === "loading") return "skipped";
+    if (tab.loadOlderStatus === "exhausted") return "exhausted";
 
     setTabs((prev) =>
       prev.map((t) =>
@@ -331,7 +394,6 @@ export function useWorkspaceTabs(liveGeneration: number) {
     for (const p of podNames) {
       if (depths[p] == null) depths[p] = LOG_PAGE_LINES;
     }
-    // Ensure at least demo pods get a depth if no chunks yet
     if (Object.keys(depths).length === 0) {
       depths[`${tab.deployment}-aaa`] = LOG_PAGE_LINES;
     }
@@ -380,8 +442,8 @@ export function useWorkspaceTabs(liveGeneration: number) {
           result.pods.every((p) => exhaustedPods.has(p.podName))) &&
         !anyOlder;
 
-      setTabs((prev) =>
-        prev.map((t) => {
+      setTabs((prev) => {
+        const next = prev.map((t) => {
           if (t.kind !== "deployment" || t.tabId !== tabId) return t;
           const chunks = anyOlder ? [...olderChunks, ...t.chunks] : t.chunks;
           if (chunks.length > MAX_CHUNKS) {
@@ -401,8 +463,11 @@ export function useWorkspaceTabs(liveGeneration: number) {
               : t.prependGeneration,
             stickToBottom: anyOlder ? false : t.stickToBottom,
           };
-        }),
-      );
+        });
+        tabsRef.current = next;
+        return next;
+      });
+      return allExhausted ? "exhausted" : "more";
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setTabs((prev) =>
@@ -416,6 +481,7 @@ export function useWorkspaceTabs(liveGeneration: number) {
             : t,
         ),
       );
+      return "error";
     }
   }, []);
 
@@ -425,6 +491,7 @@ export function useWorkspaceTabs(liveGeneration: number) {
     setActiveTabId,
     openDeployment,
     openPod,
+    openCombinedLogs,
     openConfigMap,
     openService,
     closeTab,
@@ -433,5 +500,24 @@ export function useWorkspaceTabs(liveGeneration: number) {
     setSearch,
     setStickToBottom,
     loadOlder,
+    gatherForExport: async (
+      tabId: string,
+      isCancelled: () => boolean,
+      onProgress?: (page: number) => void,
+    ) => {
+      const { exhaustLogHistory } = await import("../lib/fileExport");
+      const gather = await exhaustLogHistory({
+        isCancelled,
+        onProgress,
+        loadPage: () => loadOlder(tabId),
+      });
+      if (gather === "cancelled") return { status: "cancelled" as const };
+      if (gather === "error") return { status: "error" as const };
+      const tab = tabsRef.current.find((t) => t.tabId === tabId);
+      if (!tab || tab.kind !== "deployment") {
+        return { status: "error" as const };
+      }
+      return { status: "ok" as const, chunks: tab.chunks, deployment: tab.deployment };
+    },
   };
 }

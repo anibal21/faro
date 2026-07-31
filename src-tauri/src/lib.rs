@@ -35,6 +35,7 @@ pub fn run() {
             commands::k8s_list_deployments,
             commands::k8s_list_configmaps,
             commands::k8s_get_configmap,
+            commands::k8s_get_deployment_yaml,
             commands::catalog_refresh,
             commands::logs_open,
             commands::logs_close,

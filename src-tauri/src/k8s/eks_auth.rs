@@ -1,4 +1,4 @@
-//! Read IAM credentials **file path** at connect time — never persist secret values.
+//! EKS auth: bastion describe-cluster + get-token; optional legacy local IAM helpers.
 
 use crate::error::{FaroError, FaroResult};
 use std::fs;
@@ -12,7 +12,8 @@ pub struct IamFilePresence {
 }
 
 /// Parse a simple credentials file (INI-like or KEY=VALUE lines).
-/// Returns only presence flags — never returns secret strings to callers for logging.
+/// Legacy helper — live connect no longer requires a laptop IAM file.
+#[allow(dead_code)]
 pub fn validate_iam_credentials_file(path: &str) -> FaroResult<IamFilePresence> {
     let keys = read_iam_keys(path)?;
     Ok(IamFilePresence {
@@ -24,7 +25,6 @@ pub fn validate_iam_credentials_file(path: &str) -> FaroResult<IamFilePresence> 
 struct IamKeys {
     access_key_id: String,
     secret_access_key: String,
-    /// Present for temporary STS / assumed-role credentials (`ASIA…`).
     session_token: Option<String>,
 }
 
@@ -64,7 +64,6 @@ fn read_iam_keys(path: &str) -> FaroResult<IamKeys> {
                 .into(),
         ));
     }
-    // Temporary keys (ASIA…) require a session token; permanent keys (AKIA…) must not send one.
     if access_key_id.starts_with("ASIA") && session_token.is_empty() {
         return Err(FaroError::Message(
             "IAM file uses temporary keys (ASIA…); add aws_session_token or use long-lived AKIA keys"
@@ -113,14 +112,11 @@ fn aws_json(args: &[&str], iam_path: &str, region_name: &str) -> FaroResult<serd
     if let Some(ref token) = keys.session_token {
         cmd.env("AWS_SESSION_TOKEN", token);
     } else {
-        // Avoid inheriting a stale token from the parent shell (common cause of
-        // UnrecognizedClientException with otherwise valid long-lived keys).
         cmd.env_remove("AWS_SESSION_TOKEN");
     }
     let output = cmd
         .output()
         .map_err(|_| FaroError::Message("unable to run AWS CLI; install/configure aws".into()))?;
-    // Drop key material from this stack frame ASAP (vars go out of scope).
     drop(keys);
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -140,7 +136,32 @@ fn aws_json(args: &[&str], iam_path: &str, region_name: &str) -> FaroResult<serd
         .map_err(|_| FaroError::Message("AWS CLI returned invalid JSON".into()))
 }
 
-/// Resolve the endpoint and CA without retaining IAM credential material.
+fn parse_describe_cluster_json(data: &serde_json::Value) -> FaroResult<(String, String)> {
+    let endpoint = data
+        .pointer("/cluster/endpoint")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| {
+            FaroError::Message(
+                "EKS cluster endpoint missing from bastion describe-cluster response".into(),
+            )
+        })?;
+    let host = endpoint
+        .trim_start_matches("https://")
+        .trim_end_matches('/')
+        .to_string();
+    let ca = data
+        .pointer("/cluster/certificateAuthority/data")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| {
+            FaroError::Message(
+                "EKS cluster CA missing from bastion describe-cluster response".into(),
+            )
+        })?;
+    Ok((host, ca.to_string()))
+}
+
+/// Legacy local describe (laptop IAM file). Live connect uses [`describe_cluster_endpoint_via_bastion`].
+#[allow(dead_code)]
 pub fn describe_cluster_endpoint(
     region_name: &str,
     cluster_name: &str,
@@ -165,23 +186,10 @@ pub fn describe_cluster_endpoint(
         iam_path,
         region_name,
     )?;
-    let endpoint = data
-        .pointer("/cluster/endpoint")
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| FaroError::Message("EKS cluster endpoint missing from AWS response".into()))?;
-    let host = endpoint
-        .trim_start_matches("https://")
-        .trim_end_matches('/')
-        .to_string();
-    let ca = data
-        .pointer("/cluster/certificateAuthority/data")
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| FaroError::Message("EKS cluster CA missing from AWS response".into()))?;
-    Ok((host, ca.to_string()))
+    parse_describe_cluster_json(&data)
 }
 
-/// Mint a short-lived EKS bearer token in memory only (local AWS CLI + IAM file).
-/// Kept for offline/local testing; live connect uses [`mint_eks_token_via_bastion`].
+/// Legacy local get-token. Live connect uses [`mint_eks_token_via_bastion`].
 #[allow(dead_code)]
 pub fn mint_eks_token(region_name: &str, cluster_name: &str, iam_path: &str) -> FaroResult<String> {
     let data = aws_json(
@@ -218,9 +226,55 @@ fn assert_safe_aws_ident(value: &str, label: &str) -> FaroResult<()> {
     Ok(())
 }
 
+fn bastion_describe_remote_cmd(region_name: &str, cluster_name: &str) -> String {
+    format!(
+        "aws eks describe-cluster --region {} --name {} --output json",
+        region_name.trim(),
+        cluster_name.trim()
+    )
+}
+
+/// Resolve endpoint + CA **on the bastion** (no laptop IAM file).
+pub fn describe_cluster_endpoint_via_bastion(
+    bastion_host: &str,
+    ssh_port: i64,
+    ssh_user: &str,
+    pem_path: &str,
+    region_name: &str,
+    cluster_name: &str,
+) -> FaroResult<(String, String)> {
+    assert_safe_aws_ident(region_name, "region_name")?;
+    assert_safe_aws_ident(cluster_name, "cluster_name")?;
+    let remote = bastion_describe_remote_cmd(region_name, cluster_name);
+    let stdout = crate::ssh::tunnel::ssh_exec(
+        bastion_host,
+        ssh_port,
+        ssh_user,
+        pem_path,
+        &remote,
+    )
+    .map_err(|e| {
+        let msg = e.to_string();
+        let detail = sanitize_aws_stderr(&msg);
+        if detail.is_empty() {
+            FaroError::Message(
+                "bastion cannot describe cluster — check SSH/PEM, AWS CLI on bastion, region, and cluster name"
+                    .into(),
+            )
+        } else {
+            FaroError::Message(format!("bastion cannot describe cluster: {detail}"))
+        }
+    })?;
+    let data: serde_json::Value = serde_json::from_str(stdout.trim()).map_err(|_| {
+        FaroError::Message(
+            "bastion aws eks describe-cluster returned invalid JSON (is AWS CLI installed on the bastion?)"
+                .into(),
+        )
+    })?;
+    parse_describe_cluster_json(&data)
+}
+
 /// Mint EKS token **on the bastion** (instance role / bastion AWS identity).
-/// Matches how operators already use `kubectl` on the bastion — no extra aws-auth
-/// mapping required for the operator's local IAM user.
 pub fn mint_eks_token_via_bastion(
     bastion_host: &str,
     ssh_port: i64,
@@ -300,5 +354,33 @@ mod tests {
         let out = sanitize_aws_stderr(raw);
         assert!(out.contains("[redacted]"));
         assert!(!out.contains("AKIAEXAMPLE"));
+    }
+
+    #[test]
+    fn bastion_describe_cmd_uses_name_and_region() {
+        let cmd = bastion_describe_remote_cmd("us-east-1", "my-cluster");
+        assert!(cmd.contains("--region us-east-1"));
+        assert!(cmd.contains("--name my-cluster"));
+        assert!(cmd.contains("describe-cluster"));
+        assert!(!cmd.contains("--cluster-name"));
+    }
+
+    #[test]
+    fn parse_describe_cluster_json_extracts_host_and_ca() {
+        let data = serde_json::json!({
+            "cluster": {
+                "endpoint": "https://ABCD.gr7.us-east-1.eks.amazonaws.com",
+                "certificateAuthority": { "data": "YmFzZTY0Y2E=" }
+            }
+        });
+        let (host, ca) = parse_describe_cluster_json(&data).unwrap();
+        assert_eq!(host, "ABCD.gr7.us-east-1.eks.amazonaws.com");
+        assert_eq!(ca, "YmFzZTY0Y2E=");
+    }
+
+    #[test]
+    fn parse_describe_cluster_json_rejects_missing_fields() {
+        let data = serde_json::json!({ "cluster": {} });
+        assert!(parse_describe_cluster_json(&data).is_err());
     }
 }

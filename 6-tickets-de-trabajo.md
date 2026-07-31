@@ -373,6 +373,78 @@ Summary provisionado `request / limit`, 4 secciones de catálogo (incl. Services
 
 ---
 
+## Ticket HU20 — Deployment YAML, Pod fan-in & full export (012)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend (Rust/kube) |
+| **HU / US** | HU20 / US1–US5 (012) |
+| **Tasks** | T001–T031 (`specs/012-deployment-yaml-full-export/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Deployment → YAML; Pods → fan-in multi-réplica; export exhaust; quitar iniciando; summary desde template.
+
+### Criterios de aceptación
+- [x] Contratos deployment-yaml + pod-fanin-logs + export-exhaust + status-chrome.
+- [x] Tests 012 verdes + quickstart manual.
+
+---
+
+## Ticket HU21 — Pods menú: logs combinados por Deployment (013)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend |
+| **HU / US** | HU21 / US1–US3 (013) |
+| **Tasks** | T001–T018 (`specs/013-pods-combined-replicas/tasks.md`) |
+| **Estimación** | 3 |
+
+### Descripción
+Menú Pods agrupa réplicas por Deployment (`name (count)`); click abre fan-in; export incluye todas las réplicas del scope.
+
+### Criterios de aceptación
+- [x] Contratos pods-menu-groups + combined-logs-open + combined-export.
+- [x] Tests 013 verdes + quickstart manual.
+
+---
+
+## Ticket HU22 — Live connect solo PEM (014)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend (Rust/SSH) |
+| **HU / US** | HU22 / US1–US4 (014) |
+| **Tasks** | T001–T022 (`specs/014-pem-only-live-connect/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Quitar IAM del form; discovery EKS (`describe-cluster`) y token vía bastion; soft-deprecar `iam_credentials_path`.
+
+### Criterios de aceptación
+- [x] Contratos env-form-no-iam + bastion-cluster-discovery + connect-no-local-iam.
+- [x] Tests 014 verdes + quickstart manual.
+
+---
+
+## Ticket HU23 — Motor de reglas multi-pack (015)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Backend (rules) + Frontend |
+| **HU / US** | HU23 / US1–US4 (015) |
+| **Tasks** | T001–T027 (`specs/015-rules-multi-pack/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Packs `springboot` + `nodejs` embebidos; matcher contains + match_all; auto-hint; analyze retorna pack usado; panel con override.
+
+### Criterios de aceptación
+- [x] Contratos analyze-api + rule-packs + auto-hint.
+- [x] Tests 015 verdes + quickstart manual.
+
+---
+
 ## Orden sugerido de implementación
 
 ```text
@@ -390,4 +462,8 @@ Setup+Foundation (T001–T015)
   → HU17 (009 connection file browse T001–T030)
   → HU18 (010 live logs workspace T001–T040)
   → HU19 (011 workspace catalog UX T001–T041)
+  → HU20 (012 deployment yaml full export T001–T031)
+  → HU21 (013 pods combined replicas T001–T018)
+  → HU22 (014 pem-only live connect T001–T022)
+  → HU23 (015 rules multi-pack T001–T027)
 ```

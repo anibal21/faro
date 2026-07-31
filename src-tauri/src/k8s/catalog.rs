@@ -300,3 +300,72 @@ pub fn get_live_configmap(client: &Client, namespace: &str, name: &str) -> FaroR
         "entries": entries,
     }))
 }
+
+/// Demo Deployment YAML fixtures (read-only).
+pub fn demo_deployment_yaml(namespace: &str, name: &str) -> String {
+    let replicas = if name == "payments-worker" { 1 } else { 3 };
+    let (cpu_req, cpu_lim, mem_req, mem_lim) = if name == "payments-worker" {
+        ("50m", "100m", "128Mi", "256Mi")
+    } else {
+        ("100m", "250m", "256Mi", "512Mi")
+    };
+    format!(
+        r#"apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {name}
+  namespace: {namespace}
+spec:
+  replicas: {replicas}
+  selector:
+    matchLabels:
+      app: {name}
+  template:
+    metadata:
+      labels:
+        app: {name}
+    spec:
+      containers:
+        - name: app
+          image: example/{name}:latest
+          resources:
+            requests:
+              cpu: {cpu_req}
+              memory: {mem_req}
+            limits:
+              cpu: {cpu_lim}
+              memory: {mem_lim}
+status:
+  readyReplicas: {replicas}
+  replicas: {replicas}
+"#
+    )
+}
+
+/// Live get Deployment serialized as YAML.
+pub fn get_live_deployment_yaml(
+    client: &Client,
+    namespace: &str,
+    name: &str,
+) -> FaroResult<String> {
+    let runtime = tokio::runtime::Runtime::new()
+        .map_err(|_| FaroError::Message("unable to start Kubernetes task runtime".into()))?;
+    let dep = runtime
+        .block_on(Api::<Deployment>::namespaced(client.clone(), namespace).get(name))
+        .map_err(|_| FaroError::Message("unable to get Deployment".into()))?;
+    serde_yaml::to_string(&dep)
+        .map_err(|_| FaroError::Message("unable to serialize Deployment YAML".into()))
+}
+
+#[cfg(test)]
+mod yaml_tests {
+    use super::demo_deployment_yaml;
+
+    #[test]
+    fn demo_payments_api_yaml_non_empty() {
+        let y = demo_deployment_yaml("default", "payments-api");
+        assert!(y.contains("kind: Deployment"));
+        assert!(y.contains("name: payments-api"));
+        assert!(y.contains("256Mi"));
+    }
+}

@@ -128,6 +128,40 @@ pub fn k8s_get_configmap(
 }
 
 #[tauri::command]
+pub fn k8s_get_deployment_yaml(
+    runtime: State<'_, RuntimeState>,
+    namespace: String,
+    name: String,
+) -> FaroResult<Value> {
+    let instance_id = connected_instance(&runtime)?;
+    let (mode, client) = {
+        let rt = runtime
+            .inner
+            .lock()
+            .map_err(|_| FaroError::Message("runtime lock".into()))?;
+        let entry = rt
+            .sessions
+            .get(&instance_id)
+            .ok_or_else(|| FaroError::Message("not connected".into()))?;
+        (entry.mode, entry.client.clone())
+    };
+    let yaml_text = match mode {
+        ConnectMode::Demo => catalog::demo_deployment_yaml(&namespace, &name),
+        ConnectMode::Live => {
+            let client = client.ok_or_else(|| {
+                FaroError::Message("live Kubernetes session unavailable".into())
+            })?;
+            catalog::get_live_deployment_yaml(&client, &namespace, &name)?
+        }
+    };
+    Ok(json!({
+        "namespace": namespace,
+        "name": name,
+        "yamlText": yaml_text,
+    }))
+}
+
+#[tauri::command]
 pub fn catalog_refresh(
     db: State<'_, DbState>,
     runtime: State<'_, RuntimeState>,

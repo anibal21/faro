@@ -132,3 +132,8 @@ commands.allow = ["k8s_list_services"]
 identifier = "allow-k8s-get-service"
 description = "Allow k8s_get_service"
 commands.allow = ["k8s_get_service"]
+
+[[permission]]
+identifier = "allow-k8s-get-deployment-yaml"
+description = "Allow k8s_get_deployment_yaml"
+commands.allow = ["k8s_get_deployment_yaml"]

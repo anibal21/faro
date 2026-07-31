@@ -27,7 +27,11 @@ vi.mock("../../src/lib/ipc", () => ({
   logsOpen: vi.fn(),
   logsClose: vi.fn(),
   logsSetView: vi.fn(),
-  analyzeWriteGroup: vi.fn(async () => []),
+  analyzeWriteGroup: vi.fn(async () => ({
+    findings: [],
+    packId: "springboot",
+    packDisplayName: "Spring Boot / JVM",
+  })),
   prefsGet: vi.fn(async () => ({ theme: "light" })),
   prefsSet: vi.fn(),
   listenEvent: vi.fn(async () => () => undefined),

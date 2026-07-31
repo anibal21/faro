@@ -1,0 +1,46 @@
+{
+  "id": "nodejs",
+  "displayName": "Node.js",
+  "rules": [
+    {
+      "id": "nodejs.unhandled_rejection",
+      "severity": "critical",
+      "match_contains": ["UnhandledPromiseRejection", "unhandledRejection"],
+      "match_all_contains": [],
+      "explanation": "Una promesa falló sin manejador (rejection no capturada).",
+      "recommendation": "Añade .catch / try-await, o un listener process.on('unhandledRejection') para diagnosticar."
+    },
+    {
+      "id": "nodejs.typeerror",
+      "severity": "critical",
+      "match_contains": ["TypeError:"],
+      "match_all_contains": [],
+      "explanation": "Se usó un valor con un tipo incorrecto (null/undefined o API mal llamada).",
+      "recommendation": "Revisa el stack (at Object. / at ...) y valida argumentos antes de usarlos."
+    },
+    {
+      "id": "nodejs.enoent",
+      "severity": "warn",
+      "match_contains": ["ENOENT", "no such file or directory"],
+      "match_all_contains": [],
+      "explanation": "No se encontró un archivo o ruta esperada.",
+      "recommendation": "Comprueba rutas de config/assets y el working directory del proceso."
+    },
+    {
+      "id": "nodejs.econn",
+      "severity": "warn",
+      "match_contains": ["ECONNREFUSED", "ECONNRESET", "ETIMEDOUT"],
+      "match_all_contains": [],
+      "explanation": "Falló una conexión de red hacia un servicio dependiente.",
+      "recommendation": "Verifica host/puerto del servicio y conectividad desde el pod."
+    },
+    {
+      "id": "nodejs.generic_error",
+      "severity": "info",
+      "match_contains": ["Error:", "ERROR"],
+      "match_all_contains": [],
+      "explanation": "Se registró un error genérico en el log de Node.",
+      "recommendation": "Lee el mensaje y el stacktrace asociados para acotar la causa."
+    }
+  ]
+}
