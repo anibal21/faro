@@ -104,9 +104,14 @@ pub fn k8s_get_configmap(
         .map_err(|_| FaroError::Message("db lock".into()))?;
     let instance_id = connected_instance(&runtime)?;
     let live_client = {
-        let rt = runtime.inner.lock().map_err(|_| FaroError::Message("runtime lock".into()))?;
+        let rt = runtime
+            .inner
+            .lock()
+            .map_err(|_| FaroError::Message("runtime lock".into()))?;
         rt.sessions.get(&instance_id).and_then(|entry| {
-            (entry.mode == ConnectMode::Live).then(|| entry.client.clone()).flatten()
+            (entry.mode == ConnectMode::Live)
+                .then(|| entry.client.clone())
+                .flatten()
         })
     };
     if let Some(client) = live_client {
@@ -148,9 +153,8 @@ pub fn k8s_get_deployment_yaml(
     let yaml_text = match mode {
         ConnectMode::Demo => catalog::demo_deployment_yaml(&namespace, &name),
         ConnectMode::Live => {
-            let client = client.ok_or_else(|| {
-                FaroError::Message("live Kubernetes session unavailable".into())
-            })?;
+            let client = client
+                .ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
             catalog::get_live_deployment_yaml(&client, &namespace, &name)?
         }
     };
@@ -173,17 +177,30 @@ pub fn catalog_refresh(
     let instance_id = connected_instance(&runtime)?;
     let catalog_epoch = Uuid::new_v4().to_string();
     let (mode, client, namespace) = {
-        let rt = runtime.inner.lock().map_err(|_| FaroError::Message("runtime lock".into()))?;
-        let entry = rt.sessions.get(&instance_id)
+        let rt = runtime
+            .inner
+            .lock()
+            .map_err(|_| FaroError::Message("runtime lock".into()))?;
+        let entry = rt
+            .sessions
+            .get(&instance_id)
             .ok_or_else(|| FaroError::Message("not connected".into()))?;
         (entry.mode, entry.client.clone(), entry.namespace.clone())
     };
     match mode {
         ConnectMode::Demo => catalog::hydrate_demo_catalog(&conn, &instance_id, &catalog_epoch)?,
         ConnectMode::Live => {
-            let client = client.ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
-            let namespace = namespace.ok_or_else(|| FaroError::Message("live namespace unavailable".into()))?;
-            catalog::hydrate_live_catalog(&conn, &instance_id, &catalog_epoch, &namespace, &client)?;
+            let client = client
+                .ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
+            let namespace =
+                namespace.ok_or_else(|| FaroError::Message("live namespace unavailable".into()))?;
+            catalog::hydrate_live_catalog(
+                &conn,
+                &instance_id,
+                &catalog_epoch,
+                &namespace,
+                &client,
+            )?;
         }
     }
     {
@@ -203,7 +220,7 @@ fn connected_instance(runtime: &State<'_, RuntimeState>) -> FaroResult<String> {
         .inner
         .lock()
         .map_err(|_| FaroError::Message("runtime lock".into()))?;
-    rt.focused_instance_id.clone().ok_or_else(|| {
-        FaroError::Message("not connected — use Ambiente → Conectar first".into())
-    })
+    rt.focused_instance_id
+        .clone()
+        .ok_or_else(|| FaroError::Message("not connected — use Ambiente → Conectar first".into()))
 }

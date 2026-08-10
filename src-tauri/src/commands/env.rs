@@ -14,6 +14,17 @@ pub fn env_list(db: State<'_, DbState>) -> FaroResult<Vec<ConnectionInstance>> {
 }
 
 #[tauri::command]
+pub fn env_restore_demo(db: State<'_, DbState>) -> FaroResult<ConnectionInstance> {
+    let conn = db
+        .conn
+        .lock()
+        .map_err(|_| FaroError::Message("db lock".into()))?;
+    connection_instance::ensure_demo(&conn)?;
+    connection_instance::get_by_id(&conn, connection_instance::DEMO_INSTANCE_ID)?
+        .ok_or_else(|| FaroError::Message("no se pudo restaurar el ambiente demo".into()))
+}
+
+#[tauri::command]
 pub fn env_upsert(
     db: State<'_, DbState>,
     payload: EnvUpsertInput,

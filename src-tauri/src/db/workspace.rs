@@ -59,6 +59,41 @@ fn write_pref(conn: &Connection, key: &str, value: &str) -> FaroResult<()> {
     Ok(())
 }
 
+pub fn keepalive_pref_key(instance_id: &str) -> String {
+    format!("keepalive.{instance_id}")
+}
+
+/// Returns stored preference: `None` if key missing, else parsed bool.
+/// Explicit `"false"` / `"0"` / `"no"` → false; other present values → true.
+pub fn get_keepalive_pref_opt(conn: &Connection, instance_id: &str) -> FaroResult<Option<bool>> {
+    let key = keepalive_pref_key(instance_id);
+    let raw: Option<String> = conn
+        .query_row(
+            "SELECT value FROM ui_preferences WHERE key = ?1",
+            [&key],
+            |row| row.get(0),
+        )
+        .optional()?;
+    Ok(match raw.as_deref().map(str::trim) {
+        None => None,
+        Some("false") | Some("0") | Some("no") => Some(false),
+        Some(_) => Some(true),
+    })
+}
+
+/// Effective keep-alive: **missing key ⇒ ON** (018); explicit false ⇒ OFF.
+pub fn get_keepalive_pref(conn: &Connection, instance_id: &str) -> FaroResult<bool> {
+    Ok(get_keepalive_pref_opt(conn, instance_id)?.unwrap_or(true))
+}
+
+pub fn set_keepalive_pref(conn: &Connection, instance_id: &str, enabled: bool) -> FaroResult<()> {
+    write_pref(
+        conn,
+        &keepalive_pref_key(instance_id),
+        if enabled { "true" } else { "false" },
+    )
+}
+
 fn read_live_generation(conn: &Connection) -> FaroResult<u64> {
     let raw: Option<String> = conn
         .query_row(
@@ -217,5 +252,26 @@ mod tests {
         let s3 = set_active(&conn, &b.id).unwrap();
         assert_eq!(s3.active_id.as_deref(), Some(b.id.as_str()));
         assert!(s3.live_generation >= 1);
+    }
+
+    #[test]
+    fn keepalive_missing_defaults_on() {
+        let dir = tempdir().unwrap();
+        let db = DbState::open(dir.path().join("ka.sqlite")).unwrap();
+        let conn = db.conn.lock().unwrap();
+        assert!(get_keepalive_pref_opt(&conn, "env-1").unwrap().is_none());
+        assert!(get_keepalive_pref(&conn, "env-1").unwrap());
+    }
+
+    #[test]
+    fn keepalive_explicit_false_is_off() {
+        let dir = tempdir().unwrap();
+        let db = DbState::open(dir.path().join("ka2.sqlite")).unwrap();
+        let conn = db.conn.lock().unwrap();
+        set_keepalive_pref(&conn, "env-1", false).unwrap();
+        assert_eq!(get_keepalive_pref_opt(&conn, "env-1").unwrap(), Some(false));
+        assert!(!get_keepalive_pref(&conn, "env-1").unwrap());
+        set_keepalive_pref(&conn, "env-1", true).unwrap();
+        assert!(get_keepalive_pref(&conn, "env-1").unwrap());
     }
 }

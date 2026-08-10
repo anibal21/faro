@@ -8,9 +8,7 @@ use base64::Engine;
 fn ca_ders_from_eks_b64(ca_b64: &str) -> FaroResult<Vec<Vec<u8>>> {
     let raw = base64::engine::general_purpose::STANDARD
         .decode(ca_b64.trim())
-        .or_else(|_| {
-            base64::engine::general_purpose::STANDARD_NO_PAD.decode(ca_b64.trim())
-        })
+        .or_else(|_| base64::engine::general_purpose::STANDARD_NO_PAD.decode(ca_b64.trim()))
         .map_err(|_| FaroError::Message("EKS cluster CA is not valid base64".into()))?;
     if raw.is_empty() {
         return Err(FaroError::Message("EKS cluster CA is empty".into()));
@@ -19,9 +17,8 @@ fn ca_ders_from_eks_b64(ca_b64: &str) -> FaroResult<Vec<Vec<u8>>> {
     if raw.first() == Some(&0x30) {
         return Ok(vec![raw]);
     }
-    let parsed = pem::parse_many(&raw).map_err(|_| {
-        FaroError::Message("EKS cluster CA is not valid PEM/DER".into())
-    })?;
+    let parsed = pem::parse_many(&raw)
+        .map_err(|_| FaroError::Message("EKS cluster CA is not valid PEM/DER".into()))?;
     let ders: Vec<Vec<u8>> = parsed
         .into_iter()
         .filter(|p| p.tag() == "CERTIFICATE")
@@ -55,7 +52,9 @@ pub fn build_client(
         .trim_end_matches('/')
         .to_string();
     if host.is_empty() {
-        return Err(FaroError::Message("EKS API host is required for Kubernetes TLS".into()));
+        return Err(FaroError::Message(
+            "EKS API host is required for Kubernetes TLS".into(),
+        ));
     }
     let uri = format!("https://127.0.0.1:{local_port}")
         .parse()

@@ -49,16 +49,48 @@ impl DbState {
     }
 
     pub fn migrate(&self) -> FaroResult<()> {
-        let conn = self.conn.lock().map_err(|_| FaroError::Message("db lock".into()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
         conn.execute_batch(include_str!("migrations/001_durable.sql"))?;
         conn.execute_batch(include_str!("migrations/002_session.sql"))?;
         conn.execute_batch(include_str!("migrations/003_services.sql"))?;
+        let has_color_index = {
+            let mut stmt = conn.prepare("PRAGMA table_info(connection_instance)")?;
+            let columns = stmt.query_map([], |row| row.get::<_, String>(1))?;
+            let mut found = false;
+            for column in columns {
+                if column? == "color_index" {
+                    found = true;
+                    break;
+                }
+            }
+            found
+        };
+        if !has_color_index {
+            conn.execute(
+                "ALTER TABLE connection_instance ADD COLUMN color_index INTEGER NOT NULL DEFAULT 0 CHECK(color_index BETWEEN 0 AND 9)",
+                [],
+            )?;
+            conn.execute(
+                "UPDATE connection_instance
+                 SET color_index = (
+                   SELECT COUNT(*) FROM connection_instance prior
+                   WHERE prior.rowid < connection_instance.rowid
+                 ) % 10",
+                [],
+            )?;
+        }
         Ok(())
     }
 
     /// DELETE all session-tier rows. Durable tables are untouched (FR-024).
     pub fn purge_ephemeral(&self) -> FaroResult<bool> {
-        let conn = self.conn.lock().map_err(|_| FaroError::Message("db lock".into()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
         for table in SESSION_TABLES {
             conn.execute(&format!("DELETE FROM {table}"), [])?;
         }
@@ -67,7 +99,10 @@ impl DbState {
 
     #[allow(dead_code)]
     pub fn prefs_get(&self, key: &str) -> FaroResult<Option<String>> {
-        let conn = self.conn.lock().map_err(|_| FaroError::Message("db lock".into()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
         let value = conn
             .query_row(
                 "SELECT value FROM ui_preferences WHERE key = ?1",
@@ -79,7 +114,10 @@ impl DbState {
     }
 
     pub fn prefs_set(&self, key: &str, value: &str) -> FaroResult<()> {
-        let conn = self.conn.lock().map_err(|_| FaroError::Message("db lock".into()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
         let now = chrono::Utc::now().to_rfc3339();
         conn.execute(
             "INSERT INTO ui_preferences (key, value, updated_at) VALUES (?1, ?2, ?3)
@@ -90,7 +128,10 @@ impl DbState {
     }
 
     pub fn prefs_all(&self) -> FaroResult<std::collections::HashMap<String, String>> {
-        let conn = self.conn.lock().map_err(|_| FaroError::Message("db lock".into()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| FaroError::Message("db lock".into()))?;
         let mut stmt = conn.prepare("SELECT key, value FROM ui_preferences")?;
         let rows = stmt.query_map([], |row| {
             Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
@@ -136,10 +177,16 @@ mod tests {
         let db = DbState::open(path).unwrap();
         let conn = db.conn.lock().unwrap();
         for t in DURABLE_TABLES {
-            assert!(DbState::table_exists(&conn, t).unwrap(), "missing durable {t}");
+            assert!(
+                DbState::table_exists(&conn, t).unwrap(),
+                "missing durable {t}"
+            );
         }
         for t in SESSION_TABLES {
-            assert!(DbState::table_exists(&conn, t).unwrap(), "missing session {t}");
+            assert!(
+                DbState::table_exists(&conn, t).unwrap(),
+                "missing session {t}"
+            );
         }
     }
 

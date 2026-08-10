@@ -6,9 +6,20 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 pub const DEMO_INSTANCE_ID: &str = "faro-demo";
+pub const MAX_ENV_CONFIGS: i64 = 10;
 
 pub fn is_builtin_demo(id: &str) -> bool {
     id == DEMO_INSTANCE_ID
+}
+
+/// Builtin demo or profile whose PEM points at repo test fixtures (`fixtures/demo.pem`).
+/// Detection is path-based (no `is_test_fixture` DB column); “Usar fixtures demo” sets this PEM path.
+pub fn is_fixture_backed(env: &ConnectionInstance) -> bool {
+    if is_builtin_demo(&env.id) {
+        return true;
+    }
+    let pem = env.pem_path.replace('\\', "/").to_lowercase();
+    pem.contains("fixtures/demo.pem")
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -31,6 +42,7 @@ pub struct ConnectionInstance {
     pub updated_at: String,
     #[serde(default)]
     pub is_builtin_demo: bool,
+    pub color_index: i64,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -82,7 +94,9 @@ fn require_non_empty(label: &str, value: &str) -> FaroResult<String> {
 
 pub fn validate_upsert(input: &EnvUpsertInput) -> FaroResult<()> {
     if input.id.as_deref().is_some_and(is_builtin_demo) {
-        return Err(FaroError::Message("the built-in demo environment cannot be edited".into()));
+        return Err(FaroError::Message(
+            "the built-in demo environment cannot be edited".into(),
+        ));
     }
     require_non_empty("name", &input.name)?;
     require_non_empty("bastion_host", &input.bastion_host)?;
@@ -129,30 +143,52 @@ fn map_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<ConnectionInstance> {
         notes: row.get(12)?,
         created_at: row.get(13)?,
         updated_at: row.get(14)?,
+        color_index: row.get(15)?,
     })
 }
 
 const SELECT_COLS: &str = "id, name, bastion_host, ssh_port, ssh_user, pem_path, iam_credentials_path,
-    region_name, cluster_name, namespace_default, sort_order, is_favorite, notes, created_at, updated_at";
+    region_name, cluster_name, namespace_default, sort_order, is_favorite, notes, created_at, updated_at, color_index";
 
 /// Materialize the offline demo so it participates in normal workspace/list flows.
 /// Its connection fields are placeholders and are never used.
 pub fn ensure_demo(conn: &Connection) -> FaroResult<()> {
+    if get_by_id(conn, DEMO_INSTANCE_ID)?.is_some() {
+        return get_by_id(conn, DEMO_INSTANCE_ID).map(|_| ());
+    }
+    let count: i64 = conn.query_row("SELECT COUNT(*) FROM connection_instance", [], |row| {
+        row.get(0)
+    })?;
+    if count >= MAX_ENV_CONFIGS {
+        return Err(FaroError::Message(
+            "Máximo 10 configuraciones de conexión.".into(),
+        ));
+    }
+    let color_index = (0..MAX_ENV_CONFIGS)
+        .find(|candidate| {
+            conn.query_row(
+                "SELECT COUNT(*) FROM connection_instance WHERE color_index = ?1",
+                [candidate],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap_or(1)
+                == 0
+        })
+        .unwrap_or(0);
     let now = chrono::Utc::now().to_rfc3339();
     conn.execute(
         "INSERT OR IGNORE INTO connection_instance (
             id, name, bastion_host, ssh_port, ssh_user, pem_path, iam_credentials_path,
             region_name, cluster_name, namespace_default, sort_order, is_favorite, notes,
-            created_at, updated_at
+            created_at, updated_at, color_index
          ) VALUES (?1, 'demo', 'offline', 22, 'offline', 'offline', 'offline',
-                   'offline', 'demo', 'default', 0, 0, NULL, ?2, ?2)",
-        params![DEMO_INSTANCE_ID, now],
+                   'offline', 'demo', 'default', 0, 0, NULL, ?2, ?2, ?3)",
+        params![DEMO_INSTANCE_ID, now, color_index],
     )?;
     Ok(())
 }
 
 pub fn list_all(conn: &Connection) -> FaroResult<Vec<ConnectionInstance>> {
-    ensure_demo(conn)?;
     let mut stmt = conn.prepare(&format!(
         "SELECT {SELECT_COLS} FROM connection_instance
          ORDER BY CASE WHEN id = 'faro-demo' THEN 0 ELSE 1 END, COALESCE(sort_order, 999999), name"
@@ -166,9 +202,6 @@ pub fn list_all(conn: &Connection) -> FaroResult<Vec<ConnectionInstance>> {
 }
 
 pub fn get_by_id(conn: &Connection, id: &str) -> FaroResult<Option<ConnectionInstance>> {
-    if is_builtin_demo(id) {
-        ensure_demo(conn)?;
-    }
     let mut stmt = conn.prepare(&format!(
         "SELECT {SELECT_COLS} FROM connection_instance WHERE id = ?1"
     ))?;
@@ -234,12 +267,31 @@ pub fn upsert(conn: &Connection, input: EnvUpsertInput) -> FaroResult<Connection
             ],
         )?;
     } else {
+        let count: i64 = conn.query_row("SELECT COUNT(*) FROM connection_instance", [], |row| {
+            row.get(0)
+        })?;
+        if count >= MAX_ENV_CONFIGS {
+            return Err(FaroError::Message(
+                "Máximo 10 configuraciones de conexión.".into(),
+            ));
+        }
+        let color_index = (0..MAX_ENV_CONFIGS)
+            .find(|candidate| {
+                conn.query_row(
+                    "SELECT COUNT(*) FROM connection_instance WHERE color_index = ?1",
+                    [candidate],
+                    |row| row.get::<_, i64>(0),
+                )
+                .unwrap_or(1)
+                    == 0
+            })
+            .ok_or_else(|| FaroError::Message("No hay colores de ambiente disponibles.".into()))?;
         conn.execute(
             "INSERT INTO connection_instance (
                 id, name, bastion_host, ssh_port, ssh_user, pem_path, iam_credentials_path,
                 region_name, cluster_name, namespace_default, sort_order, is_favorite, notes,
-                created_at, updated_at
-             ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?14)",
+                created_at, updated_at, color_index
+             ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?14,?15)",
             params![
                 id,
                 name,
@@ -255,6 +307,7 @@ pub fn upsert(conn: &Connection, input: EnvUpsertInput) -> FaroResult<Connection
                 is_favorite,
                 notes,
                 now,
+                color_index,
             ],
         )?;
     }
@@ -263,9 +316,6 @@ pub fn upsert(conn: &Connection, input: EnvUpsertInput) -> FaroResult<Connection
 }
 
 pub fn delete_by_id(conn: &Connection, id: &str) -> FaroResult<()> {
-    if is_builtin_demo(id) {
-        return Err(FaroError::Message("the built-in demo environment cannot be deleted".into()));
-    }
     let n = conn.execute("DELETE FROM connection_instance WHERE id = ?1", [id])?;
     if n == 0 {
         return Err(FaroError::Message(format!("environment not found: {id}")));
@@ -343,8 +393,7 @@ mod tests {
         let a = upsert(&conn, sample("env-a")).unwrap();
         let b = upsert(&conn, sample("env-b")).unwrap();
         let list = list_all(&conn).unwrap();
-        assert_eq!(list.len(), 3);
-        assert_eq!(list[0].id, DEMO_INSTANCE_ID);
+        assert_eq!(list.len(), 2);
 
         let mut edit = sample("env-a-renamed");
         edit.id = Some(a.id.clone());
@@ -355,12 +404,12 @@ mod tests {
 
         delete_by_id(&conn, &b.id).unwrap();
         let list = list_all(&conn).unwrap();
-        assert_eq!(list.len(), 2);
-        assert_eq!(list[1].id, a.id);
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].id, a.id);
     }
 
     #[test]
-    fn namespace_is_required_and_demo_is_protected() {
+    fn namespace_is_required_and_demo_is_deletable() {
         let mut input = sample("a");
         input.namespace_default = None;
         assert!(validate_upsert(&input).is_err());
@@ -369,6 +418,33 @@ mod tests {
         let db = DbState::open(dir.path().join("env.sqlite")).unwrap();
         let conn = db.conn.lock().unwrap();
         ensure_demo(&conn).unwrap();
-        assert!(delete_by_id(&conn, DEMO_INSTANCE_ID).is_err());
+        delete_by_id(&conn, DEMO_INSTANCE_ID).unwrap();
+        assert!(get_by_id(&conn, DEMO_INSTANCE_ID).unwrap().is_none());
+    }
+
+    #[test]
+    fn assigns_lowest_color_and_caps_configurations() {
+        let dir = tempdir().unwrap();
+        let db = DbState::open(dir.path().join("env.sqlite")).unwrap();
+        let conn = db.conn.lock().unwrap();
+        for i in 0..MAX_ENV_CONFIGS {
+            let saved = upsert(&conn, sample(&format!("env-{i}"))).unwrap();
+            assert_eq!(saved.color_index, i);
+        }
+        let err = upsert(&conn, sample("env-11")).unwrap_err();
+        assert!(err.to_string().contains("Máximo 10"));
+    }
+
+    #[test]
+    fn fixture_backed_detects_demo_pem_path() {
+        let dir = tempdir().unwrap();
+        let db = DbState::open(dir.path().join("fx.sqlite")).unwrap();
+        let conn = db.conn.lock().unwrap();
+        let mut input = sample("fx-env");
+        input.pem_path = r"C:\Users\x\faro\fixtures\demo.pem".into();
+        let saved = upsert(&conn, input).unwrap();
+        assert!(is_fixture_backed(&saved));
+        let live = upsert(&conn, sample("live-env")).unwrap();
+        assert!(!is_fixture_backed(&live));
     }
 }

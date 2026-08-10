@@ -5,8 +5,8 @@ use crate::error::{FaroError, FaroResult};
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{ConfigMap, Pod, Service};
 use kube::{Api, Client};
-use serde_json::{json, Value};
 use rusqlite::Connection;
+use serde_json::{json, Value};
 use uuid::Uuid;
 
 /// Seed a realistic demo catalog into session tables for offline MVP demos.
@@ -124,7 +124,9 @@ pub fn hydrate_live_catalog(
 ) -> FaroResult<()> {
     let namespace = namespace.trim();
     if namespace.is_empty() {
-        return Err(FaroError::Message("namespace is required for a live catalog".into()));
+        return Err(FaroError::Message(
+            "namespace is required for a live catalog".into(),
+        ));
     }
     let runtime = tokio::runtime::Runtime::new()
         .map_err(|_| FaroError::Message("unable to start Kubernetes task runtime".into()))?;
@@ -153,15 +155,44 @@ pub fn hydrate_live_catalog(
     })?;
 
     session_cache::purge_for_instance(conn, instance_id)?;
-    session_cache::insert_namespace(conn, &Uuid::new_v4().to_string(), instance_id, catalog_epoch, namespace)?;
+    session_cache::insert_namespace(
+        conn,
+        &Uuid::new_v4().to_string(),
+        instance_id,
+        catalog_epoch,
+        namespace,
+    )?;
     let mut deployment_ids = std::collections::HashMap::new();
     for deployment in deployments {
         let name = deployment.metadata.name.unwrap_or_default();
-        let spec_replicas = deployment.spec.as_ref().and_then(|s| s.replicas).unwrap_or(0);
-        let ready = deployment.status.as_ref().and_then(|s| s.ready_replicas).unwrap_or(0);
-        let available = deployment.status.as_ref().and_then(|s| s.available_replicas).unwrap_or(0) > 0;
+        let spec_replicas = deployment
+            .spec
+            .as_ref()
+            .and_then(|s| s.replicas)
+            .unwrap_or(0);
+        let ready = deployment
+            .status
+            .as_ref()
+            .and_then(|s| s.ready_replicas)
+            .unwrap_or(0);
+        let available = deployment
+            .status
+            .as_ref()
+            .and_then(|s| s.available_replicas)
+            .unwrap_or(0)
+            > 0;
         let id = Uuid::new_v4().to_string();
-        session_cache::insert_deployment(conn, &id, instance_id, catalog_epoch, namespace, &name, spec_replicas.into(), ready.into(), available)?;
+        session_cache::insert_deployment(
+            conn,
+            &id,
+            instance_id,
+            catalog_epoch,
+            namespace,
+            &name,
+            spec_replicas.into(),
+            ready.into(),
+            available,
+        )?;
         deployment_ids.insert(name, id);
     }
     let unassigned_id = Uuid::new_v4().to_string();
@@ -178,25 +209,71 @@ pub fn hydrate_live_catalog(
     )?;
     for pod in pods {
         let name = pod.metadata.name.unwrap_or_default();
-        let owner = pod.metadata.owner_references.as_ref()
+        let owner = pod
+            .metadata
+            .owner_references
+            .as_ref()
             .and_then(|owners| owners.iter().find(|o| o.kind == "ReplicaSet"))
-            .map(|o| o.name.rsplit_once('-').map_or(o.name.as_str(), |(deployment, _)| deployment).to_string());
+            .map(|o| {
+                o.name
+                    .rsplit_once('-')
+                    .map_or(o.name.as_str(), |(deployment, _)| deployment)
+                    .to_string()
+            });
         let deployment_id = owner
             .and_then(|dep_name| deployment_ids.get(&dep_name).cloned())
             .unwrap_or_else(|| unassigned_id.clone());
-        let phase = pod.status.as_ref().and_then(|s| s.phase.as_deref()).unwrap_or("Unknown");
-        let containers = pod.spec.as_ref().map(|s| s.containers.iter().map(|c| c.name.clone()).collect::<Vec<_>>()).unwrap_or_default();
+        let phase = pod
+            .status
+            .as_ref()
+            .and_then(|s| s.phase.as_deref())
+            .unwrap_or("Unknown");
+        let containers = pod
+            .spec
+            .as_ref()
+            .map(|s| {
+                s.containers
+                    .iter()
+                    .map(|c| c.name.clone())
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
         let containers_json = serde_json::to_string(&containers).unwrap_or_else(|_| "[]".into());
-        session_cache::insert_pod(conn, &Uuid::new_v4().to_string(), &deployment_id, &name, phase, &containers_json)?;
+        session_cache::insert_pod(
+            conn,
+            &Uuid::new_v4().to_string(),
+            &deployment_id,
+            &name,
+            phase,
+            &containers_json,
+        )?;
     }
     for cm in configmaps {
         let name = cm.metadata.name.unwrap_or_default();
         let data = cm.data.unwrap_or_default();
         let cm_id = Uuid::new_v4().to_string();
-        session_cache::insert_configmap(conn, &cm_id, instance_id, catalog_epoch, namespace, &name, data.len() as i64, true)?;
+        session_cache::insert_configmap(
+            conn,
+            &cm_id,
+            instance_id,
+            catalog_epoch,
+            namespace,
+            &name,
+            data.len() as i64,
+            true,
+        )?;
         for (key, value) in data {
             let (value, truncated) = session_cache::truncate_value(&value, 32_768);
-            session_cache::insert_configmap_entry(conn, &Uuid::new_v4().to_string(), &cm_id, &key, &value, truncated, false, value.len() as i64)?;
+            session_cache::insert_configmap_entry(
+                conn,
+                &Uuid::new_v4().to_string(),
+                &cm_id,
+                &key,
+                &value,
+                truncated,
+                false,
+                value.len() as i64,
+            )?;
         }
     }
     for svc in services {
@@ -246,11 +323,19 @@ pub fn hydrate_live_catalog(
 fn kube_list_err(kind: &str, namespace: &str, err: &kube::Error) -> FaroError {
     let raw = err.to_string();
     let lower = raw.to_lowercase();
-    let hint = if lower.contains("forbidden") || lower.contains("unauthorized") || lower.contains("401") || lower.contains("403") {
+    let hint = if lower.contains("forbidden")
+        || lower.contains("unauthorized")
+        || lower.contains("401")
+        || lower.contains("403")
+    {
         " IAM/user may lack RBAC (get/list deployments) or aws-auth mapping for this cluster"
     } else if lower.contains("not found") || lower.contains("404") {
         " check that the namespace exists on the cluster"
-    } else if lower.contains("timed out") || lower.contains("timeout") || lower.contains("connection") || lower.contains("tls") {
+    } else if lower.contains("timed out")
+        || lower.contains("timeout")
+        || lower.contains("connection")
+        || lower.contains("tls")
+    {
         " check bastion tunnel reachability to the EKS API"
     } else {
         ""
@@ -280,18 +365,24 @@ fn sanitize_kube_err(raw: &str) -> String {
 pub fn get_live_configmap(client: &Client, namespace: &str, name: &str) -> FaroResult<Value> {
     let runtime = tokio::runtime::Runtime::new()
         .map_err(|_| FaroError::Message("unable to start Kubernetes task runtime".into()))?;
-    let cm = runtime.block_on(Api::<ConfigMap>::namespaced(client.clone(), namespace).get(name))
+    let cm = runtime
+        .block_on(Api::<ConfigMap>::namespaced(client.clone(), namespace).get(name))
         .map_err(|_| FaroError::Message("unable to get live ConfigMap".into()))?;
-    let entries: Vec<Value> = cm.data.unwrap_or_default().into_iter().map(|(key, value)| {
-        let (value_text, is_truncated) = session_cache::truncate_value(&value, 32_768);
-        json!({
-            "keyName": key,
-            "valueText": value_text,
-            "isTruncated": is_truncated,
-            "isBinary": false,
-            "byteLength": value.len(),
+    let entries: Vec<Value> = cm
+        .data
+        .unwrap_or_default()
+        .into_iter()
+        .map(|(key, value)| {
+            let (value_text, is_truncated) = session_cache::truncate_value(&value, 32_768);
+            json!({
+                "keyName": key,
+                "valueText": value_text,
+                "isTruncated": is_truncated,
+                "isBinary": false,
+                "byteLength": value.len(),
+            })
         })
-    }).collect();
+        .collect();
     Ok(json!({
         "id": format!("{namespace}/{name}"),
         "namespace": namespace,
@@ -367,5 +458,57 @@ mod yaml_tests {
         assert!(y.contains("kind: Deployment"));
         assert!(y.contains("name: payments-api"));
         assert!(y.contains("256Mi"));
+    }
+}
+
+#[cfg(test)]
+mod hydrate_tests {
+    use super::hydrate_demo_catalog;
+    use crate::db::connection_instance::{self, EnvUpsertInput};
+    use crate::db::DbState;
+    use tempfile::tempdir;
+
+    fn sample(name: &str) -> EnvUpsertInput {
+        EnvUpsertInput {
+            id: Some(name.into()),
+            name: format!("Env {name}"),
+            bastion_host: "bastion.example".into(),
+            ssh_port: 22,
+            ssh_user: "ec2-user".into(),
+            pem_path: r"C:\keys\id.pem".into(),
+            iam_credentials_path: r"C:\keys\iam.json".into(),
+            region_name: "us-east-1".into(),
+            cluster_name: "demo".into(),
+            namespace_default: Some("default".into()),
+            notes: None,
+            is_favorite: None,
+            sort_order: None,
+        }
+    }
+
+    #[test]
+    fn hydrate_demo_catalog_scopes_to_instance_id() {
+        let dir = tempdir().unwrap();
+        let db = DbState::open(dir.path().join("cat.sqlite")).unwrap();
+        let conn = db.conn.lock().unwrap();
+        connection_instance::upsert(&conn, sample("custom-fixture-env")).unwrap();
+        let epoch = "epoch-1";
+        hydrate_demo_catalog(&conn, "custom-fixture-env", epoch).unwrap();
+        let count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM cached_deployment WHERE connection_instance_id = ?1",
+                ["custom-fixture-env"],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert!(count >= 1);
+        let other: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM cached_deployment WHERE connection_instance_id = ?1",
+                ["faro-demo"],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(other, 0);
     }
 }

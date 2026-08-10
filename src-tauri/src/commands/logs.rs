@@ -24,17 +24,20 @@ pub fn logs_open(
     namespace: String,
     deployment: String,
     pod_name: Option<String>,
+    instance_id: Option<String>,
 ) -> FaroResult<Value> {
     let mut rt = runtime
         .inner
         .lock()
         .map_err(|_| FaroError::Message("runtime lock".into()))?;
-    let focused = rt.focused_instance_id.clone().ok_or_else(|| {
-        FaroError::Message("not connected — connect before opening logs".into())
-    })?;
-    let entry = rt.sessions.get_mut(&focused).ok_or_else(|| {
-        FaroError::Message("not connected — connect before opening logs".into())
-    })?;
+    let focused = instance_id
+        .filter(|id| !id.trim().is_empty())
+        .or_else(|| rt.focused_instance_id.clone())
+        .ok_or_else(|| FaroError::Message("not connected — connect before opening logs".into()))?;
+    let entry = rt
+        .sessions
+        .get_mut(&focused)
+        .ok_or_else(|| FaroError::Message("not connected — connect before opening logs".into()))?;
     let window_id = Uuid::new_v4().to_string();
     let cancel = Arc::new(AtomicBool::new(false));
     entry
@@ -45,17 +48,12 @@ pub fn logs_open(
     drop(rt);
 
     match mode {
-        ConnectMode::Demo => logs::start_demo_follow(
-            app,
-            window_id.clone(),
-            deployment,
-            pod_name,
-            cancel,
-        ),
+        ConnectMode::Demo => {
+            logs::start_demo_follow(app, window_id.clone(), deployment, pod_name, cancel)
+        }
         ConnectMode::Live => {
-            let client = client.ok_or_else(|| {
-                FaroError::Message("live Kubernetes session unavailable".into())
-            })?;
+            let client = client
+                .ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
             logs::start_live_follow(
                 app,
                 window_id.clone(),
@@ -121,9 +119,8 @@ pub fn logs_load_older(
     let result = match mode {
         ConnectMode::Demo => logs::load_older_demo(&deployment, &depths),
         ConnectMode::Live => {
-            let client = client.ok_or_else(|| {
-                FaroError::Message("live Kubernetes session unavailable".into())
-            })?;
+            let client = client
+                .ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
             logs::load_older_live(namespace, deployment, client, depths)
                 .map_err(FaroError::Message)?
         }

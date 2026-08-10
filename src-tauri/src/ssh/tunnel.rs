@@ -69,7 +69,9 @@ pub fn open_tunnel(
             "-o",
             "ExitOnForwardFailure=yes",
             "-o",
-            "ServerAliveInterval=15",
+            "ServerAliveInterval=30",
+            "-o",
+            "ServerAliveCountMax=3",
         ])
         .stdin(Stdio::null())
         .stdout(Stdio::null())
@@ -184,7 +186,6 @@ pub fn ssh_exec(
     }
     Ok(String::from_utf8_lossy(&output.stdout).into_owned())
 }
-
 
 #[cfg(test)]
 mod tests {

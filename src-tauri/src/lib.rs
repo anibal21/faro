@@ -2,6 +2,7 @@ mod commands;
 mod db;
 mod error;
 mod k8s;
+mod keepalive;
 mod rules;
 mod runtime;
 mod ssh;
@@ -23,6 +24,7 @@ pub fn run() {
             commands::prefs_get,
             commands::prefs_set,
             commands::env_list,
+            commands::env_restore_demo,
             commands::env_upsert,
             commands::env_delete,
             commands::env_load,
@@ -30,7 +32,9 @@ pub fn run() {
             commands::env_workspace_get,
             commands::env_connect,
             commands::env_disconnect,
+            commands::env_focus,
             commands::env_connection_states,
+            commands::env_set_keep_alive,
             commands::demo_fixture_paths,
             commands::k8s_list_deployments,
             commands::k8s_list_configmaps,

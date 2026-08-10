@@ -84,12 +84,12 @@ async fn fetch_deployment_summary(
 ) -> Result<WorkloadSummary, kube::Error> {
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     let dep = api.get(deployment).await?;
-    let replica_count = dep
-        .spec
+    let replica_count = dep.spec.as_ref().and_then(|s| s.replicas).unwrap_or(0) as i64;
+    let ready_replicas = dep
+        .status
         .as_ref()
-        .and_then(|s| s.replicas)
-        .unwrap_or(0) as i64;
-    let ready_replicas = dep.status.as_ref().and_then(|s| s.ready_replicas).map(|v| v as i64);
+        .and_then(|s| s.ready_replicas)
+        .map(|v| v as i64);
     let (ram, cpu) = provisioned_from_template(&dep);
     let uptime = dep
         .metadata
@@ -267,7 +267,10 @@ mod tests {
         assert_eq!(parse_cpu_millis(&Quantity("1".into())), 1000);
         assert_eq!(format_cpu(100), "100m");
         assert_eq!(format_cpu(2000), "2");
-        assert_eq!(parse_memory_bytes(&Quantity("256Mi".into())), 256 * 1024 * 1024);
+        assert_eq!(
+            parse_memory_bytes(&Quantity("256Mi".into())),
+            256 * 1024 * 1024
+        );
         assert_eq!(format_memory(512 * 1024 * 1024), "512Mi");
     }
 

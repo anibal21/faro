@@ -27,6 +27,9 @@
   },
   "bundle": {
     "active": true,
+    "publisher": "Aníbal Rodríguez",
+    "copyright": "Copyright © 2026 Aníbal Rodríguez",
+    "licenseFile": "../LICENSE",
     "targets": ["nsis", "dmg", "appimage"],
     "icon": [
       "icons/32x32.png",
@@ -34,6 +37,16 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "languages": ["Spanish"],
+        "displayLanguageSelector": false,
+        "installMode": "perMachine",
+        "startMenuFolder": "Faro",
+        "installerHooks": "windows/nsis-hooks.nsh"
+      }
+    }
   }
 }

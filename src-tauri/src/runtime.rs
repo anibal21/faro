@@ -11,6 +11,26 @@ pub enum ConnectMode {
     Live,
 }
 
+#[derive(Debug, Clone)]
+pub struct SessionHealth {
+    pub keep_alive: bool,
+    /// connected | degraded | disconnected
+    pub status: String,
+    pub last_pulse_at: Option<String>,
+    pub consecutive_failures: u32,
+}
+
+impl Default for SessionHealth {
+    fn default() -> Self {
+        Self {
+            keep_alive: false,
+            status: "connected".into(),
+            last_pulse_at: None,
+            consecutive_failures: 0,
+        }
+    }
+}
+
 pub struct SessionEntry {
     pub catalog_epoch: Option<String>,
     pub tunnel: Option<TunnelHandle>,
@@ -18,6 +38,8 @@ pub struct SessionEntry {
     pub client: Option<kube::Client>,
     pub namespace: Option<String>,
     pub log_cancels: HashMap<String, Arc<AtomicBool>>,
+    pub health: SessionHealth,
+    pub keepalive_cancel: Option<Arc<AtomicBool>>,
 }
 
 #[derive(Default)]

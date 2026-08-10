@@ -29,9 +29,8 @@ pub fn workload_summary(
     Ok(match mode {
         ConnectMode::Demo => metrics::demo_summary(&namespace, &deployment),
         ConnectMode::Live => {
-            let client = client.ok_or_else(|| {
-                FaroError::Message("live Kubernetes session unavailable".into())
-            })?;
+            let client = client
+                .ok_or_else(|| FaroError::Message("live Kubernetes session unavailable".into()))?;
             metrics::live_summary(&client, &namespace, &deployment)
         }
     })

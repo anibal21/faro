@@ -60,8 +60,7 @@ fn read_iam_keys(path: &str) -> FaroResult<IamKeys> {
     }
     if access_key_id.is_empty() || secret_access_key.is_empty() {
         return Err(FaroError::Message(
-            "IAM credentials file must include aws_access_key_id and aws_secret_access_key"
-                .into(),
+            "IAM credentials file must include aws_access_key_id and aws_secret_access_key".into(),
         ));
     }
     if access_key_id.starts_with("ASIA") && session_token.is_empty() {
@@ -83,7 +82,13 @@ fn read_iam_keys(path: &str) -> FaroResult<IamKeys> {
 
 fn sanitize_aws_stderr(raw: &str) -> String {
     let mut out = raw.replace('\r', " ").replace('\n', " ");
-    for marker in ["AKIA", "ASIA", "aws_secret", "SecretAccessKey", "SessionToken"] {
+    for marker in [
+        "AKIA",
+        "ASIA",
+        "aws_secret",
+        "SecretAccessKey",
+        "SessionToken",
+    ] {
         if let Some(idx) = out.to_lowercase().find(&marker.to_lowercase()) {
             let end = (idx + 12).min(out.len());
             out.replace_range(idx..end, "[redacted]");
@@ -121,7 +126,9 @@ fn aws_json(args: &[&str], iam_path: &str, region_name: &str) -> FaroResult<serd
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         let detail = sanitize_aws_stderr(&stderr);
-        let msg = if detail.to_lowercase().contains("unrecognizedclientexception")
+        let msg = if detail
+            .to_lowercase()
+            .contains("unrecognizedclientexception")
             || detail.to_lowercase().contains("security token")
         {
             "AWS rejected the IAM keys in your credentials file (invalid, expired, or wrong account). Check aws_access_key_id / aws_secret_access_key (and aws_session_token if using temporary ASIA keys). Do not use fixtures/demo-iam-credentials for a live cluster.".into()
@@ -290,13 +297,7 @@ pub fn mint_eks_token_via_bastion(
         region_name.trim(),
         cluster_name.trim()
     );
-    let stdout = crate::ssh::tunnel::ssh_exec(
-        bastion_host,
-        ssh_port,
-        ssh_user,
-        pem_path,
-        &remote,
-    )?;
+    let stdout = crate::ssh::tunnel::ssh_exec(bastion_host, ssh_port, ssh_user, pem_path, &remote)?;
     let data: serde_json::Value = serde_json::from_str(stdout.trim()).map_err(|_| {
         FaroError::Message(
             "bastion aws eks get-token returned invalid JSON (is AWS CLI installed on the bastion?)"

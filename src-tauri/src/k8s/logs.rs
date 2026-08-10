@@ -278,7 +278,11 @@ fn pod_matches_deployment(pod: &Pod, deployment: &str) -> bool {
         }
     }
     if let Some(labels) = pod.metadata.labels.as_ref() {
-        for key in ["app", "app.kubernetes.io/name", "app.kubernetes.io/instance"] {
+        for key in [
+            "app",
+            "app.kubernetes.io/name",
+            "app.kubernetes.io/instance",
+        ] {
             if labels.get(key).map(|v| v.as_str()) == Some(dep) {
                 return true;
             }

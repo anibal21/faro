@@ -33,6 +33,7 @@ pub fn analyze_write_group(
             findings: vec![],
             pack_id: empty.pack_id,
             pack_display_name: empty.pack_display_name,
+            signal_snippet: None,
         }
     } else {
         engine::analyze_with_pack(&payload.text, &pack_id)
@@ -49,8 +50,8 @@ pub fn analyze_write_group(
                 &instance_id,
                 &f.rule_id,
                 &f.severity,
-                &f.explanation,
-                &f.recommendation,
+                f.explanation_for_history(),
+                &f.recommendation_for_history(),
                 payload.source_hint.as_deref(),
             );
         }
