@@ -1,0 +1,65 @@
+.security-dialog {
+  width: min(36rem, 92vw);
+  max-height: min(85vh, 40rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem 0.75rem;
+}
+
+.security-dialog__body {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+  padding-right: 0.25rem;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--foreground, inherit);
+}
+
+.security-dialog__intro {
+  margin: 0 0 0.75rem;
+  opacity: 0.92;
+}
+
+.security-dialog__section {
+  margin: 0.65rem 0 0.35rem;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.security-dialog__norms {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.security-dialog__norms li strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 12.5px;
+}
+
+.security-dialog__norms li p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.security-dialog__align {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.security-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+}

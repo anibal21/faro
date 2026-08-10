@@ -15,6 +15,7 @@ export type ConnectionInstance = {
   createdAt: string;
   updatedAt: string;
   isBuiltinDemo?: boolean;
+  colorIndex?: number;
 };
 
 export type EnvUpsertInput = {
@@ -116,20 +117,28 @@ export type LoadOlderStatus = "idle" | "loading" | "exhausted" | "error";
 export type AnalysisFinding = {
   severity: string;
   ruleId: string;
-  explanation: string;
-  recommendation: string;
+  title: string;
+  summary: string;
+  why: string;
+  whatToLookFor: string[];
+  recommendation: string[];
+  tags?: string[];
 };
 
 export type AnalyzeResult = {
   findings: AnalysisFinding[];
   packId: string;
   packDisplayName: string;
+  signalSnippet?: string | null;
 };
 
 /** Packs aligned with embedded Rust assets under rules/<pack>/default.json. */
 export const RULE_PACKS = [
   { id: "springboot", displayName: "Spring Boot / JVM" },
+  { id: "liquibase", displayName: "Liquibase" },
   { id: "nodejs", displayName: "Node.js" },
+  { id: "react", displayName: "React" },
+  { id: "python", displayName: "Python" },
 ] as const;
 
 export type WorkloadSummary = {
@@ -210,6 +219,10 @@ export async function envDelete(id: string): Promise<void> {
   return invokeCommand("env_delete", { id });
 }
 
+export async function envRestoreDemo(): Promise<ConnectionInstance> {
+  return invokeCommand<ConnectionInstance>("env_restore_demo");
+}
+
 export async function envLoad(ids: string[]): Promise<WorkspaceState> {
   return invokeCommand<WorkspaceState>("env_load", { ids });
 }
@@ -236,10 +249,31 @@ export async function envDisconnect(instanceId?: string): Promise<void> {
   });
 }
 
-export async function envConnectionStates(): Promise<
-  Array<{ instanceId: string; status: string }>
-> {
-  return invokeCommand("env_connection_states");
+export async function envFocus(instanceId: string): Promise<void> {
+  return invokeCommand("env_focus", { instanceId });
+}
+
+export type ConnectionHealthState = {
+  instanceId: string;
+  status: "connected" | "degraded" | "disconnected" | string;
+  keepAlive: boolean;
+  lastPulseAt?: string | null;
+  mode?: "live" | "demo" | string;
+};
+
+export async function envConnectionStates(): Promise<ConnectionHealthState[]> {
+  return invokeCommand<ConnectionHealthState[]>("env_connection_states");
+}
+
+export async function envSetKeepAlive(
+  instanceId: string,
+  enabled: boolean,
+): Promise<{ instanceId: string; keepAlive: boolean }> {
+  // Flat Tauri 2 args (020) — boolean false must arrive as enabled: false
+  return invokeCommand("env_set_keep_alive", {
+    instanceId,
+    enabled: enabled === true,
+  });
 }
 
 export async function demoFixturePaths(): Promise<{
@@ -313,11 +347,13 @@ export async function logsOpen(
   namespace: string,
   deployment: string,
   podName?: string,
+  instanceId?: string,
 ): Promise<{ windowId: string }> {
   return invokeCommand<{ windowId: string }>("logs_open", {
     namespace,
     deployment,
     podName: podName ?? null,
+    instanceId: instanceId ?? null,
   });
 }
 

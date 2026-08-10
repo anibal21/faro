@@ -351,3 +351,66 @@
 - [x] Auto-hint JVM vs Node; ambiguo → springboot.
 - [x] Respuesta `{ findings, packId, packDisplayName }`; UI muestra pack y permite override.
 - [x] Tests 015 verdes (cargo + Vitest).
+
+---
+
+## HU24 — Catálogo de reglas descriptivo multi-tecnología (016 / P1)
+
+> Spec Kit: [`specs/016-rich-rules-catalog/spec.md`](specs/016-rich-rules-catalog/spec.md) · tasks T001–T036.
+
+**Como** operador técnico o no técnico  
+**Quiero** hallazgos con título, qué/por qué/qué mirar/recomendaciones, señal del log, y packs Spring/Liquibase/Node/React/Python  
+**Para** entender errores en write-groups Structured sin IA generativa.
+
+### Criterios de aceptación
+- [x] Schema rico + “Señal en el log” en el panel.
+- [x] Packs springboot, liquibase, nodejs, react, python con volúmenes orientativos.
+- [x] Auto-hint a 5 packs; override de pack con UI rica.
+- [x] Tests 016 verdes (cargo + Vitest).
+
+## HU25 — Mantener conexión viva (017 / P1) + polish 018/019/020
+
+> Spec Kit: [`017`](specs/017-session-keep-alive/) · [`018`](specs/018-keepalive-toggle-chrome/) · [`019`](specs/019-fix-keepalive-off/) · [`020`](specs/020-keepalive-off-works/)
+
+**Como** operador  
+**Quiero** activar “Mantener conexión viva” por ambiente live, ver estado (conectado/degradado/desconectado), y reconectar sin rellenar el formulario  
+**Para** no perder la sesión en silencio mientras investigo logs.
+
+### Criterios de aceptación
+- [x] Toggle per-env; heartbeat remoto 60s (no localhost como primary).
+- [x] **018**: default ON al conectar live (si no hay pref OFF); menú = acción (**No mantener…** / **Mantener…**).
+- [x] **019/020**: apagar keep-alive deja OFF estable (IPC plano + resultado de comando + UI); sin “Último pulso”; chrome `Keep-alive: ON|OFF`.
+- [x] 3 fallos consecutivos → desconectado + cleanup; UI española + Reconectar.
+- [x] Demo sin keep-alive; pref `keepalive.<id>`; SSH ServerAlive complementario.
+- [x] **018**: sin tirón/pull-to-refresh de la shell (overscroll desactivado).
+- [x] Tests 017–020 verdes (cargo + Vitest incl. FR-007 disable).
+
+## HU26 — Ayuda → Seguridad (marco Chile) (022 / P1)
+
+> Spec Kit: [`022-chile-security-help`](specs/022-chile-security-help/)
+
+**Como** operador  
+**Quiero** abrir **Ayuda → Seguridad** y ver el marco normativo chileno relevante y cómo Faro se alinea  
+**Para** entender que Faro facilita higiene de seguridad/privacidad sin confundirlo con certificación ANCI ni con el SGSI de mi organización.
+
+### Criterios de aceptación
+- [x] Menú **Ayuda** con primera opción **Seguridad**; diálogo modal interno.
+- [x] Lista: Ley 21.663, ANCI/CSIRT, Ley 19.628, Ley 21.719 + sección **Cómo Faro se alinea**.
+- [x] Disclaimer: facilita cumplimiento; SGSI/OIV es responsabilidad organizacional; sin claims de certificación.
+- [x] Sin IPC/red al abrir; usable sin sesión live.
+- [x] Tests Vitest `chile_security_help.spec.tsx` verdes.
+
+## HU27 — Entrega workspace multiambiente (023 / P1)
+
+> Spec Kit: [`023-workspace-delivery`](specs/023-workspace-delivery/)
+
+**Como** operador de varios ambientes  
+**Quiero** mantener dos sesiones simultáneas con pestañas, colores y configuración independientes  
+**Para** comparar recursos sin perder contexto y distribuir Faro como aplicación Windows.
+
+### Criterios de aceptación
+- [x] Ventana mínima 900×600 y panel de ambientes redimensionable 200–360 px.
+- [x] Pestañas identificadas por ambiente y cierre aislado al desconectar/eliminar.
+- [x] Máximo dos conexiones activas y diez configuraciones, con mensajes en español.
+- [x] Demo eliminable/restaurable y fixtures de catálogo/logs/YAML.
+- [x] Instalador NSIS en español con identidad Faro y licencia MIT.

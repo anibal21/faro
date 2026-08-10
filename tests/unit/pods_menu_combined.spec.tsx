@@ -91,6 +91,7 @@ describe("pods menu combined (US1)", () => {
 
     await user.click(screen.getByText("payments-api (2)"));
     expect(onOpenPod).toHaveBeenCalledWith(
+      "e1",
       "payments",
       "payments-api-aaa",
       "payments-api",

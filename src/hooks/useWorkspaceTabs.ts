@@ -3,6 +3,7 @@ import {
   k8sGetConfigmap,
   k8sGetDeploymentYaml,
   k8sGetService,
+  envFocus,
   listenEvent,
   logsClose,
   logsLoadOlder,
@@ -24,9 +25,16 @@ import {
   configmapNavKey,
   deploymentNavKey,
   deployLogsNavKey,
+  podNavKey,
+  serviceNavKey,
 } from "./tabKeys";
 
-export type WorkspaceTab =
+type WorkspaceTabContext = {
+  instanceId: string;
+  colorIndex: number;
+};
+
+export type WorkspaceTab = WorkspaceTabContext & (
   | {
       kind: "deployment";
       tabId: string;
@@ -70,11 +78,12 @@ export type WorkspaceTab =
       namespace: string;
       name: string;
       detail: ServiceDetail | null;
-    };
+    }
+);
 
 const MAX_CHUNKS = 2000;
 
-export function useWorkspaceTabs(liveGeneration: number) {
+export function useWorkspaceTabs(_liveGeneration: number) {
   const [tabs, setTabs] = useState<WorkspaceTab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const tabsRef = useRef(tabs);
@@ -129,38 +138,23 @@ export function useWorkspaceTabs(liveGeneration: number) {
     };
   }, []);
 
-  useEffect(() => {
-    const current = tabsRef.current;
-    if (current.length === 0) return;
-    void (async () => {
-      for (const t of current) {
-        if (t.kind === "deployment") {
-          try {
-            await logsClose(t.windowId);
-          } catch {
-            /* ignore */
-          }
-        }
-      }
-      setTabs([]);
-      setActiveTabId(null);
-    })();
-  }, [liveGeneration]);
-
   const openDeployment = useCallback(
-    async (namespace: string, deployment: string) => {
-      const navKey = deploymentNavKey(namespace, deployment);
+    async (instanceId: string, colorIndex: number, namespace: string, deployment: string) => {
+      const navKey = deploymentNavKey(instanceId, namespace, deployment);
       const existing = tabsRef.current.find((t) => t.navKey === navKey);
       if (existing) {
         setActiveTabId(existing.tabId);
         return;
       }
+      await envFocus(instanceId);
       const doc = await k8sGetDeploymentYaml(namespace, deployment);
       const tabId = navKey;
       const tab: WorkspaceTab = {
         kind: "deployment-yaml",
         tabId,
         navKey,
+        instanceId,
+        colorIndex,
         namespace,
         name: deployment,
         yamlText: doc.yamlText,
@@ -173,21 +167,24 @@ export function useWorkspaceTabs(liveGeneration: number) {
 
   /** Fan-in logs for all replicas of a Deployment (no pod filter). */
   const openCombinedLogs = useCallback(
-    async (namespace: string, deploymentName: string) => {
+    async (instanceId: string, colorIndex: number, namespace: string, deploymentName: string) => {
       const owner = deploymentName.trim();
       if (!owner || owner === "__unassigned__") return;
-      const navKey = deployLogsNavKey(namespace, owner);
+      const navKey = deployLogsNavKey(instanceId, namespace, owner);
       const existing = tabsRef.current.find((t) => t.navKey === navKey);
       if (existing) {
         setActiveTabId(existing.tabId);
         return;
       }
       // Open tab as soon as follow starts; summary fills in async (bastion RTT).
-      const { windowId } = await logsOpen(namespace, owner);
+      await envFocus(instanceId);
+      const { windowId } = await logsOpen(namespace, owner, undefined, instanceId);
       const tab: WorkspaceTab = {
         kind: "deployment",
         tabId: windowId,
         navKey,
+        instanceId,
+        colorIndex,
         windowId,
         namespace,
         deployment: owner,
@@ -222,6 +219,8 @@ export function useWorkspaceTabs(liveGeneration: number) {
 
   const openPod = useCallback(
     async (
+      instanceId: string,
+      colorIndex: number,
       namespace: string,
       podName: string,
       deploymentName?: string | null,
@@ -230,22 +229,25 @@ export function useWorkspaceTabs(liveGeneration: number) {
       const isOrphan = !owner || owner === "__unassigned__";
 
       if (!isOrphan && owner) {
-        await openCombinedLogs(namespace, owner);
+        await openCombinedLogs(instanceId, colorIndex, namespace, owner);
         return;
       }
 
-      const navKey = `pod:${namespace}/${podName}`;
+      const navKey = podNavKey(instanceId, namespace, podName);
       const existing = tabsRef.current.find((t) => t.navKey === navKey);
       if (existing) {
         setActiveTabId(existing.tabId);
         return;
       }
       const dep = owner?.trim() || podName;
-      const { windowId } = await logsOpen(namespace, dep, podName);
+      await envFocus(instanceId);
+      const { windowId } = await logsOpen(namespace, dep, podName, instanceId);
       const tab: WorkspaceTab = {
         kind: "deployment",
         tabId: windowId,
         navKey,
+        instanceId,
+        colorIndex,
         windowId,
         namespace,
         deployment: dep,
@@ -280,19 +282,22 @@ export function useWorkspaceTabs(liveGeneration: number) {
   );
 
   const openConfigMap = useCallback(
-    async (namespace: string, name: string) => {
-      const navKey = configmapNavKey(namespace, name);
+    async (instanceId: string, colorIndex: number, namespace: string, name: string) => {
+      const navKey = configmapNavKey(instanceId, namespace, name);
       const existing = tabsRef.current.find((t) => t.navKey === navKey);
       if (existing) {
         setActiveTabId(existing.tabId);
         return;
       }
+      await envFocus(instanceId);
       const detail = await k8sGetConfigmap(namespace, name);
       const tabId = navKey;
       const tab: WorkspaceTab = {
         kind: "configmap",
         tabId,
         navKey,
+        instanceId,
+        colorIndex,
         namespace,
         name,
         detail,
@@ -303,18 +308,21 @@ export function useWorkspaceTabs(liveGeneration: number) {
     [],
   );
 
-  const openService = useCallback(async (namespace: string, name: string) => {
-    const navKey = `svc:${namespace}/${name}`;
+  const openService = useCallback(async (instanceId: string, colorIndex: number, namespace: string, name: string) => {
+    const navKey = serviceNavKey(instanceId, namespace, name);
     const existing = tabsRef.current.find((t) => t.navKey === navKey);
     if (existing) {
       setActiveTabId(existing.tabId);
       return;
     }
+    await envFocus(instanceId);
     const detail = await k8sGetService(namespace, name);
     const tab: WorkspaceTab = {
       kind: "service",
       tabId: navKey,
       navKey,
+      instanceId,
+      colorIndex,
       namespace,
       name,
       detail,
@@ -344,6 +352,23 @@ export function useWorkspaceTabs(liveGeneration: number) {
     }
     setTabs([]);
     setActiveTabId(null);
+  }, []);
+
+  const closeForInstance = useCallback(async (instanceId: string) => {
+    const closing = tabsRef.current.filter((t) => t.instanceId === instanceId);
+    for (const tab of closing) {
+      if (tab.kind === "deployment") {
+        try {
+          await logsClose(tab.windowId);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    setTabs((prev) => prev.filter((t) => t.instanceId !== instanceId));
+    setActiveTabId((current) =>
+      closing.some((t) => t.tabId === current) ? null : current,
+    );
   }, []);
 
   const setView = useCallback(
@@ -454,7 +479,7 @@ export function useWorkspaceTabs(liveGeneration: number) {
             chunks,
             historyDepthByPod,
             exhaustedPods: [...exhaustedPods],
-            loadOlderStatus: allExhausted ? "exhausted" : "idle",
+            loadOlderStatus: (allExhausted ? "exhausted" : "idle") as LoadOlderStatus,
             loadOlderMessage: allExhausted
               ? "Inicio del historial disponible"
               : null,
@@ -496,6 +521,7 @@ export function useWorkspaceTabs(liveGeneration: number) {
     openService,
     closeTab,
     closeAll,
+    closeForInstance,
     setView,
     setSearch,
     setStickToBottom,

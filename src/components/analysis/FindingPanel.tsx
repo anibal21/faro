@@ -5,6 +5,7 @@ type FindingPanelProps = {
   findings: AnalysisFinding[] | null;
   packId?: string | null;
   packDisplayName?: string | null;
+  signalSnippet?: string | null;
   onPackChange?: (packId: string) => void;
   onClose: () => void;
 };
@@ -13,6 +14,7 @@ export function FindingPanel({
   findings,
   packId,
   packDisplayName,
+  signalSnippet,
   onPackChange,
   onClose,
 }: FindingPanelProps) {
@@ -53,6 +55,12 @@ export function FindingPanel({
           )}
         </div>
       )}
+      {signalSnippet ? (
+        <div className="finding-panel__signal">
+          <p className="finding-panel__signal-title">Señal en el log</p>
+          <pre>{signalSnippet}</pre>
+        </div>
+      ) : null}
       {findings.length === 0 ? (
         <p className="finding-panel__empty">
           Sin coincidencias en el paquete de reglas {label}.
@@ -61,9 +69,23 @@ export function FindingPanel({
         <ul>
           {findings.map((f) => (
             <li key={f.ruleId} data-severity={f.severity}>
-              <strong>{f.severity}</strong> · <code>{f.ruleId}</code>
-              <p>{f.explanation}</p>
-              <p className="finding-panel__rec">{f.recommendation}</p>
+              <strong>{f.title || f.severity}</strong> · <code>{f.ruleId}</code>
+              {f.summary ? <p>{f.summary}</p> : null}
+              {f.why ? <p className="finding-panel__why">Por qué: {f.why}</p> : null}
+              {f.whatToLookFor?.length ? (
+                <ul className="finding-panel__look">
+                  {f.whatToLookFor.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              ) : null}
+              {f.recommendation?.length ? (
+                <ul className="finding-panel__rec">
+                  {f.recommendation.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              ) : null}
             </li>
           ))}
         </ul>

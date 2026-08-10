@@ -12,6 +12,7 @@ describe("AppMenubar Ambientes (US2)", () => {
         onTheme={() => undefined}
         onNew={() => undefined}
         onDisconnectAll={() => undefined}
+        onOpenSecurity={() => undefined}
       />,
     );
 

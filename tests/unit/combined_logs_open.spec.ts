@@ -13,8 +13,7 @@ describe("combined logs open (US2)", () => {
       src.indexOf("const openPod"),
     );
     expect(block).toContain("deployLogsNavKey");
-    expect(block).toMatch(/logsOpen\(\s*namespace,\s*owner\s*\)/);
-    expect(block).not.toMatch(/logsOpen\(\s*namespace,\s*owner,\s*/);
+    expect(block).toContain("logsOpen(namespace, owner, undefined, instanceId)");
   });
 
   it("openPod with owner delegates to openCombinedLogs", () => {
@@ -26,7 +25,9 @@ describe("combined logs open (US2)", () => {
       src.indexOf("const openPod"),
       src.indexOf("const openConfigMap"),
     );
-    expect(openPod).toContain("openCombinedLogs(namespace, owner)");
+    expect(openPod).toContain(
+      "openCombinedLogs(instanceId, colorIndex, namespace, owner)",
+    );
   });
 
   it("LogWindow labels fan-in tabs with Deployment name", () => {

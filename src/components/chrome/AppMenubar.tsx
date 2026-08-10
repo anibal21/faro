@@ -13,6 +13,7 @@ type AppMenubarProps = {
   onTheme: (t: "light" | "dark") => void;
   onNew: () => void;
   onDisconnectAll: () => void;
+  onOpenSecurity: () => void;
 };
 
 export function AppMenubar({
@@ -20,6 +21,7 @@ export function AppMenubar({
   onTheme,
   onNew,
   onDisconnectAll,
+  onOpenSecurity,
 }: AppMenubarProps) {
   return (
     <Menubar aria-label="Principal" className="h-8 text-[13px]">
@@ -40,6 +42,12 @@ export function AppMenubar({
             <MenubarRadioItem value="light">Claro</MenubarRadioItem>
             <MenubarRadioItem value="dark">Oscuro</MenubarRadioItem>
           </MenubarRadioGroup>
+        </MenubarContent>
+      </MenubarMenu>
+      <MenubarMenu>
+        <MenubarTrigger>Ayuda</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem onSelect={onOpenSecurity}>Seguridad</MenubarItem>
         </MenubarContent>
       </MenubarMenu>
     </Menubar>

@@ -71,6 +71,7 @@ export async function applyMainWindowGeometry(): Promise<void> {
         )
       : { width: MAIN_WIDTH, height: MAIN_HEIGHT };
     await win.setSize(new LogicalSize(size.width, size.height));
+    await win.setMinSize(new LogicalSize(MAIN_WIDTH, MAIN_HEIGHT));
     await win.setResizable(true);
     await win.center();
   });

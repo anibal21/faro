@@ -23,11 +23,13 @@ const env = {
   notes: null,
   createdAt: "",
   updatedAt: "",
+  colorIndex: 0,
 };
 
 describe("EnvTreeNav context menu (US2)", () => {
   it("exposes Editar configuracion on context menu", async () => {
     const user = userEvent.setup();
+    const onDelete = vi.fn();
     render(
       <EnvTreeNav
         environments={[env]}
@@ -44,6 +46,7 @@ describe("EnvTreeNav context menu (US2)", () => {
         onConnect={() => undefined}
         onDisconnect={() => undefined}
         onEdit={() => undefined}
+        onDelete={onDelete}
         onOpenDeployment={() => undefined}
         onOpenPod={() => undefined}
         onOpenService={() => undefined}
@@ -60,5 +63,7 @@ describe("EnvTreeNav context menu (US2)", () => {
       await screen.findByText(/Editar configuracion/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/Conectar/i)).toBeInTheDocument();
+    await user.click(screen.getByText("Eliminar"));
+    expect(onDelete).toHaveBeenCalledWith(env);
   });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { sessionPurgeEphemeral } from "./lib/ipc";
+import { envRestoreDemo, sessionPurgeEphemeral } from "./lib/ipc";
 import { getSplashMinMs, sleep } from "./lib/splashDwell";
 import {
   applyMainWindowGeometry,
@@ -23,7 +23,7 @@ function App() {
   const [phase, setPhase] = useState<Phase>("splash");
   const [bootError, setBootError] = useState<string | null>(null);
   const ready = phase === "ready";
-  const { environments, error: crudError, upsert, refresh } =
+  const { environments, error: crudError, upsert, remove, refresh } =
     useEnvironments(ready);
   const {
     loaded,
@@ -100,6 +100,11 @@ function App() {
       error={crudError ?? wsError}
       onUpsert={async (payload) => {
         await upsert(payload);
+      }}
+      onRemove={remove}
+      onRestoreDemo={async () => {
+        await envRestoreDemo();
+        await refresh();
       }}
       onSetActive={async (id) => {
         await setActive(id);

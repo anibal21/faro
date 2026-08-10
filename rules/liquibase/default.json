@@ -1,0 +1,234 @@
+{
+  "id": "liquibase",
+  "displayName": "Liquibase",
+  "rules": [
+    {
+      "id": "liquibase.changelog_lock",
+      "severity": "critical",
+      "match_contains": [
+        "Waiting for changelog lock",
+        "Could not acquire change log lock",
+        "LockException"
+      ],
+      "match_all_contains": [],
+      "title": "Changelog bloqueado",
+      "summary": "Liquibase no pudo adquirir el lock del changelog.",
+      "why": "Otra instancia migra o quedó un lock huérfano tras un crash.",
+      "whatToLookFor": [
+        "DATABASECHANGELOGLOCK",
+        "Waiting for changelog lock",
+        "Locked by"
+      ],
+      "recommendation": [
+        "Confirma que solo un Job/pod corre migrate.",
+        "Si es lock huérfano, libéralo con ops/DBA fuera de Faro."
+      ],
+      "tags": [
+        "migration",
+        "db"
+      ]
+    },
+    {
+      "id": "liquibase.checksum",
+      "severity": "critical",
+      "match_contains": [
+        "ValidationFailedException",
+        "checksum validation failed",
+        "checksums do not match"
+      ],
+      "match_all_contains": [],
+      "title": "Checksum inválido",
+      "summary": "Falló la validación de checksums de Liquibase.",
+      "why": "Se editó un changeset ya aplicado o el historial no coincide.",
+      "whatToLookFor": [
+        "checksum",
+        "ValidationFailedException"
+      ],
+      "recommendation": [
+        "No edites changesets aplicados.",
+        "Coordina clearChecksums solo con DBA/proceso aprobado."
+      ],
+      "tags": [
+        "migration"
+      ]
+    },
+    {
+      "id": "liquibase.migration_failed",
+      "severity": "critical",
+      "match_contains": [
+        "Migration Failed",
+        "MigrationFailedException"
+      ],
+      "match_all_contains": [
+        "liquibase"
+      ],
+      "title": "Migración fallida",
+      "summary": "Una migración Liquibase falló al ejecutarse.",
+      "why": "SQL inválido, permiso o estado inconsistente.",
+      "whatToLookFor": [
+        "Migration Failed",
+        "MigrationFailedException"
+      ],
+      "recommendation": [
+        "Lee el changeset que falló.",
+        "Corrige el SQL y reintenta con proceso controlado."
+      ],
+      "tags": [
+        "migration",
+        "db"
+      ]
+    },
+    {
+      "id": "liquibase.duplicate",
+      "severity": "warn",
+      "match_contains": [
+        "DuplicateChangeSetException"
+      ],
+      "match_all_contains": [],
+      "title": "Changeset duplicado",
+      "summary": "Changeset duplicado o conflicto de id.",
+      "why": "Mismo id/author en más de un archivo.",
+      "whatToLookFor": [
+        "DuplicateChangeSet"
+      ],
+      "recommendation": [
+        "Unifica ids de changesets.",
+        "Revisa includes del master changelog."
+      ],
+      "tags": [
+        "migration"
+      ]
+    },
+    {
+      "id": "liquibase.db_exception",
+      "severity": "critical",
+      "match_contains": [
+        "DatabaseException"
+      ],
+      "match_all_contains": [
+        "liquibase"
+      ],
+      "title": "DatabaseException Liquibase",
+      "summary": "Liquibase recibió un error de base de datos.",
+      "why": "Permisos, objeto faltante o SQL rechazado.",
+      "whatToLookFor": [
+        "DatabaseException"
+      ],
+      "recommendation": [
+        "Lee el SQLException anidado.",
+        "Verifica permisos del usuario de migrate."
+      ],
+      "tags": [
+        "db",
+        "migration"
+      ]
+    },
+    {
+      "id": "liquibase.lock_table",
+      "severity": "warn",
+      "match_contains": [
+        "DATABASECHANGELOGLOCK"
+      ],
+      "match_all_contains": [],
+      "title": "Señal DATABASECHANGELOGLOCK",
+      "summary": "Aparece la tabla/señal DATABASECHANGELOGLOCK en el log.",
+      "why": "Indica contención o inspección del lock.",
+      "whatToLookFor": [
+        "DATABASECHANGELOGLOCK"
+      ],
+      "recommendation": [
+        "Revisa quién tiene el lock (Locked by).",
+        "Evita varios migrators concurrentes."
+      ],
+      "tags": [
+        "migration"
+      ]
+    },
+    {
+      "id": "liquibase.update_failed",
+      "severity": "critical",
+      "match_contains": [
+        "UpdateFailedException",
+        "update command failed"
+      ],
+      "match_all_contains": [],
+      "title": "Update fallido",
+      "summary": "El comando update de Liquibase falló.",
+      "why": "Error durante apply de changesets.",
+      "whatToLookFor": [
+        "UpdateFailedException"
+      ],
+      "recommendation": [
+        "Identifica el changeset fallido.",
+        "Corrige y reintenta de forma controlada."
+      ],
+      "tags": [
+        "migration"
+      ]
+    },
+    {
+      "id": "liquibase.precondition",
+      "severity": "warn",
+      "match_contains": [
+        "PreconditionFailedException"
+      ],
+      "match_all_contains": [],
+      "title": "Precondición fallida",
+      "summary": "Falló una precondición de changeset.",
+      "why": "El entorno no cumple lo que el changelog exige.",
+      "whatToLookFor": [
+        "PreconditionFailedException"
+      ],
+      "recommendation": [
+        "Lee la precondición en el mensaje.",
+        "Ajusta entorno o el changeset."
+      ],
+      "tags": [
+        "migration"
+      ]
+    },
+    {
+      "id": "liquibase.rollback",
+      "severity": "warn",
+      "match_contains": [
+        "RollbackFailedException",
+        "rollback failed"
+      ],
+      "match_all_contains": [],
+      "title": "Rollback fallido",
+      "summary": "Falló un rollback de Liquibase.",
+      "why": "Rollback incompleto o no soportado por el changeset.",
+      "whatToLookFor": [
+        "RollbackFailedException"
+      ],
+      "recommendation": [
+        "Revisa scripts de rollback.",
+        "Evalúa restore desde backup con ops."
+      ],
+      "tags": [
+        "migration"
+      ]
+    },
+    {
+      "id": "liquibase.generic",
+      "severity": "info",
+      "match_contains": [
+        "liquibase"
+      ],
+      "match_all_contains": [],
+      "title": "Liquibase (genérico)",
+      "summary": "Mensaje relacionado con Liquibase sin regla más específica.",
+      "why": "Puede ser informativo o síntoma parcial.",
+      "whatToLookFor": [
+        "liquibase"
+      ],
+      "recommendation": [
+        "Busca excepciones Liquibase más arriba en el log.",
+        "Prioriza lock/checksum/migration si aparecen."
+      ],
+      "tags": [
+        "migration"
+      ]
+    }
+  ]
+}

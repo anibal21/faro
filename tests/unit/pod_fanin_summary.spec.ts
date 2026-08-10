@@ -13,7 +13,9 @@ describe("pod fan-in summary (US3)", () => {
       src.indexOf("const openPod"),
     );
     expect(openCombined).toContain("workloadSummary(namespace, owner)");
-    expect(openCombined).toContain("logsOpen(namespace, owner)");
+    expect(openCombined).toContain(
+      "logsOpen(namespace, owner, undefined, instanceId)",
+    );
     // Summary must not block tab open
     expect(openCombined).not.toMatch(
       /Promise\.all\(\s*\[\s*logsOpen[\s\S]*workloadSummary/,

@@ -75,20 +75,45 @@
   border-bottom: 1px solid color-mix(in srgb, var(--faro-muted) 25%, transparent);
 }
 
+.log-window__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
 .log-window__stick {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  margin-left: auto;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .log-window__stick input {
   margin: 0;
+  width: auto;
+  flex: none;
 }
 
 .env-tree__section-title {
   display: inline-flex;
+}
+
+.env-tree__resize-handle {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.env-tree__resize-handle:hover {
+  background: color-mix(in srgb, var(--faro-accent) 35%, transparent);
 }
 
 .env-tree__section-items {
@@ -520,4 +545,34 @@
 .finding-panel__pack-label {
   margin: 0 0 0.25rem;
   font-size: 0.85rem;
+}
+
+.finding-panel__signal {
+  margin-bottom: 0.5rem;
+  padding: 0.4rem;
+  border: 1px solid var(--faro-border, #333);
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.finding-panel__signal-title {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.finding-panel__signal pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 6rem;
+  overflow: auto;
+}
+
+.finding-panel__why {
+  color: var(--faro-muted);
+}
+
+.finding-panel__look {
+  margin: 0.25rem 0;
+  padding-left: 1.1rem;
 }

@@ -22,6 +22,7 @@ import {
   buildRawLogExport,
   saveTextFile,
 } from "../lib/fileExport";
+import { envColorVar } from "../lib/envColors";
 
 type GatherResult =
   | { status: "ok"; chunks: LogsChunk[]; deployment: string }
@@ -188,6 +189,7 @@ export function LogWindow({
                 : "log-window__tab"
             }
             onClick={() => onSelect(t.tabId)}
+            style={{ borderTopColor: envColorVar(t.colorIndex), borderTopWidth: 3 }}
           >
             {t.kind === "configmap" ? "CM: " : ""}
             {t.kind === "deployment-yaml" ? "Dep: " : ""}
@@ -217,6 +219,7 @@ export function LogWindow({
           findings={analyzeResult?.findings ?? null}
           packId={analyzeResult?.packId ?? packOverride}
           packDisplayName={analyzeResult?.packDisplayName ?? null}
+          signalSnippet={analyzeResult?.signalSnippet ?? null}
           onPackChange={(id) => {
             void handlePackChange(id);
           }}
@@ -245,18 +248,6 @@ export function LogWindow({
                   Raw
                 </button>
               </div>
-              <label className="log-window__stick">
-                <input
-                  type="checkbox"
-                  role="switch"
-                  aria-label="Pegar al final"
-                  checked={active.stickToBottom}
-                  onChange={(e) =>
-                    onSetStickToBottom(active.tabId, e.target.checked)
-                  }
-                />
-                <span>Pegar al final</span>
-              </label>
               <button
                 type="button"
                 disabled={
@@ -308,6 +299,17 @@ export function LogWindow({
               {exportMsg && (
                 <span className="log-window__status">{exportMsg}</span>
               )}
+              <label className="log-window__stick">
+                <input
+                  type="checkbox"
+                  aria-label="Pegar al final"
+                  checked={active.stickToBottom}
+                  onChange={(e) =>
+                    onSetStickToBottom(active.tabId, e.target.checked)
+                  }
+                />
+                <span>Pegar al final</span>
+              </label>
             </div>
             <div className="log-window__body min-h-0 flex-1 overflow-hidden">
               {active.view === "structured" ? (

@@ -18,3 +18,11 @@ Artifacts land under `src-tauri/target/release/bundle/` (nsis / dmg / appimage d
 | Linux | AppImage / deb | Splash → main chrome |
 
 Demo connect: use **Usar fixtures demo** in the new-environment modal (paths under `fixtures/`).
+
+## Faro NSIS (023)
+
+On Windows, inspect `src-tauri/target/release/bundle/nsis/` and verify:
+- Product Faro; publisher Aníbal Rodríguez; copyright 2026.
+- Spanish installer and MIT license page.
+- Existing Faro icon, Start Menu folder, and Desktop shortcut option.
+- Per-machine default under Program Files.

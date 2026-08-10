@@ -3,8 +3,10 @@ import {
   catalogRefresh,
   envConnect,
   envDisconnect,
+  envFocus,
   type ConnectResult,
 } from "../lib/ipc";
+import { MAX_CONNECTIONS } from "../lib/limits";
 
 export type ConnectionUiStatus =
   | "idle"
@@ -23,6 +25,7 @@ export function useConnection(activeId: string | null) {
   );
   const [errorInstanceId, setErrorInstanceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
 
   const connect = useCallback(
     async (instanceId?: string) => {
@@ -30,6 +33,10 @@ export function useConnection(activeId: string | null) {
       if (!id) {
         setError("Selecciona un ambiente activo antes de conectar");
         setStatus("error");
+        return;
+      }
+      if (!connectedIds.includes(id) && connectedIds.length >= MAX_CONNECTIONS) {
+        setLimitReached(true);
         return;
       }
       setStatus("connecting");
@@ -45,9 +52,13 @@ export function useConnection(activeId: string | null) {
           prev.includes(id) ? prev : [...prev, id],
         );
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        if (message.includes("connection_limit") || message.includes("dos ambientes")) {
+          setLimitReached(true);
+        }
         setStatus(connectedIds.length > 0 ? "connected" : "error");
         setErrorInstanceId(id);
-        setError(e instanceof Error ? e.message : String(e));
+        setError(message);
       } finally {
         setConnectingId(null);
       }
@@ -103,6 +114,23 @@ export function useConnection(activeId: string | null) {
     }
   }, [focusedInstanceId]);
 
+  const focus = useCallback(async (id: string) => {
+    await envFocus(id);
+    setFocusedInstanceId(id);
+  }, []);
+
+  const markDisconnected = useCallback((id: string) => {
+    setConnectedIds((prev) => {
+      const next = prev.filter((x) => x !== id);
+      if (next.length === 0) {
+        setResult(null);
+        setStatus("idle");
+      }
+      return next;
+    });
+    setFocusedInstanceId((prev) => (prev === id ? null : prev));
+  }, []);
+
   return {
     status,
     result,
@@ -116,5 +144,9 @@ export function useConnection(activeId: string | null) {
     disconnect,
     refreshCatalog,
     clearError: () => setError(null),
+    markDisconnected,
+    focus,
+    limitReached,
+    dismissLimit: () => setLimitReached(false),
   };
 }

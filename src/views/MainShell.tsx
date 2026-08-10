@@ -1,15 +1,22 @@
-import { useState } from "react";
-import type { ConnectionInstance, EnvUpsertInput } from "../lib/ipc";
+import { useEffect, useState } from "react";
+import { prefsGet, prefsSet, type ConnectionInstance, type EnvUpsertInput } from "../lib/ipc";
 import { TitleBar } from "../components/chrome/TitleBar";
 import { AppMenubar } from "../components/chrome/AppMenubar";
+import { SecurityDialog } from "../components/help/SecurityDialog";
 import { NewEnvironmentModal } from "../components/env/NewEnvironmentModal";
+import { ConnectionLimitModal } from "../components/env/ConnectionLimitModal";
 import { EnvTreeNav } from "../components/catalog/EnvTreeNav";
 import { LogWindow } from "./LogWindow";
 import type { useConnection } from "../hooks/useConnection";
+import { useConnectionHealth } from "../hooks/useConnectionHealth";
 import type { useCatalog } from "../hooks/useCatalog";
 import type { useConfigMaps } from "../hooks/useConfigMaps";
 import type { useWorkspaceTabs } from "../hooks/useWorkspaceTabs";
 import "./MainShell.css";
+import {
+  clampSidebarWidth,
+  SIDEBAR_DEFAULT_WIDTH,
+} from "../lib/sidebarWidth";
 
 type MainShellProps = {
   environments: ConnectionInstance[];
@@ -23,6 +30,8 @@ type MainShellProps = {
   theme: "light" | "dark";
   onTheme: (t: "light" | "dark") => void;
   onUpsert: (payload: EnvUpsertInput) => Promise<void>;
+  onRemove: (id: string) => Promise<void>;
+  onRestoreDemo: () => Promise<void>;
   onSetActive: (id: string) => Promise<void>;
   error?: string | null;
 };
@@ -39,11 +48,37 @@ export function MainShell({
   theme,
   onTheme,
   onUpsert,
+  onRemove,
+  onRestoreDemo,
   onSetActive,
   error = null,
 }: MainShellProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ConnectionInstance | null>(null);
+  const [securityOpen, setSecurityOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
+  const health = useConnectionHealth(true);
+  const { connectedIds, markDisconnected } = connection;
+
+  useEffect(() => {
+    void prefsGet().then((prefs) => {
+      const saved = Number(prefs["ui.sidebarWidth"]);
+      if (Number.isFinite(saved)) setSidebarWidth(clampSidebarWidth(saved));
+    });
+  }, []);
+
+  // After connect/disconnect, pull authoritative keepAlive/status promptly
+  useEffect(() => {
+    void health.refresh();
+  }, [connectedIds, health.refresh]);
+
+  useEffect(() => {
+    for (const [id, row] of Object.entries(health.byId)) {
+      if (row.status === "disconnected" && connectedIds.includes(id)) {
+        markDisconnected(id);
+      }
+    }
+  }, [health.byId, connectedIds, markDisconnected]);
 
   function openNew() {
     setEditing(null);
@@ -75,6 +110,24 @@ export function MainShell({
     await workspace.closeAll();
   }
 
+  async function deleteEnv(env: ConnectionInstance) {
+    if (!window.confirm(`¿Eliminar la configuración "${env.name}"?`)) return;
+    if (connection.connectedIds.includes(env.id)) {
+      await connection.disconnect(env.id);
+    }
+    await workspace.closeForInstance(env.id);
+    await onRemove(env.id);
+  }
+
+  async function focusConnected(id: string) {
+    await onSetActive(id);
+    if (connection.connectedIds.includes(id)) {
+      await connection.focus(id);
+      await catalog.refresh();
+      await configMaps.refresh();
+    }
+  }
+
   const active =
     loaded.find((e) => e.id === activeId) ??
     environments.find((e) => e.id === activeId) ??
@@ -91,7 +144,9 @@ export function MainShell({
         onDisconnectAll={() => {
           void disconnectAll();
         }}
+        onOpenSecurity={() => setSecurityOpen(true)}
       />
+      <SecurityDialog open={securityOpen} onOpenChange={setSecurityOpen} />
 
       <div className="main-shell__body flex min-h-0 flex-1">
         <EnvTreeNav
@@ -101,42 +156,64 @@ export function MainShell({
           connectingId={connection.connectingId}
           connectionErrorId={errorId}
           catalogFocusId={connection.connectedInstanceId}
+          healthById={health.byId}
+          onSetKeepAlive={(id, enabled) => {
+            void health.setKeepAlive(id, enabled).catch((e) => {
+              window.alert(
+                e instanceof Error ? e.message : String(e),
+              );
+            });
+          }}
+          onReconnect={(id) => {
+            void connectEnv(id);
+          }}
           deployments={catalog.deployments}
           pods={catalog.pods}
           services={catalog.services}
           configMaps={configMaps.items}
           catalogLoading={catalog.loading}
           onSelect={(id) => {
-            void onSetActive(id);
+            void focusConnected(id);
           }}
           onConnect={(id) => {
             void connectEnv(id);
           }}
           onDisconnect={(id) => {
             void connection.disconnect(id).then(() => {
-              if (id === connection.connectedInstanceId) {
-                void workspace.closeAll();
-              }
+              void workspace.closeForInstance(id);
             });
           }}
           onEdit={openEdit}
-          onOpenDeployment={(ns, name) => {
-            void workspace.openDeployment(ns, name);
+          onDelete={(env) => {
+            void deleteEnv(env);
           }}
-          onOpenPod={(ns, pod, dep) => {
-            void workspace.openPod(ns, pod, dep);
+          onOpenDeployment={(instanceId, ns, name) => {
+            const colorIndex = environments.find((e) => e.id === instanceId)?.colorIndex ?? 0;
+            void workspace.openDeployment(instanceId, colorIndex, ns, name);
           }}
-          onOpenService={(ns, name) => {
-            void workspace.openService(ns, name);
+          onOpenPod={(instanceId, ns, pod, dep) => {
+            const colorIndex = environments.find((e) => e.id === instanceId)?.colorIndex ?? 0;
+            void workspace.openPod(instanceId, colorIndex, ns, pod, dep);
           }}
-          onOpenConfigMap={(ns, name) => {
-            void workspace.openConfigMap(ns, name);
+          onOpenService={(instanceId, ns, name) => {
+            const colorIndex = environments.find((e) => e.id === instanceId)?.colorIndex ?? 0;
+            void workspace.openService(instanceId, colorIndex, ns, name);
+          }}
+          onOpenConfigMap={(instanceId, ns, name) => {
+            const colorIndex = environments.find((e) => e.id === instanceId)?.colorIndex ?? 0;
+            void workspace.openConfigMap(instanceId, colorIndex, ns, name);
           }}
           onRefreshCatalog={() => {
             void connection.refreshCatalog().then(() => {
               void catalog.refresh();
               void configMaps.refresh();
             });
+          }}
+          width={sidebarWidth}
+          onWidthChange={(value) => {
+            const next = clampSidebarWidth(value);
+            setSidebarWidth(next);
+            void prefsSet("ui.sidebarWidth", String(next));
           }}
         />
 
@@ -227,6 +304,11 @@ export function MainShell({
         initial={editing}
         onClose={() => setModalOpen(false)}
         onSave={onUpsert}
+        onRestoreDemo={onRestoreDemo}
+      />
+      <ConnectionLimitModal
+        open={connection.limitReached}
+        onClose={connection.dismissLimit}
       />
     </div>
   );

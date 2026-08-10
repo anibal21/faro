@@ -7,20 +7,20 @@ import {
 
 describe("workspace tab navKeys (US2)", () => {
   it("builds stable deployment-yaml, deploy-logs, and configmap keys", () => {
-    expect(deploymentNavKey("default", "payments-api")).toBe(
-      "deployment-yaml:default/payments-api",
+    expect(deploymentNavKey("env-1", "default", "payments-api")).toBe(
+      "env-1|deployment-yaml:default/payments-api",
     );
-    expect(deployLogsNavKey("default", "payments-api")).toBe(
-      "deploy-logs:default/payments-api",
+    expect(deployLogsNavKey("env-1", "default", "payments-api")).toBe(
+      "env-1|deploy-logs:default/payments-api",
     );
-    expect(configmapNavKey("default", "payments-config")).toBe(
-      "configmap:default/payments-config",
+    expect(configmapNavKey("env-1", "default", "payments-config")).toBe(
+      "env-1|configmap:default/payments-config",
     );
   });
 
   it("dedupes by navKey identity", () => {
     const open = new Map<string, string>();
-    const key = deploymentNavKey("default", "payments-api");
+    const key = deploymentNavKey("env-1", "default", "payments-api");
     open.set(key, "tab-1");
     const existing = open.get(key);
     expect(existing).toBe("tab-1");

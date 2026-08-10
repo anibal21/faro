@@ -14,12 +14,16 @@ describe("pod fan-in open (US2)", () => {
       src.indexOf("const openCombinedLogs"),
       src.indexOf("const openPod"),
     );
-    expect(openCombined).toMatch(/logsOpen\(\s*namespace,\s*owner\s*\)/);
+    expect(openCombined).toContain(
+      "logsOpen(namespace, owner, undefined, instanceId)",
+    );
     const openPod = src.slice(
       src.indexOf("const openPod"),
       src.indexOf("const openConfigMap"),
     );
     expect(openPod).toContain("__unassigned__");
-    expect(openPod).toContain("logsOpen(namespace, dep, podName)");
+    expect(openPod).toContain(
+      "logsOpen(namespace, dep, podName, instanceId)",
+    );
   });
 });

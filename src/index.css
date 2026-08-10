@@ -52,6 +52,16 @@
   --faro-accent: var(--primary);
   --faro-surface: var(--card);
   --faro-splash-overlay: rgba(15, 23, 42, 0.55);
+  --env-color-0: #ff5c7a;
+  --env-color-1: #ff8f4a;
+  --env-color-2: #ffc857;
+  --env-color-3: #2ee6a6;
+  --env-color-4: #1bb8d1;
+  --env-color-5: #4cc9f0;
+  --env-color-6: #5b6cff;
+  --env-color-7: #9b5cff;
+  --env-color-8: #f72585;
+  --env-color-9: #c4c9d4;
 }
 
 .dark,
@@ -80,6 +90,17 @@
   --faro-accent: var(--primary);
   --faro-surface: var(--card);
   --faro-splash-overlay: rgba(2, 6, 23, 0.65);
+  /* Same metallic palette as light (024) */
+  --env-color-0: #ff5c7a;
+  --env-color-1: #ff8f4a;
+  --env-color-2: #ffc857;
+  --env-color-3: #2ee6a6;
+  --env-color-4: #1bb8d1;
+  --env-color-5: #4cc9f0;
+  --env-color-6: #5b6cff;
+  --env-color-7: #9b5cff;
+  --env-color-8: #f72585;
+  --env-color-9: #c4c9d4;
 }
 
 @layer base {
@@ -89,7 +110,10 @@
   html,
   body,
   #root {
-    @apply m-0 min-h-full bg-background text-foreground;
+    @apply m-0 bg-background text-foreground;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
     font-size: 13px;
     line-height: 1.35;
     font-family: "Segoe UI", "IBM Plex Sans", system-ui, sans-serif;

@@ -445,6 +445,75 @@ Packs `springboot` + `nodejs` embebidos; matcher contains + match_all; auto-hint
 
 ---
 
+## Ticket HU24 — Catálogo de reglas descriptivo (016)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Backend (rules) + Frontend |
+| **HU / US** | HU24 / US1–US4 (016) |
+| **Tasks** | T001–T036 (`specs/016-rich-rules-catalog/tasks.md`) |
+| **Estimación** | 8 |
+
+### Descripción
+Schema rico + signalSnippet; packs Spring/Liquibase/Node/React/Python; auto-hint 5 vías; panel descriptivo.
+
+### Criterios de aceptación
+- [x] Contratos analyze-result + rule-schema + packs-catalog + signal-snippet + auto-hint.
+- [x] Tests 016 verdes + quickstart manual.
+
+## Ticket HU25 — Session keep-alive (017) + toggle chrome (018)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Backend (session) + Frontend |
+| **HU / US** | HU25 / US1–US3 (017) + polish US1–US2 (018) |
+| **Tasks** | T001–T025 (`017`) · T001–T017 (`018`) · T001–T019 (`019`) · T001–T016 (`020-keepalive-off-works`) |
+| **Estimación** | 5 + 2 + 2 + 2 |
+
+### Descripción
+Toggle Mantener conexión viva; heartbeat kube 60s; estados connected|degraded|disconnected; Reconectar. **018** default ON + overscroll. **019/020** OFF estable (IPC plano `instanceId`/`enabled`, patch desde resultado).
+
+### Criterios de aceptación
+- [x] Contratos keep-alive-api + connection-health + ui-keep-alive.
+- [x] Contratos 018 keep-alive-toggle-ui + desktop-overscroll.
+- [x] Contratos 019 keep-alive-off + ui-no-pulse; 020 disable-keepalive-e2e.
+- [x] Tests 017–020 verdes + quickstart manual.
+
+## Ticket HU26 — Ayuda → Seguridad / Chile baseline (022)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend (chrome + help) |
+| **HU / US** | HU26 / US1–US3 (022) |
+| **Tasks** | T001–T023 (`022-chile-security-help`) |
+| **Estimación** | 2 |
+
+### Descripción
+Menú Ayuda → Seguridad con diálogo de marco normativo chileno (21.663, ANCI/CSIRT, 19.628, 21.719) y alineación Faro; sin certificaciones inventadas; sin nuevos destinos de red.
+
+### Criterios de aceptación
+- [x] Contrato help-seguridad-ui + content `chileSecurity.ts`.
+- [x] Tests 022 verdes + quickstart manual.
+
+---
+
+## Ticket HU27 — Workspace delivery multiambiente (023)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Full stack desktop (React + Tauri + SQLite + NSIS) |
+| **HU / US** | HU27 / US1–US8 (023) |
+| **Tasks** | T001–T050 (`023-workspace-delivery`) |
+| **Estimación** | 8 |
+
+### Descripción
+Entrega del workspace con panel redimensionable, colores estables, pestañas por instancia, límites de dos sesiones/diez configuraciones, eliminación/restauración del demo y empaquetado NSIS.
+
+### Criterios de aceptación
+- [x] Límites autoritativos en Rust y feedback en UI.
+- [x] Color y `instanceId` propagados a árbol y pestañas.
+- [x] Pruebas Vitest focalizadas y pruebas cargo del repositorio de ambientes.
+
 ## Orden sugerido de implementación
 
 ```text
@@ -466,4 +535,8 @@ Setup+Foundation (T001–T015)
   → HU21 (013 pods combined replicas T001–T018)
   → HU22 (014 pem-only live connect T001–T022)
   → HU23 (015 rules multi-pack T001–T027)
+  → HU24 (016 rich rules catalog T001–T036)
+  → HU25 (017 session keep-alive T001–T025 + 018 keepalive-toggle-chrome T001–T017)
+  → HU26 (022 chile-security-help T001–T023)
+  → HU27 (023 workspace-delivery T001–T050)
 ```

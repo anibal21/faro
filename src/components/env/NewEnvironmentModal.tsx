@@ -18,6 +18,7 @@ type NewEnvironmentModalProps = {
   initial?: ConnectionInstance | null;
   onClose: () => void;
   onSave: (payload: EnvUpsertInput) => Promise<void>;
+  onRestoreDemo?: () => Promise<void>;
 };
 
 const emptyForm = {
@@ -40,6 +41,7 @@ export function NewEnvironmentModal({
   initial = null,
   onClose,
   onSave,
+  onRestoreDemo,
 }: NewEnvironmentModalProps) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -134,6 +136,7 @@ export function NewEnvironmentModal({
         clusterName: prev.clusterName || "demo-eks",
         namespaceDefault: prev.namespaceDefault || "default",
       }));
+      await onRestoreDemo?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -165,7 +168,7 @@ export function NewEnvironmentModal({
             className="text-primary underline"
             onClick={() => void fillDemo()}
           >
-            Usar fixtures demo
+            Usar fixtures demo / restaurar demo
           </button>
         </p>
         <form className="grid gap-1.5" onSubmit={handleSubmit}>

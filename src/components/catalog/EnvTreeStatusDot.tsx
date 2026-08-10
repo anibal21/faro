@@ -4,12 +4,14 @@ export type EnvConnStatus =
   | "disconnected"
   | "connecting"
   | "connected"
+  | "degraded"
   | "error";
 
 const color: Record<EnvConnStatus, string> = {
   disconnected: "bg-red-600",
   connecting: "bg-yellow-500",
   connected: "bg-green-600",
+  degraded: "bg-amber-500",
   error: "bg-red-600",
 };
 
@@ -17,6 +19,7 @@ const label: Record<EnvConnStatus, string> = {
   disconnected: "desconectado",
   connecting: "conectando",
   connected: "conectado",
+  degraded: "degradado",
   error: "error",
 };
 

@@ -1,7 +1,8 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode, type PointerEvent } from "react";
 import { Minus, Plus } from "lucide-react";
 import type {
   ConfigMapRow,
+  ConnectionHealthState,
   ConnectionInstance,
   DeploymentRow,
   FlatPodRow,
@@ -17,6 +18,8 @@ import {
 } from "../ui/context-menu";
 import { EnvTreeStatusDot, type EnvConnStatus } from "./EnvTreeStatusDot";
 import { cn } from "@/lib/utils";
+import { envColorVar } from "@/lib/envColors";
+import { clampSidebarWidth } from "@/lib/sidebarWidth";
 import {
   combinedPodLabel,
   groupPodsByDeployment,
@@ -29,6 +32,9 @@ type EnvTreeNavProps = {
   connectingId: string | null;
   connectionErrorId: string | null;
   catalogFocusId: string | null;
+  healthById?: Record<string, ConnectionHealthState>;
+  onSetKeepAlive?: (id: string, enabled: boolean) => void;
+  onReconnect?: (id: string) => void;
   deployments: DeploymentRow[];
   pods: FlatPodRow[];
   services: ServiceRow[];
@@ -38,11 +44,14 @@ type EnvTreeNavProps = {
   onConnect: (id: string) => void;
   onDisconnect: (id: string) => void;
   onEdit: (env: ConnectionInstance) => void;
-  onOpenDeployment: (namespace: string, name: string) => void;
-  onOpenPod: (namespace: string, podName: string, deploymentName?: string | null) => void;
-  onOpenService: (namespace: string, name: string) => void;
-  onOpenConfigMap: (namespace: string, name: string) => void;
+  onDelete?: (env: ConnectionInstance) => void;
+  onOpenDeployment: (instanceId: string, namespace: string, name: string) => void;
+  onOpenPod: (instanceId: string, namespace: string, podName: string, deploymentName?: string | null) => void;
+  onOpenService: (instanceId: string, namespace: string, name: string) => void;
+  onOpenConfigMap: (instanceId: string, namespace: string, name: string) => void;
   onRefreshCatalog?: () => void;
+  width?: number;
+  onWidthChange?: (width: number) => void;
 };
 
 function ExpandIcon({ open }: { open: boolean }) {
@@ -59,6 +68,9 @@ export function EnvTreeNav({
   connectingId,
   connectionErrorId,
   catalogFocusId,
+  healthById = {},
+  onSetKeepAlive,
+  onReconnect,
   deployments,
   pods,
   services,
@@ -68,11 +80,14 @@ export function EnvTreeNav({
   onConnect,
   onDisconnect,
   onEdit,
+  onDelete = () => undefined,
   onOpenDeployment,
   onOpenPod,
   onOpenService,
   onOpenConfigMap,
   onRefreshCatalog,
+  width = 240,
+  onWidthChange = () => undefined,
 }: EnvTreeNavProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [sectionOpen, setSectionOpen] = useState<
@@ -93,8 +108,16 @@ export function EnvTreeNav({
   function statusFor(id: string): EnvConnStatus {
     if (connectingId === id) return "connecting";
     if (connectionErrorId === id) return "error";
-    if (connectedIds.includes(id)) return "connected";
+    const h = healthById[id]?.status;
+    if (h === "degraded") return "degraded";
+    if (h === "disconnected") return "disconnected";
+    if (connectedIds.includes(id) || h === "connected") return "connected";
     return "disconnected";
+  }
+
+  /** Prefer explicit health; never invent ON when the row is missing. */
+  function keepAliveOn(id: string): boolean {
+    return healthById[id]?.keepAlive === true;
   }
 
   function isSectionOpen(envId: string, key: SectionKey): boolean {
@@ -112,6 +135,20 @@ export function EnvTreeNav({
         [key]: !(m[envId]?.[key] ?? true),
       },
     }));
+  }
+
+  function startResize(event: PointerEvent<HTMLDivElement>) {
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = width;
+    const move = (e: globalThis.PointerEvent) =>
+      onWidthChange(clampSidebarWidth(startWidth + e.clientX - startX));
+    const stop = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop);
   }
 
   function section(
@@ -149,8 +186,9 @@ export function EnvTreeNav({
 
   return (
     <aside
-      className="flex h-full min-h-0 w-60 shrink-0 flex-col border-r border-border bg-card text-[13px]"
+      className="env-tree relative flex h-full min-h-0 shrink-0 flex-col border-r border-border bg-card text-[13px]"
       aria-label="Monitor"
+      style={{ width }}
     >
       <div className="mb-1 flex shrink-0 items-center justify-between px-2 pt-1.5">
         <span className="font-semibold text-muted-foreground">Monitor</span>
@@ -185,7 +223,11 @@ export function EnvTreeNav({
                 const st = statusFor(env.id);
                 const isSel = env.id === selectedId;
                 const showCatalog =
-                  env.id === catalogFocusId && st === "connected";
+                  env.id === catalogFocusId &&
+                  (st === "connected" || st === "degraded");
+                const needsReconnect =
+                  st === "disconnected" &&
+                  healthById[env.id]?.status === "disconnected";
                 return (
                   <li key={env.id}>
                     <ContextMenu>
@@ -195,6 +237,7 @@ export function EnvTreeNav({
                             "flex items-center gap-1 rounded-sm px-0.5 py-0.5",
                             isSel && "bg-accent/60",
                           )}
+                          style={{ borderLeft: `4px solid ${envColorVar(env.colorIndex)}` }}
                         >
                           <button
                             type="button"
@@ -226,9 +269,15 @@ export function EnvTreeNav({
                         </div>
                       </ContextMenuTrigger>
                       <ContextMenuContent>
-                        {st === "connected" ? (
+                        {st === "connected" || st === "degraded" ? (
                           <ContextMenuItem onSelect={() => onDisconnect(env.id)}>
                             Desconectar
+                          </ContextMenuItem>
+                        ) : needsReconnect && onReconnect ? (
+                          <ContextMenuItem
+                            onSelect={() => onReconnect(env.id)}
+                          >
+                            Reconectar
                           </ContextMenuItem>
                         ) : (
                           <ContextMenuItem
@@ -238,6 +287,24 @@ export function EnvTreeNav({
                             Conectar
                           </ContextMenuItem>
                         )}
+                        {!isDemo &&
+                          (st === "connected" || st === "degraded") &&
+                          onSetKeepAlive && (
+                            <>
+                              <ContextMenuSeparator />
+                              <ContextMenuItem
+                                onSelect={() => {
+                                  // Single handler only — dual onClick+onSelect double-toggles (020)
+                                  const next = !keepAliveOn(env.id);
+                                  onSetKeepAlive(env.id, next);
+                                }}
+                              >
+                                {keepAliveOn(env.id)
+                                  ? "No mantener conexión viva"
+                                  : "Mantener conexión viva"}
+                              </ContextMenuItem>
+                            </>
+                          )}
                         {!isDemo && (
                           <>
                             <ContextMenuSeparator />
@@ -246,8 +313,42 @@ export function EnvTreeNav({
                             </ContextMenuItem>
                           </>
                         )}
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          className="text-destructive"
+                          onSelect={() => onDelete(env)}
+                        >
+                          Eliminar
+                        </ContextMenuItem>
                       </ContextMenuContent>
                     </ContextMenu>
+
+                    {(st === "connected" || st === "degraded") && (
+                      <div
+                        className="ml-9 mb-0.5 text-[10px] text-muted-foreground"
+                        data-testid={`session-health-${env.id}`}
+                      >
+                        {st === "connected" && <span>Conectado</span>}
+                        {st === "degraded" && <span>Degradado</span>}
+                        <span>
+                          {" "}
+                          · Keep-alive: {keepAliveOn(env.id) ? "ON" : "OFF"}
+                        </span>
+                      </div>
+                    )}
+                    {st === "disconnected" &&
+                      healthById[env.id]?.status === "disconnected" && (
+                        <div
+                          className="ml-9 mb-0.5 text-[10px] text-muted-foreground"
+                          data-testid={`session-health-${env.id}`}
+                        >
+                          Desconectado
+                          <span>
+                            {" "}
+                            · Keep-alive: {keepAliveOn(env.id) ? "ON" : "OFF"}
+                          </span>
+                        </div>
+                      )}
 
                     {isExp && (
                       <ul className="ml-4 space-y-0.5 border-l border-border pl-2">
@@ -265,7 +366,7 @@ export function EnvTreeNav({
                                   type="button"
                                   className="truncate text-left hover:underline"
                                   onClick={() =>
-                                    onOpenDeployment(d.namespace, d.name)
+                                    onOpenDeployment(env.id, d.namespace, d.name)
                                   }
                                 >
                                   {d.name}
@@ -300,6 +401,7 @@ export function EnvTreeNav({
                                       className="truncate text-left hover:underline"
                                       onClick={() =>
                                         onOpenPod(
+                                          env.id,
                                           g.namespace,
                                           g.samplePodName,
                                           g.deploymentName,
@@ -316,7 +418,7 @@ export function EnvTreeNav({
                                       type="button"
                                       className="truncate text-left hover:underline"
                                       onClick={() =>
-                                        onOpenPod(o.namespace, o.podName, null)
+                                        onOpenPod(env.id, o.namespace, o.podName, null)
                                       }
                                     >
                                       {o.podName}
@@ -341,7 +443,7 @@ export function EnvTreeNav({
                                   type="button"
                                   className="truncate text-left hover:underline"
                                   onClick={() =>
-                                    onOpenService(s.namespace, s.name)
+                                    onOpenService(env.id, s.namespace, s.name)
                                   }
                                 >
                                   {s.name}
@@ -364,7 +466,7 @@ export function EnvTreeNav({
                                   type="button"
                                   className="truncate text-left hover:underline"
                                   onClick={() =>
-                                    onOpenConfigMap(cm.namespace, cm.name)
+                                    onOpenConfigMap(env.id, cm.namespace, cm.name)
                                   }
                                 >
                                   {cm.name}
@@ -388,6 +490,13 @@ export function EnvTreeNav({
       >
         {version}
       </footer>
+      <div
+        className="env-tree__resize-handle"
+        role="separator"
+        aria-label="Redimensionar panel de ambientes"
+        aria-orientation="vertical"
+        onPointerDown={startResize}
+      />
     </aside>
   );
 }

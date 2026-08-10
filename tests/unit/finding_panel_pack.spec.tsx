@@ -28,8 +28,11 @@ describe("FindingPanel pack UI (US4)", () => {
           {
             severity: "critical",
             ruleId: "springboot.npe",
-            explanation: "npe",
-            recommendation: "fix",
+            title: "NullPointerException",
+            summary: "npe",
+            why: "",
+            whatToLookFor: [],
+            recommendation: ["fix"],
           },
         ]}
         packId="springboot"
