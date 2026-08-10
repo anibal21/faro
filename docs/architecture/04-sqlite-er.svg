@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1060" viewBox="0 0 1560 1060" role="img" aria-label="Faro SQLite ER durable and session cache">
+  <rect width="1560" height="1060" fill="#FFFFFF"/>
+  <rect x="10" y="10" width="1540" height="1040" fill="#FFFFFF" stroke="#CBD5E1"/>
+
+  <rect x="30" y="24" width="620" height="36" rx="6" fill="#1B2A4A"/>
+  <text x="42" y="48" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Faro  Modelo ER SQLite (durable + session cache)</text>
+
+  <rect x="670" y="24" width="360" height="70" rx="6" fill="#F8FAFC" stroke="#64748B"/>
+  <text x="682" y="46" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="11">«durable» = sobrevive reinicio</text>
+  <text x="682" y="62" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="11">«session» = purge al cerrar app / disconnect</text>
+  <text x="682" y="78" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="11">Hydrate: 1× por env_connect (catalog_epoch)</text>
+
+  <!-- Durable -->
+  <rect x="30" y="110" width="740" height="420" fill="#ECFDF5" stroke="#047857"/>
+  <text x="42" y="132" fill="#064E3B" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">DURABLE (persiste entre reinicios)</text>
+
+  <rect x="50" y="145" width="200" height="280" rx="6" fill="#FFFFFF" stroke="#047857"/>
+  <text x="60" y="165" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«durable» ConnectionInstance</text>
+  <text x="60" y="185" fill="#0F172A" font-family="Consolas, monospace" font-size="10">id PK · name UK</text>
+  <text x="60" y="201" fill="#0F172A" font-family="Consolas, monospace" font-size="10">bastion_host · ssh_port · ssh_user</text>
+  <text x="60" y="217" fill="#0F172A" font-family="Consolas, monospace" font-size="10">pem_path · iam_credentials_path</text>
+  <text x="60" y="233" fill="#0F172A" font-family="Consolas, monospace" font-size="10">region_name · cluster_name</text>
+  <text x="60" y="249" fill="#0F172A" font-family="Consolas, monospace" font-size="10">namespace_default?</text>
+  <text x="60" y="265" fill="#0F172A" font-family="Consolas, monospace" font-size="10">sort_order? · is_favorite · notes?</text>
+  <text x="60" y="281" fill="#0F172A" font-family="Consolas, monospace" font-size="10">created_at / updated_at</text>
+
+  <rect x="280" y="145" width="210" height="200" rx="6" fill="#FFFFFF" stroke="#047857"/>
+  <text x="290" y="165" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«durable» UiPreferences</text>
+  <text x="290" y="185" fill="#0F172A" font-family="Consolas, monospace" font-size="10">key PK · value · updated_at</text>
+  <text x="290" y="205" fill="#0F172A" font-family="Consolas, monospace" font-size="10">theme · last_active_instance_id</text>
+  <text x="290" y="221" fill="#0F172A" font-family="Consolas, monospace" font-size="10">sidebar_width_px?</text>
+  <text x="290" y="237" fill="#0F172A" font-family="Consolas, monospace" font-size="10">default_component_type?</text>
+
+  <rect x="520" y="145" width="230" height="220" rx="6" fill="#FFFFFF" stroke="#047857"/>
+  <text x="530" y="165" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«durable» AnalysisFindingHistory</text>
+  <text x="530" y="185" fill="#0F172A" font-family="Consolas, monospace" font-size="10">id PK · connection_instance_id FK</text>
+  <text x="530" y="201" fill="#0F172A" font-family="Consolas, monospace" font-size="10">namespace · artifact_name · kind</text>
+  <text x="530" y="217" fill="#0F172A" font-family="Consolas, monospace" font-size="10">severity · rule_id</text>
+  <text x="530" y="233" fill="#0F172A" font-family="Consolas, monospace" font-size="10">explanation_summary</text>
+  <text x="530" y="249" fill="#0F172A" font-family="Consolas, monospace" font-size="10">recommendation_summary</text>
+  <text x="530" y="265" fill="#0F172A" font-family="Consolas, monospace" font-size="10">created_at (no stacktrace body)</text>
+
+  <rect x="280" y="370" width="210" height="100" rx="6" fill="#FFFFFF" stroke="#047857"/>
+  <text x="290" y="390" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«durable» SchemaMeta</text>
+  <text x="290" y="410" fill="#0F172A" font-family="Consolas, monospace" font-size="10">key PK · value</text>
+  <text x="290" y="426" fill="#0F172A" font-family="Consolas, monospace" font-size="10">(schema_version)</text>
+
+  <!-- Session -->
+  <rect x="30" y="560" width="1520" height="480" fill="#FEF3C7" stroke="#B45309"/>
+  <text x="42" y="582" fill="#78350F" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">SESSION CACHE (purge al cerrar app  regenerar en próxima conexión)</text>
+
+  <rect x="50" y="600" width="220" height="180" rx="6" fill="#FFFFFF" stroke="#B45309"/>
+  <text x="60" y="620" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«session» ConnectionSession</text>
+  <text x="60" y="640" fill="#0F172A" font-family="Consolas, monospace" font-size="10">id PK · connection_instance_id FK</text>
+  <text x="60" y="656" fill="#0F172A" font-family="Consolas, monospace" font-size="10">status · connected_at</text>
+  <text x="60" y="672" fill="#0F172A" font-family="Consolas, monospace" font-size="10">last_catalog_refresh_at?</text>
+  <text x="60" y="688" fill="#0F172A" font-family="Consolas, monospace" font-size="10">last_error_*?</text>
+  <text x="60" y="704" fill="#0F172A" font-family="Consolas, monospace" font-size="10">catalog_epoch</text>
+
+  <rect x="300" y="600" width="200" height="140" rx="6" fill="#FFFFFF" stroke="#B45309"/>
+  <text x="310" y="620" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«session» CachedNamespace</text>
+  <text x="310" y="640" fill="#0F172A" font-family="Consolas, monospace" font-size="10">id PK · instance FK</text>
+  <text x="310" y="656" fill="#0F172A" font-family="Consolas, monospace" font-size="10">catalog_epoch · name</text>
+  <text x="310" y="672" fill="#0F172A" font-family="Consolas, monospace" font-size="10">fetched_at</text>
+
+  <rect x="530" y="600" width="210" height="200" rx="6" fill="#FFFFFF" stroke="#B45309"/>
+  <text x="540" y="620" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«session» CachedDeployment</text>
+  <text x="540" y="640" fill="#0F172A" font-family="Consolas, monospace" font-size="10">id PK · instance FK · epoch</text>
+  <text x="540" y="656" fill="#0F172A" font-family="Consolas, monospace" font-size="10">namespace · name</text>
+  <text x="540" y="672" fill="#0F172A" font-family="Consolas, monospace" font-size="10">replica_count · ready_replicas</text>
+  <text x="540" y="688" fill="#0F172A" font-family="Consolas, monospace" font-size="10">available · labels_json?</text>
+  <text x="540" y="704" fill="#0F172A" font-family="Consolas, monospace" font-size="10">fetched_at</text>
+
+  <rect x="770" y="600" width="210" height="160" rx="6" fill="#FFFFFF" stroke="#B45309"/>
+  <text x="780" y="620" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«session» CachedPodReplica</text>
+  <text x="780" y="640" fill="#0F172A" font-family="Consolas, monospace" font-size="10">id PK · deployment FK</text>
+  <text x="780" y="656" fill="#0F172A" font-family="Consolas, monospace" font-size="10">pod_name · phase</text>
+  <text x="780" y="672" fill="#0F172A" font-family="Consolas, monospace" font-size="10">node_name?</text>
+  <text x="780" y="688" fill="#0F172A" font-family="Consolas, monospace" font-size="10">container_names_json</text>
+
+  <rect x="1010" y="600" width="210" height="180" rx="6" fill="#FFFFFF" stroke="#B45309"/>
+  <text x="1020" y="620" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«session» CachedConfigMap</text>
+  <text x="1020" y="640" fill="#0F172A" font-family="Consolas, monospace" font-size="10">id PK · instance FK · epoch</text>
+  <text x="1020" y="656" fill="#0F172A" font-family="Consolas, monospace" font-size="10">namespace · name</text>
+  <text x="1020" y="672" fill="#0F172A" font-family="Consolas, monospace" font-size="10">key_count · data_loaded</text>
+  <text x="1020" y="688" fill="#0F172A" font-family="Consolas, monospace" font-size="10">fetched_at</text>
+
+  <rect x="1250" y="600" width="220" height="160" rx="6" fill="#FFFFFF" stroke="#B45309"/>
+  <text x="1260" y="620" fill="#0F172A" font-family="Consolas, monospace" font-size="11" font-weight="700">«session» CachedConfigMapEntry</text>
+  <text x="1260" y="640" fill="#0F172A" font-family="Consolas, monospace" font-size="10">id PK · configmap FK</text>
+  <text x="1260" y="656" fill="#0F172A" font-family="Consolas, monospace" font-size="10">key_name · value_text?</text>
+  <text x="1260" y="672" fill="#0F172A" font-family="Consolas, monospace" font-size="10">is_truncated · is_binary</text>
+  <text x="1260" y="688" fill="#0F172A" font-family="Consolas, monospace" font-size="10">byte_length</text>
+
+  <!-- Relationship hint lines -->
+  <line x1="150" y1="425" x2="150" y2="600" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="150" y1="600" x2="160" y2="600" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="150" y1="580" x2="400" y2="580" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="400" y1="580" x2="400" y2="600" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="150" y1="580" x2="635" y2="580" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="635" y1="580" x2="635" y2="600" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="150" y1="580" x2="1115" y2="580" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="1115" y1="580" x2="1115" y2="600" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="740" y1="700" x2="770" y2="700" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="1220" y1="700" x2="1250" y2="700" stroke="#B45309" stroke-width="1.5"/>
+  <line x1="250" y1="255" x2="520" y2="255" stroke="#047857" stroke-width="1.5"/>
+
+  <rect x="50" y="960" width="680" height="40" rx="6" fill="#FEE2E2" stroke="#B91C1C"/>
+  <text x="62" y="985" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="11">NOT in SQLite: LogWindow buffer, LogWriteGroup, AnalysisFinding (full), SSH/kube clients, tokens</text>
+</svg>

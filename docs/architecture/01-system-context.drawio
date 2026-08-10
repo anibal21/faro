@@ -1,0 +1,140 @@
+<mxfile host="app.diagrams.net" agent="Faro Spec Kit" version="22.1.0" type="device">
+  <diagram id="faro-system-context" name="System Context">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Faro — System Context (v1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2A4A;strokeColor=#1B2A4A;fontColor=#FFFFFF;align=left;verticalAlign=middle;fontStyle=1;fontSize=18;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="24" width="420" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Flujo: Usuario → Faro (PEM + IAM file + region/cluster) → Bastión → EKS → Pods/ConfigMaps. Secretos solo en archivos locales; Faro guarda rutas." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#0F172A;align=left;verticalAlign=middle;fontSize=11;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="68" width="900" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- COL 1: User -->
+        <mxCell id="user" value="Usuario&#xa;(ops / dev)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DBEAFE;strokeColor=#1E3A5F;fontColor=#0F172A;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- COL 2: Machine boundary -->
+        <mxCell id="boundary" value="Máquina del usuario" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#F8FAFC;strokeColor=#64748B;verticalAlign=top;fontStyle=1;fontSize=13;fontColor=#0F172A;align=left;spacingLeft=14;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="220" y="120" width="560" height="520" as="geometry" />
+        </mxCell>
+
+        <!-- Faro (top center of machine) -->
+        <mxCell id="faro" value="Faro&#xa;Tauri 2 + React + SQLite&#xa;reglas Spring Boot (local)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B2A4A;strokeColor=#0F172A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="390" y="160" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Local config row (well spaced, below Faro) -->
+        <mxCell id="pem" value="1. PEM path&#xa;.pem en disco" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#92400E;fontColor=#78350F;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="250" y="320" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="iamfile" value="2. IAM credentials&#xa;file path&#xa;(access key + secret)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#92400E;fontColor=#78350F;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="425" y="320" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="meta" value="3. region_name&#xa;+ cluster_name" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#312E81;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="600" y="320" width="150" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Token derived (bottom of machine) -->
+        <mxCell id="awsapi" value="Token EKS (temporal)&#xa;generado al conectar&#xa;desde archivo IAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9D5FF;strokeColor=#7E22CE;fontColor=#581C87;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="480" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- COL 3: External stack (right, vertical, no crossings) -->
+        <mxCell id="bastion" value="Bastión SSH&#xa;(EC2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BAE6FD;strokeColor=#0369A1;fontColor=#0C4A6E;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="880" y="160" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="eks" value="EKS API Server&#xa;HTTPS :443" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BAE6FD;strokeColor=#0369A1;fontColor=#0C4A6E;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="880" y="320" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="workloads" value="Pods / Deployments&#xa;ConfigMaps (RO)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBF7D0;strokeColor=#15803D;fontColor=#14532D;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="880" y="480" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Footnote -->
+        <mxCell id="note" value="Constitution VI: sin telemetría/LLM con datos de usuario. Faro no persiste PEM ni Access Key/Secret — solo rutas e identificadores (region_name, cluster_name, bastión)." style="rounded=1;whiteSpace=wrap;html=1;align=left;fillColor=#FFFFFF;strokeColor=#64748B;fontSize=11;fontColor=#0F172A;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="680" width="1000" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ===== EDGES: keep simple, vertical/horizontal only ===== -->
+
+        <!-- User → Faro (horizontal) -->
+        <mxCell id="e1" value="usa UI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0F172A;strokeWidth=2;fontSize=12;fontColor=#0F172A;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="user" target="faro">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Faro → PEM (down-left, orthogonal with waypoint) -->
+        <mxCell id="e2" value="ruta" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B45309;strokeWidth=2;dashed=1;fontSize=11;fontColor=#78350F;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="faro" target="pem">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="445" y="290" />
+              <mxPoint x="325" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Faro → IAM (straight down) -->
+        <mxCell id="e3" value="ruta" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B45309;strokeWidth=2;dashed=1;fontSize=11;fontColor=#78350F;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="faro" target="iamfile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Faro → region/cluster (down-right) -->
+        <mxCell id="e4" value="ids" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4338CA;strokeWidth=2;dashed=1;fontSize=11;fontColor=#312E81;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="faro" target="meta">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="555" y="290" />
+              <mxPoint x="675" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- IAM → token (straight down) -->
+        <mxCell id="e5" value="genera" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7E22CE;strokeWidth=2;fontSize=11;fontColor=#581C87;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="iamfile" target="awsapi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- region → token (down then left, bottom rail — avoids crossing Faro edges) -->
+        <mxCell id="e6" value="usa" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#4338CA;strokeWidth=2;dashed=1;fontSize=11;fontColor=#312E81;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=1;entryY=0.5;" edge="1" parent="1" source="meta" target="awsapi">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="675" y="450" />
+              <mxPoint x="675" y="525" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Faro → Bastion (horizontal right, top rail) -->
+        <mxCell id="e7" value="A. Túnel SSH&#xa;(usa PEM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0369A1;strokeWidth=2;fontSize=11;fontColor=#0C4A6E;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=1;exitY=0.35;entryX=0;entryY=0.5;" edge="1" parent="1" source="faro" target="bastion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Bastion → EKS (vertical) -->
+        <mxCell id="e8" value="B. Forward :443" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0369A1;strokeWidth=2;fontSize=11;fontColor=#0C4A6E;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="bastion" target="eks">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Token → EKS (right then up along outer rail — no cross with A/B) -->
+        <mxCell id="e9" value="C. Auth kube&#xa;(Bearer token)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7E22CE;strokeWidth=2;fontSize=11;fontColor=#581C87;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.75;" edge="1" parent="1" source="awsapi" target="eks">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="820" y="525" />
+              <mxPoint x="820" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- EKS → workloads (vertical) -->
+        <mxCell id="e10" value="D. get/list/logs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#15803D;strokeWidth=2;fontSize=11;fontColor=#14532D;fontStyle=1;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="eks" target="workloads">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- PEM used by tunnel: PEM → Faro already; optional note edge PEM to bastion via far label - skip to avoid clutter. PEM is used in step A conceptually. -->
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c7ddf5"/>
+      <stop offset="100%" stop-color="#b8d4f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <text x="960" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#4b5563" letter-spacing="1">FARO - NEW ENVIRONMENT CONFIG MODAL</text>
+  <text x="40" y="52" fill="#8b5cf6" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">DESKTOP (16:9)</text>
+
+  <g id="desktop" transform="translate(40, 60)">
+
+    <rect width="1840" height="720" rx="8" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <rect x="0" y="0" width="1840" height="36" fill="#dcc8a8"/>
+    <text x="16" y="24" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">Faro</text>
+    <text x="80" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">Ambiente</text>
+    <text x="180" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">Ver</text>
+    <text x="240" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">Ayuda</text>
+
+
+    <rect x="0" y="36" width="1840" height="48" fill="#dcc8a8"/>
+    <text x="1520" y="66" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">Ambiente</text>
+    <rect x="1536" y="42" width="280" height="36" rx="6" fill="#f5f0e6" stroke="#b8a080"/>
+    <text x="1780" y="66" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">Seleccionar</text>
+    <text x="1802" y="66" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">▾</text>
+
+    <rect x="580" y="200" width="680" height="320" rx="12" fill="#f5f0e6" stroke="#b8a080" stroke-dasharray="6 4"/>
+    <text x="920" y="280" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="bold" fill="#1f2937">Bienvenido a Faro</text>
+    <text x="920" y="320" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">No hay ambientes cargados.</text>
+    <text x="920" y="348" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">Usa el menú Ambiente o el selector a la derecha</text>
+    <text x="920" y="372" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">para configurar o cargar entornos.</text>
+    <rect x="760" y="410" width="320" height="48" rx="6" fill="#8b5cf6"/>
+    <text x="920" y="440" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Configurar nuevo ambiente</text>
+
+    <rect x="0" y="660" width="1840" height="60" fill="#dcc8a8"/>
+    <text x="24" y="696" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">Listo · Sin conexión</text>
+
+    <rect x="0" y="0" width="1840" height="720" fill="#1f2937" opacity="0.5"/>
+    <!-- modal card -->
+    <rect x="580" y="12" width="680" height="700" rx="8" fill="#f5f0e6" stroke="#b8a080"/>
+    <!-- header -->
+    <rect x="580" y="12" width="680" height="48" rx="8" fill="#e8d4b8"/>
+    <rect x="580" y="44" width="680" height="16" fill="#e8d4b8"/>
+    <line x1="580" y1="60" x2="1260" y2="60" stroke="#b8a080"/>
+    <text x="604" y="44" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Configuración nuevo ambiente</text>
+    <text x="1236" y="44" text-anchor="end" font-family="system-ui, sans-serif" font-size="16" fill="#4b5563">×</text>
+<g class="callout" transform="translate(1252, 36)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">1</text></g>
+    <!-- body intro -->
+    <text x="604" y="84" font-family="system-ui, sans-serif" font-size="12" fill="#4b5563">PEM + SSH + ruta IAM + region_name + cluster_name. Solo se guardan rutas e identificadores, no secretos.</text>
+
+    <text x="604" y="126" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Nombre de la conexión</text>
+    <rect x="772" y="104" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="128" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">prod-eks</text>
+<g class="callout" transform="translate(1228, 122)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">2</text></g>
+    <text x="604" y="172" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Host (bastión)</text>
+    <rect x="772" y="150" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="174" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">bastion.ejemplo.corp</text>
+
+    <text x="604" y="218" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Puerto SSH</text>
+    <rect x="772" y="196" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="220" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">22</text>
+
+    <text x="604" y="264" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Username SSH</text>
+    <rect x="772" y="242" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="266" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">ec2-user</text>
+
+    <text x="604" y="310" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Namespace</text>
+    <rect x="772" y="288" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="312" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">default</text>
+
+    <text x="604" y="356" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">PEM (Private Key)</text>
+    <rect x="772" y="334" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="358" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">C:\Users\…\faro.pem</text>
+    <rect x="1130" y="338" width="100" height="28" rx="4" fill="#dcc8a8" stroke="#b8a080"/>
+    <text x="1180.0" y="358" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#1f2937">Examinar…</text>
+
+    <text x="604" y="402" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Credenciales IAM</text>
+    <rect x="772" y="380" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="404" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">C:\Users\…\aws-creds.ini</text>
+    <rect x="1130" y="384" width="100" height="28" rx="4" fill="#dcc8a8" stroke="#b8a080"/>
+    <text x="1180.0" y="404" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#1f2937">Examinar…</text>
+<g class="callout" transform="translate(1228, 398)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">3</text></g>
+    <text x="604" y="448" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">region_name</text>
+    <rect x="772" y="426" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="450" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">us-east-1</text>
+
+    <text x="604" y="494" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">cluster_name</text>
+    <rect x="772" y="472" width="464" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+
+    <text x="782" y="496" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">prod-eks-cluster</text>
+
+    <line x1="580" y1="638" x2="1260" y2="638" stroke="#b8a080"/>
+    <rect x="580" y="638" width="680" height="74" rx="8" fill="#e8d4b8"/>
+    <rect x="580" y="638" width="680" height="18" fill="#e8d4b8"/>
+    <rect x="604" y="648" width="200" height="40" rx="4" fill="#f5f0e6" stroke="#b8a080"/>
+    <text x="704" y="674" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#1f2937">Probar Túnel SSH</text>
+<g class="callout" transform="translate(814, 668)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">4</text></g>
+    <rect x="1036" y="648" width="200" height="40" rx="4" fill="#8b5cf6"/>
+    <text x="1136" y="674" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Agregar Conexión</text>
+  </g>
+  <g id="annotations" transform="translate(40, 800)">
+    <rect width="1840" height="220" rx="8" fill="#dcc8a8" stroke="#b8a080"/>
+    <g transform="translate(20, 20)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US-001 Config modal</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Formulario completo de nuevo ambiente sobre empty workspace.</text>
+      <rect x="40.0" y="44" width="72" height="22" rx="4" fill="#0891b2"/>
+      <text x="76.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US-001</text>
+      <rect x="118.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="154.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-001</text>
+      <rect x="196.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="232.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-002</text>
+    </g>
+    <g transform="translate(920, 20)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">2</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US-001 Connection name</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Nombre de la conexión identifica el ambiente en el selector.</text>
+      <rect x="40.0" y="44" width="72" height="22" rx="4" fill="#0891b2"/>
+      <text x="76.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US-001</text>
+      <rect x="118.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="154.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-001</text>
+      <rect x="196.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="232.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-002</text>
+    </g>
+    <g transform="translate(20, 120)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">3</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US-001 PEM + IAM paths</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">SSH + PEM + ruta IAM + region_name + cluster_name (sin secretos en BD).</text>
+      <rect x="40.0" y="44" width="72" height="22" rx="4" fill="#0891b2"/>
+      <text x="76.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US-001</text>
+      <rect x="118.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="154.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-002</text>
+      <rect x="196.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="232.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-003</text>
+      <rect x="274.0" y="44" width="72" height="22" rx="4" fill="#ea580c"/>
+      <text x="310.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">SC-008</text>
+    </g>
+    <g transform="translate(920, 120)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">4</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US-001 Actions</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Probar Túnel SSH valida; Agregar Conexión guarda rutas e identificadores.</text>
+      <rect x="40.0" y="44" width="72" height="22" rx="4" fill="#0891b2"/>
+      <text x="76.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US-001</text>
+      <rect x="118.0" y="44" width="72" height="22" rx="4" fill="#2563eb"/>
+      <text x="154.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-004</text>
+      <rect x="196.0" y="44" width="72" height="22" rx="4" fill="#ea580c"/>
+      <text x="232.0" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">SC-001</text>
+    </g>
+  </g>  <text x="40" y="1060" fill="#374151" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">001:02 | Faro New Environment Modal | SpecKit</text>
+</svg>
