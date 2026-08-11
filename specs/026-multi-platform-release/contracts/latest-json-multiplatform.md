@@ -8,10 +8,10 @@
 
 ```json
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "notes": "optional",
   "platforms": {
-    "windows-x86_64": { "url": "https://github.com/anibal21/faro/releases/download/v0.2.0/Faro_…_x64-setup.exe", "signature": "<sig file body>" },
+    "windows-x86_64": { "url": "https://github.com/anibal21/faro/releases/download/v0.3.0/Faro_…_x64-setup.exe", "signature": "<sig file body>" },
     "darwin-x86_64": { "url": "https://…/Faro_…_x64.app.tar.gz", "signature": "<sig>" },
     "linux-x86_64": { "url": "https://…/Faro_….AppImage", "signature": "<sig>" }
   }

@@ -6,7 +6,7 @@
 
 | Field | Rules |
 |-------|--------|
-| `tag` | SemVer with `v` prefix (e.g. `v0.2.0`); matches app version |
+| `tag` | SemVer with `v` prefix (e.g. `v0.3.0`); matches app version |
 | `version` | SemVer without requiring leading `v` in `latest.json` |
 | `notes` | Optional human changelog |
 | `status` | `ready` only if all **Required Packages** present; otherwise failed/not ready |
