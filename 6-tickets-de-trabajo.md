@@ -1,11 +1,11 @@
 # 6. Tickets de trabajo
 
-> Generados desde Spec Kit [`tasks.md`](specs/001-eks-log-monitor/tasks.md) (2026-07-23).  
-> **10 tickets** = 1 por historia atómica (US1–US10). Cada uno lista tareas Spec Kit.  
+> Generados desde Spec Kit (base [`tasks.md`](specs/001-eks-log-monitor/tasks.md) 2026-07-23 + UI 002–007).  
+> **Tickets HU1–HU16**. Cada uno lista tareas Spec Kit.  
 > Cubren backend (Rust/Tauri), frontend (React) y BD (SQLite) — requisito AI4Devs ≥3 tipos.  
 > Estimaciones en puntos relativos (1 = pequeño, 5 = grande). Ajustar en review.
 
-**Fuente de verdad de ejecución:** `specs/001-eks-log-monitor/tasks.md` (T001–T085).
+**Fuente de verdad de ejecución:** specs por feature (`001`…`007` `/tasks.md`).
 
 ---
 
@@ -19,12 +19,12 @@
 | **Estimación** | 3 |
 
 ### Descripción
-Splash mínimo (Faro + BG slot + tagline AWS + *…preparando*) y `session_purge_ephemeral` que borra solo tablas `«session»`, conservando ambientes/prefs.
+Splash branded (imagen lighthouse) y `session_purge_ephemeral` que borra solo tablas `«session»`, conservando ambientes/prefs. Geometría actual: ver HU14–HU15.
 
 ### Criterios de aceptación
-- [ ] FR-023 / FR-024 cumplidos.
-- [ ] Tras dirty exit, relaunch limpia session y conserva durables.
-- [ ] Tests T016–T017 verdes.
+- [x] FR-023 / FR-024 (purge) + splash visual 006/007.
+- [x] Tras dirty exit, relaunch limpia session y conserva durables.
+- [x] Tests splash/purge verdes.
 
 ---
 
@@ -79,9 +79,9 @@ CRUD de `connection_instance` (PEM path, SSH, IAM path, region, cluster); modal 
 Túnel SSH (PEM path), token EKS desde archivo IAM, `env_connect` / `env_disconnect`, hydrate session cache (esqueleto), errores sin secretos.
 
 ### Criterios de aceptación
-- [ ] Connect OK con ambiente de prueba (o mocks).
-- [ ] Disconnect purga session del ambiente.
-- [ ] Tests T034–T035 verdes.
+- [x] Connect OK con ambiente de prueba (o mocks).
+- [x] Disconnect purga session del ambiente.
+- [x] Tests T034–T035 verdes.
 
 ---
 
@@ -98,9 +98,9 @@ Túnel SSH (PEM path), token EKS desde archivo IAM, `env_connect` / `env_disconn
 Listado desde cache de sesión; filtro por nombre; `catalog_refresh` / epoch; rail wireframe 04.
 
 ### Criterios de aceptación
-- [ ] UI lee cache post-hydrate (no re-list K8s en cada click).
-- [ ] Refresh regenera epoch.
-- [ ] Tests T042–T043 verdes.
+- [x] UI lee cache post-hydrate (no re-list K8s en cada click).
+- [x] Refresh regenera epoch.
+- [x] Tests T042–T043 verdes.
 
 ---
 
@@ -117,9 +117,9 @@ Listado desde cache de sesión; filtro por nombre; `catalog_refresh` / epoch; ra
 List/get ConfigMaps; vista Raw RO; truncado seguro de valores grandes/binarios.
 
 ### Criterios de aceptación
-- [ ] Solo lectura; sin mutaciones K8s.
-- [ ] Truncado seguro.
-- [ ] Tests T049–T050 verdes.
+- [x] Solo lectura; sin mutaciones K8s.
+- [x] Truncado seguro.
+- [x] Tests T049–T050 verdes.
 
 ---
 
@@ -136,9 +136,9 @@ List/get ConfigMaps; vista Raw RO; truncado seguro de valores grandes/binarios.
 `logs_open`/`close` + events `logs_chunk`/`logs_status`; Structured default; Raw sin manipulación; multi-ventana; búsqueda; buffers en RAM.
 
 ### Criterios de aceptación
-- [ ] FR-018–022.
-- [ ] Sin dumps de logs en SQLite.
-- [ ] Tests T055–T056 verdes.
+- [x] FR-018–022.
+- [x] Sin dumps de logs en SQLite.
+- [x] Tests T055–T056 verdes.
 
 ---
 
@@ -155,9 +155,9 @@ List/get ConfigMaps; vista Raw RO; truncado seguro de valores grandes/binarios.
 Detección ligera + `analyze_write_group` local; panel hallazgo; rule pack `rules/springboot/`; sin Analizar-todo / Export.
 
 ### Criterios de aceptación
-- [ ] Click → severidad + explicación + acción.
-- [ ] Sin egress del payload de análisis.
-- [ ] Tests T064–T065 verdes.
+- [x] Click → severidad + explicación + acción.
+- [x] Sin egress del payload de análisis.
+- [x] Tests T064–T065 verdes.
 
 ---
 
@@ -174,8 +174,8 @@ Detección ligera + `analyze_write_group` local; panel hallazgo; rule pack `rule
 Menú Ver → claro/oscuro; persistencia `prefs_*` (FR-025).
 
 ### Criterios de aceptación
-- [ ] Preferencia sobrevive restart.
-- [ ] Test T072 verde.
+- [x] Preferencia sobrevive restart.
+- [x] Test T072 verde.
 
 ---
 
@@ -192,8 +192,8 @@ Menú Ver → claro/oscuro; persistencia `prefs_*` (FR-025).
 Bundles Tauri Win/macOS/Linux; demo Windows primero; artefactos llegan a splash o UI de conexión.
 
 ### Criterios de aceptación
-- [ ] FR-015 / SC-007.
-- [ ] Build documentado en README/quickstart.
+- [x] FR-015 / SC-007.
+- [x] Build documentado en README/quickstart.
 
 ---
 
@@ -205,11 +205,314 @@ Para el formato clásico “≥3 tickets por capa”, agrupar así en PRs si hac
 |------|----------------------|-------------------------|
 | **BD** | HU1 (purge), HU2 (durable), HU5–HU6 (session) | T007–T009, T015 |
 | **Backend** | HU4, HU5–HU8 | T036–T041, T044–T045, T057–T058, T066–T067 |
-| **Frontend** | HU1, HU3, HU7–HU9 | T019–T020, T026–T033, T060–T069, T073–T074 |
+| **Frontend** | HU1, HU3, HU7–HU9, HU11–HU16 | T019–T020, T026–T033, T060–T069, T073–T074 + tasks 002–008 |
 
 **Polish / E2E:** T080–T085 (no es HU; cierra primary flow).
 
 ---
+
+## Ticket HU11 — Layout acordeón (002)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend |
+| **HU / US** | HU11 / US1–US4 (002) |
+| **Tasks** | T001–T037 (`specs/002-accordion-nav-layout/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Sustituye el workspace de 3 columnas por acordeón | main: click en Deployment/ConfigMap abre pestañas (dedupe), fan-in multi-réplica, `workload_summary`, strip de métricas N/D.
+
+### Criterios de aceptación
+- [x] Sin buscador / Abrir logs / rail derecho ConfigMaps.
+- [x] Tests unit/integration/E2E outline 002 verdes.
+
+---
+
+## Ticket HU12 — Professional workspace chrome (004)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend |
+| **HU / US** | HU12 / US1–US3 (P1 Must) |
+| **Tasks** | T001–T036 (`specs/004-pro-workspace-chrome/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+shadcn/Tailwind; AppMenubar Ambientes|Temas; EnvTreeNav; LogWorkspace + AnalysisDrawer; sessions map multi-connect.
+
+### Criterios de aceptación
+- [x] Chrome denso sin header bulky.
+- [x] Árbol + drawer + tests 004 verdes.
+
+---
+
+## Ticket HU13 — UI chrome polish (005)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Config Tauri |
+| **HU / US** | HU13 / US1–US4 (P1 Must) |
+| **Tasks** | T001–T034 (`specs/005-ui-chrome-polish/tasks.md`) |
+| **Estimación** | 3 |
+
+### Descripción
+13px UI; lucide +/−; Ambientes mínimo; Monitor + version; TitleBar undecorated; splash dwell 5s.
+
+### Criterios de aceptación
+- [x] Contratos ui-chrome + splash-dwell cumplidos.
+- [x] Tests 005 verdes.
+
+---
+
+## Ticket HU14 — Splash branded + iconos (006)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Config Tauri (bundle icons) |
+| **HU / US** | HU14 / US1–US3 (006) |
+| **Tasks** | T001–T019 (`specs/006-branded-splash-icons/tasks.md`) |
+| **Estimación** | 2 |
+
+### Descripción
+Splash full-bleed con `load_page` art; sin título overlay; status/error abajo-derecha; iconos `src-tauri/icons/` en bundle.
+
+### Criterios de aceptación
+- [x] Contratos splash-visual + window-icons (icon paths).
+- [x] Tests 006 verdes.
+
+---
+
+## Ticket HU15 — Ventanas compactas fijas (007)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Config Tauri |
+| **HU / US** | HU15 / US1–US2 (007) |
+| **Tasks** | T001–T014 (`specs/007-compact-fixed-windows/tasks.md`) |
+| **Estimación** | 2 |
+
+### Descripción
+Splash **576×324** fija/centrada; al ready **900×600** centrada (clamp a work area); `windowGeometry.ts` + capabilities set-size/center.
+
+### Criterios de aceptación
+- [x] Contrato window-geometry.
+- [x] Tests 007 verdes (conf + clamp + E2E outline).
+
+---
+
+## Ticket HU16 — Live cluster connect + demo (008)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Backend + Frontend + Config |
+| **HU / US** | HU16 / US1–US3 (008) |
+| **Tasks** | T001–T041 (`specs/008-live-cluster-connect/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Builtin **demo** (`faro-demo`); live envs con SSH+AWS CLI EKS+kube; namespace obligatorio; multi-connect aislado; sin fallback demo.
+
+### Criterios de aceptación
+- [x] Contratos connect-modes + live-k8s-session.
+- [x] Tests 008 verdes.
+
+---
+
+## Ticket HU17 — Examinar rutas PEM/IAM (009)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Tauri plugin |
+| **HU / US** | HU17 / US1–US4 (009) |
+| **Tasks** | T001–T030 (`specs/009-connection-file-browse/tasks.md`) |
+| **Estimación** | 2 |
+
+### Descripción
+Selector nativo (`@tauri-apps/plugin-dialog`) en modal de ambiente para PEM e IAM; paths only; Save bloqueado si Browse falla.
+
+### Criterios de aceptación
+- [x] Contratos file-browse-ui.
+- [x] Tests 009 verdes.
+
+---
+
+## Ticket HU18 — Live logs workspace UX (010)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend (Rust/kube) |
+| **HU / US** | HU18 / US1–US5 (010) |
+| **Tasks** | T001–T040 (`specs/010-live-logs-workspace/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Follow continuo, load-older ~500/pod, stick-to-bottom, Structured write-groups, ConfigMap full height, bastion token path.
+
+### Criterios de aceptación
+- [x] Contratos logs-session + log-workspace-ui.
+- [x] Tests 010 verdes + quickstart manual.
+
+---
+
+## Ticket HU19 — Workspace catalog & UI polish (011)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend (Rust/kube) |
+| **HU / US** | HU19 / US1–US7 (011) |
+| **Tasks** | T001–T041 (`specs/011-workspace-catalog-ux/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Summary provisionado `request / limit`, 4 secciones de catálogo (incl. Services + pod logs), export texto, stick/scrollbars/indent, status follow en español.
+
+### Criterios de aceptación
+- [x] Contratos catalog-nav-ui + workload-summary + export-text.
+- [x] Tests 011 verdes + quickstart manual.
+
+---
+
+## Ticket HU20 — Deployment YAML, Pod fan-in & full export (012)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend (Rust/kube) |
+| **HU / US** | HU20 / US1–US5 (012) |
+| **Tasks** | T001–T031 (`specs/012-deployment-yaml-full-export/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Deployment → YAML; Pods → fan-in multi-réplica; export exhaust; quitar iniciando; summary desde template.
+
+### Criterios de aceptación
+- [x] Contratos deployment-yaml + pod-fanin-logs + export-exhaust + status-chrome.
+- [x] Tests 012 verdes + quickstart manual.
+
+---
+
+## Ticket HU21 — Pods menú: logs combinados por Deployment (013)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend |
+| **HU / US** | HU21 / US1–US3 (013) |
+| **Tasks** | T001–T018 (`specs/013-pods-combined-replicas/tasks.md`) |
+| **Estimación** | 3 |
+
+### Descripción
+Menú Pods agrupa réplicas por Deployment (`name (count)`); click abre fan-in; export incluye todas las réplicas del scope.
+
+### Criterios de aceptación
+- [x] Contratos pods-menu-groups + combined-logs-open + combined-export.
+- [x] Tests 013 verdes + quickstart manual.
+
+---
+
+## Ticket HU22 — Live connect solo PEM (014)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend + Backend (Rust/SSH) |
+| **HU / US** | HU22 / US1–US4 (014) |
+| **Tasks** | T001–T022 (`specs/014-pem-only-live-connect/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Quitar IAM del form; discovery EKS (`describe-cluster`) y token vía bastion; soft-deprecar `iam_credentials_path`.
+
+### Criterios de aceptación
+- [x] Contratos env-form-no-iam + bastion-cluster-discovery + connect-no-local-iam.
+- [x] Tests 014 verdes + quickstart manual.
+
+---
+
+## Ticket HU23 — Motor de reglas multi-pack (015)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Backend (rules) + Frontend |
+| **HU / US** | HU23 / US1–US4 (015) |
+| **Tasks** | T001–T027 (`specs/015-rules-multi-pack/tasks.md`) |
+| **Estimación** | 5 |
+
+### Descripción
+Packs `springboot` + `nodejs` embebidos; matcher contains + match_all; auto-hint; analyze retorna pack usado; panel con override.
+
+### Criterios de aceptación
+- [x] Contratos analyze-api + rule-packs + auto-hint.
+- [x] Tests 015 verdes + quickstart manual.
+
+---
+
+## Ticket HU24 — Catálogo de reglas descriptivo (016)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Backend (rules) + Frontend |
+| **HU / US** | HU24 / US1–US4 (016) |
+| **Tasks** | T001–T036 (`specs/016-rich-rules-catalog/tasks.md`) |
+| **Estimación** | 8 |
+
+### Descripción
+Schema rico + signalSnippet; packs Spring/Liquibase/Node/React/Python; auto-hint 5 vías; panel descriptivo.
+
+### Criterios de aceptación
+- [x] Contratos analyze-result + rule-schema + packs-catalog + signal-snippet + auto-hint.
+- [x] Tests 016 verdes + quickstart manual.
+
+## Ticket HU25 — Session keep-alive (017) + toggle chrome (018)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Backend (session) + Frontend |
+| **HU / US** | HU25 / US1–US3 (017) + polish US1–US2 (018) |
+| **Tasks** | T001–T025 (`017`) · T001–T017 (`018`) · T001–T019 (`019`) · T001–T016 (`020-keepalive-off-works`) |
+| **Estimación** | 5 + 2 + 2 + 2 |
+
+### Descripción
+Toggle Mantener conexión viva; heartbeat kube 60s; estados connected|degraded|disconnected; Reconectar. **018** default ON + overscroll. **019/020** OFF estable (IPC plano `instanceId`/`enabled`, patch desde resultado).
+
+### Criterios de aceptación
+- [x] Contratos keep-alive-api + connection-health + ui-keep-alive.
+- [x] Contratos 018 keep-alive-toggle-ui + desktop-overscroll.
+- [x] Contratos 019 keep-alive-off + ui-no-pulse; 020 disable-keepalive-e2e.
+- [x] Tests 017–020 verdes + quickstart manual.
+
+## Ticket HU26 — Ayuda → Seguridad / Chile baseline (022)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Frontend (chrome + help) |
+| **HU / US** | HU26 / US1–US3 (022) |
+| **Tasks** | T001–T023 (`022-chile-security-help`) |
+| **Estimación** | 2 |
+
+### Descripción
+Menú Ayuda → Seguridad con diálogo de marco normativo chileno (21.663, ANCI/CSIRT, 19.628, 21.719) y alineación Faro; sin certificaciones inventadas; sin nuevos destinos de red.
+
+### Criterios de aceptación
+- [x] Contrato help-seguridad-ui + content `chileSecurity.ts`.
+- [x] Tests 022 verdes + quickstart manual.
+
+---
+
+## Ticket HU27 — Workspace delivery multiambiente (023)
+
+| Campo | Valor |
+|-------|--------|
+| **Tipo** | Full stack desktop (React + Tauri + SQLite + NSIS) |
+| **HU / US** | HU27 / US1–US8 (023) |
+| **Tasks** | T001–T050 (`023-workspace-delivery`) |
+| **Estimación** | 8 |
+
+### Descripción
+Entrega del workspace con panel redimensionable, colores estables, pestañas por instancia, límites de dos sesiones/diez configuraciones, eliminación/restauración del demo y empaquetado NSIS.
+
+### Criterios de aceptación
+- [x] Límites autoritativos en Rust y feedback en UI.
+- [x] Color y `instanceId` propagados a árbol y pestañas.
+- [x] Pruebas Vitest focalizadas y pruebas cargo del repositorio de ambientes.
 
 ## Orden sugerido de implementación
 
@@ -219,4 +522,21 @@ Setup+Foundation (T001–T015)
   → HU5 ∥ HU6
   → HU7 → HU8
   → HU9 (Should) → HU10 → E2E T080
+  → HU11 (002 accordion T001–T037)
+  → HU12 (004 pro chrome T001–T036)
+  → HU13 (005 ui chrome polish T001–T034)
+  → HU14 (006 branded splash T001–T019)
+  → HU15 (007 compact windows T001–T014)
+  → HU16 (008 live cluster connect T001–T041)
+  → HU17 (009 connection file browse T001–T030)
+  → HU18 (010 live logs workspace T001–T040)
+  → HU19 (011 workspace catalog UX T001–T041)
+  → HU20 (012 deployment yaml full export T001–T031)
+  → HU21 (013 pods combined replicas T001–T018)
+  → HU22 (014 pem-only live connect T001–T022)
+  → HU23 (015 rules multi-pack T001–T027)
+  → HU24 (016 rich rules catalog T001–T036)
+  → HU25 (017 session keep-alive T001–T025 + 018 keepalive-toggle-chrome T001–T017)
+  → HU26 (022 chile-security-help T001–T023)
+  → HU27 (023 workspace-delivery T001–T050)
 ```

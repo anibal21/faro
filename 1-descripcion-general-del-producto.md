@@ -1,6 +1,6 @@
 # 1. Descripción general del producto
 
-> Sincronizado con Spec Kit `specs/001-eks-log-monitor/` (spec + plan + **tasks T001–T085** + wireframes + SQLite + splash + IPC + **10 HU**, 2026-07-23).
+> Sincronizado con Spec Kit `001` + UI `002`–`007` (splash branded, geometría 576×324 → 900×600, chrome polish). Base: **10 HU** + **HU11–HU15** (2026-07-27).
 
 ## 1.1. Objetivo
 
@@ -29,12 +29,12 @@
 
 ## 1.3. Diseño y experiencia de usuario
 
-0. Splash / preparando: ventana mínima **Faro** + **imagen de fondo** (slot; asset en implement) + tagline AWS + *…preparando aplicación* (`session_purge_ephemeral`; conserva ambientes)  
-1. Chrome **Ambiente** / **Ver** + selector de ambiente (arriba-derecha)  
+0. Splash / preparando: ventana compacta **576×324** centrada/fija con **imagen branded** lighthouse (sin título overlay; status/error solo abajo-derecha u image-only) + purge sesión (`session_purge_ephemeral`; dwell ≥5s) → principal **900×600** centrada  
+1. Chrome profesional: TitleBar + menubar **Ambientes** / **Temas**; rail **Monitor** (árbol de ambientes)  
 2. Modal configurar ambiente: nombre, Host, Puerto SSH, Username, Namespace, PEM, **Credenciales IAM**, `region_name`, `cluster_name`  
-3. Rail: **Deployments** + acordeones **Pods** (réplicas) / **ConfigMaps**  
-4. Pestañas de vista (hasta 4): Pods → **Structured** (default) + **Raw**; ConfigMaps → **solo Raw**  
-5. Click en ERROR (Structured) → panel derecho: qué pasó / qué significa / qué hacer  
+3. Rail: ambientes → **Pods** / **ConfigMaps** (acordeón)  
+4. Pestañas de vista: Pods → **Structured** (default) + **Raw**; ConfigMaps → **solo Raw**  
+5. Click en ERROR (Structured) → AnalysisDrawer: qué pasó / qué significa / qué hacer  
 
 **Wireframes (SVG):** [`specs/001-eks-log-monitor/wireframes/`](specs/001-eks-log-monitor/wireframes/)
 

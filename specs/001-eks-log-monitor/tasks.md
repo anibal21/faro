@@ -21,12 +21,12 @@
 
 **Purpose**: Scaffold desktop app and tooling
 
-- [ ] T001 Create Tauri 2 + React + TypeScript + Vite project layout per plan at `src/` and `src-tauri/`
-- [ ] T002 Initialize `src-tauri/Cargo.toml` with Tauri 2, `tauri-plugin-sql`, serde, and workspace crates stubs (`commands`, `ssh`, `k8s`, `db`, `rules`)
-- [ ] T003 [P] Add frontend deps in `package.json` (`@tauri-apps/api`, React 18+, Vitest) and base `vite.config.ts`
-- [ ] T004 [P] Configure ESLint/Prettier (TS) and `rustfmt`/`clippy` defaults for `src/` and `src-tauri/`
-- [ ] T005 [P] Add CI skeleton (build + `pnpm test`/`npm test` + `cargo test`) in `.github/workflows/ci.yml`
-- [ ] T006 [P] Create empty dirs `rules/`, `tests/unit/`, `tests/integration/`, `tests/e2e/` per plan
+- [x] T001 Create Tauri 2 + React + TypeScript + Vite project layout per plan at `src/` and `src-tauri/`
+- [x] T002 Initialize `src-tauri/Cargo.toml` with Tauri 2, `tauri-plugin-sql`, serde, and workspace crates stubs (`commands`, `ssh`, `k8s`, `db`, `rules`)
+- [x] T003 [P] Add frontend deps in `package.json` (`@tauri-apps/api`, React 18+, Vitest) and base `vite.config.ts`
+- [x] T004 [P] Configure ESLint/Prettier (TS) and `rustfmt`/`clippy` defaults for `src/` and `src-tauri/`
+- [x] T005 [P] Add CI skeleton (build + `pnpm test`/`npm test` + `cargo test`) in `.github/workflows/ci.yml`
+- [x] T006 [P] Create empty dirs `rules/`, `tests/unit/`, `tests/integration/`, `tests/e2e/` per plan
 
 **Checkpoint**: App scaffolds and empty window builds locally
 
@@ -38,15 +38,15 @@
 
 **⚠️ CRITICAL**: No user story implementation until this phase is done
 
-- [ ] T007 Implement SQLite open + migrations runner in `src-tauri/src/db/mod.rs` and `src-tauri/src/db/migrations/`
-- [ ] T008 Create durable tables (`connection_instance`, `ui_preferences`, `analysis_finding_history`, `schema_meta`) in `src-tauri/src/db/migrations/001_durable.sql` per [data-model.md](./data-model.md)
-- [ ] T009 [P] Create session tables (`connection_session`, `cached_namespace`, `cached_deployment`, `cached_pod_replica`, `cached_configmap`, `cached_configmap_entry`) in `src-tauri/src/db/migrations/002_session.sql`
-- [ ] T010 Define shared IPC error type (actionable, no secrets) in `src-tauri/src/error.rs`
-- [ ] T011 [P] Register Tauri command stubs + event names from [contracts/ipc-commands-events.md](./contracts/ipc-commands-events.md) in `src-tauri/src/lib.rs` / `src-tauri/src/commands/mod.rs`
-- [ ] T012 [P] Implement `prefs_get` / `prefs_set` in `src-tauri/src/commands/prefs.rs` against `ui_preferences`
-- [ ] T013 [P] Add frontend IPC wrappers in `src/lib/ipc.ts` (typed invoke helpers + listen helpers)
-- [ ] T014 [P] Add light/dark CSS variables shell in `src/styles/theme.css` (tokens only; toggle in US9)
-- [ ] T015 Unit tests for migration apply + durable vs session table presence in `tests/unit/db_schema.rs` (or `src-tauri/src/db/tests.rs`)
+- [x] T007 Implement SQLite open + migrations runner in `src-tauri/src/db/mod.rs` and `src-tauri/src/db/migrations/`
+- [x] T008 Create durable tables (`connection_instance`, `ui_preferences`, `analysis_finding_history`, `schema_meta`) in `src-tauri/src/db/migrations/001_durable.sql` per [data-model.md](./data-model.md)
+- [x] T009 [P] Create session tables (`connection_session`, `cached_namespace`, `cached_deployment`, `cached_pod_replica`, `cached_configmap`, `cached_configmap_entry`) in `src-tauri/src/db/migrations/002_session.sql`
+- [x] T010 Define shared IPC error type (actionable, no secrets) in `src-tauri/src/error.rs`
+- [x] T011 [P] Register Tauri command stubs + event names from [contracts/ipc-commands-events.md](./contracts/ipc-commands-events.md) in `src-tauri/src/lib.rs` / `src-tauri/src/commands/mod.rs`
+- [x] T012 [P] Implement `prefs_get` / `prefs_set` in `src-tauri/src/commands/prefs.rs` against `ui_preferences`
+- [x] T013 [P] Add frontend IPC wrappers in `src/lib/ipc.ts` (typed invoke helpers + listen helpers)
+- [x] T014 [P] Add light/dark CSS variables shell in `src/styles/theme.css` (tokens only; toggle in US9)
+- [x] T015 Unit tests for migration apply + durable vs session table presence in `tests/unit/db_schema.rs` (or `src-tauri/src/db/tests.rs`)
 
 **Checkpoint**: Foundation ready — story phases may begin
 
@@ -60,15 +60,15 @@
 
 ### Tests
 
-- [ ] T016 [P] [US1] Unit test: purge deletes session tables only in `tests/unit/session_purge.rs`
-- [ ] T017 [P] [US1] Integration test: splash invoke → main chrome appears in `tests/integration/splash_purge.spec.ts`
+- [x] T016 [P] [US1] Unit test: purge deletes session tables only in `tests/unit/session_purge.rs`
+- [x] T017 [P] [US1] Integration test: splash invoke → main chrome appears in `tests/integration/splash_purge.spec.ts`
 
 ### Implementation
 
-- [ ] T018 [US1] Implement `session_purge_ephemeral` in `src-tauri/src/commands/session.rs` (DELETE `«session»` only)
-- [ ] T019 [P] [US1] Build splash window UI in `src/views/SplashView.tsx` (+ asset slot `src/assets/splash-bg.placeholder.md`)
-- [ ] T020 [US1] Wire splash lifecycle in `src-tauri/src/main.rs` / `src/App.tsx` (show splash → purge → open main)
-- [ ] T021 [US1] Ensure durable fixtures survive purge (assert in T016 + smoke in `src/views/MainShell.tsx` empty state)
+- [x] T018 [US1] Implement `session_purge_ephemeral` in `src-tauri/src/commands/session.rs` (DELETE `«session»` only)
+- [x] T019 [P] [US1] Build splash window UI in `src/views/SplashView.tsx` (+ asset slot `src/assets/splash-bg.placeholder.md`)
+- [x] T020 [US1] Wire splash lifecycle in `src-tauri/src/main.rs` / `src/App.tsx` (show splash → purge → open main)
+- [x] T021 [US1] Ensure durable fixtures survive purge (assert in T016 + smoke in `src/views/MainShell.tsx` empty state)
 
 **Checkpoint**: US1 independently demoable
 
@@ -82,16 +82,16 @@
 
 ### Tests
 
-- [ ] T022 [P] [US2] Unit tests for `env_upsert` validation (paths required, reject secret bodies) in `tests/unit/env_crud.rs`
-- [ ] T023 [P] [US2] Integration test CRUD round-trip SQLite in `tests/integration/env_crud.spec.ts`
+- [x] T022 [P] [US2] Unit tests for `env_upsert` validation (paths required, reject secret bodies) in `tests/unit/env_crud.rs`
+- [x] T023 [P] [US2] Integration test CRUD round-trip SQLite in `tests/integration/env_crud.spec.ts`
 
 ### Implementation
 
-- [ ] T024 [P] [US2] Durable repo helpers for `connection_instance` in `src-tauri/src/db/connection_instance.rs`
-- [ ] T025 [US2] Implement `env_list` / `env_upsert` / `env_delete` in `src-tauri/src/commands/env.rs`
-- [ ] T026 [P] [US2] New-environment modal UI in `src/components/env/NewEnvironmentModal.tsx` (wireframe 03)
-- [ ] T027 [US2] Ambiente menu “Configurar nuevo ambiente…” + edit/delete flows in `src/components/menus/AmbienteMenu.tsx`
-- [ ] T028 [US2] Bind modal to IPC in `src/hooks/useEnvironments.ts`
+- [x] T024 [P] [US2] Durable repo helpers for `connection_instance` in `src-tauri/src/db/connection_instance.rs`
+- [x] T025 [US2] Implement `env_list` / `env_upsert` / `env_delete` in `src-tauri/src/commands/env.rs`
+- [x] T026 [P] [US2] New-environment modal UI in `src/components/env/NewEnvironmentModal.tsx` (wireframe 03)
+- [x] T027 [US2] Ambiente menu “Configurar nuevo ambiente…” + edit/delete flows in `src/components/menus/AmbienteMenu.tsx`
+- [x] T028 [US2] Bind modal to IPC in `src/hooks/useEnvironments.ts`
 
 **Checkpoint**: US2 independently testable with SQLite only (no cluster)
 
@@ -105,14 +105,14 @@
 
 ### Tests
 
-- [ ] T029 [P] [US3] Unit/integration tests for `env_load` + `env_set_active` in `tests/unit/env_active.rs`
+- [x] T029 [P] [US3] Unit/integration tests for `env_load` + `env_set_active` in `tests/unit/env_active.rs`
 
 ### Implementation
 
-- [ ] T030 [US3] Implement `env_load` / `env_set_active` in `src-tauri/src/commands/env.rs`
-- [ ] T031 [P] [US3] Environment selector (top-right) in `src/components/env/EnvironmentSelector.tsx`
-- [ ] T032 [US3] Menu items “Cargar ambiente…” / “Cargar varios…” in `src/components/menus/AmbienteMenu.tsx`
-- [ ] T033 [US3] Session UI state: loaded list + active id + invalidate-live hook in `src/hooks/useActiveEnvironment.ts`
+- [x] T030 [US3] Implement `env_load` / `env_set_active` in `src-tauri/src/commands/env.rs`
+- [x] T031 [P] [US3] Environment selector (top-right) in `src/components/env/EnvironmentSelector.tsx`
+- [x] T032 [US3] Menu items “Cargar ambiente…” / “Cargar varios…” in `src/components/menus/AmbienteMenu.tsx`
+- [x] T033 [US3] Session UI state: loaded list + active id + invalidate-live hook in `src/hooks/useActiveEnvironment.ts`
 
 **Checkpoint**: US3 works offline against durable envs
 
@@ -126,17 +126,17 @@
 
 ### Tests
 
-- [ ] T034 [P] [US4] Unit tests for IAM-file read + token mint mocks in `tests/unit/eks_token.rs`
-- [ ] T035 [P] [US4] Integration test connect/disconnect session lifecycle in `tests/integration/env_connect.spec.ts`
+- [x] T034 [P] [US4] Unit tests for IAM-file read + token mint mocks in `tests/unit/eks_token.rs`
+- [x] T035 [P] [US4] Integration test connect/disconnect session lifecycle in `tests/integration/env_connect.spec.ts`
 
 ### Implementation
 
-- [ ] T036 [US4] SSH tunnel module (PEM path only) in `src-tauri/src/ssh/tunnel.rs`
-- [ ] T037 [US4] EKS token from IAM credentials **file path** in `src-tauri/src/k8s/eks_auth.rs`
-- [ ] T038 [US4] Implement `env_connect` (tunnel + auth + mint `catalog_epoch` + hydrate trigger) in `src-tauri/src/commands/env.rs`
-- [ ] T039 [US4] Implement `env_disconnect` (tear-down + DELETE session for instance) in `src-tauri/src/commands/env.rs`
-- [ ] T040 [US4] Connect/Disconnect UI + status/errors in `src/components/env/ConnectionStatus.tsx` and Ambiente menu
-- [ ] T041 [US4] Hydrate session cache writer (namespaces/deployments/configmaps skeleton) in `src-tauri/src/db/session_cache.rs` (full fill continues in US5/US6)
+- [x] T036 [US4] SSH tunnel module (PEM path only) in `src-tauri/src/ssh/tunnel.rs`
+- [x] T037 [US4] EKS token from IAM credentials **file path** in `src-tauri/src/k8s/eks_auth.rs`
+- [x] T038 [US4] Implement `env_connect` (tunnel + auth + mint `catalog_epoch` + hydrate trigger) in `src-tauri/src/commands/env.rs`
+- [x] T039 [US4] Implement `env_disconnect` (tear-down + DELETE session for instance) in `src-tauri/src/commands/env.rs`
+- [x] T040 [US4] Connect/Disconnect UI + status/errors in `src/components/env/ConnectionStatus.tsx` and Ambiente menu
+- [x] T041 [US4] Hydrate session cache writer (namespaces/deployments/configmaps skeleton) in `src-tauri/src/db/session_cache.rs` (full fill continues in US5/US6)
 
 **Checkpoint**: US4 connects; catalog tables may be empty until US5/US6 fill
 
@@ -150,16 +150,16 @@
 
 ### Tests
 
-- [ ] T042 [P] [US5] Unit tests for cache read/filter in `tests/unit/catalog_deployments.rs`
-- [ ] T043 [P] [US5] Integration test list + refresh epoch in `tests/integration/catalog_pods.spec.ts`
+- [x] T042 [P] [US5] Unit tests for cache read/filter in `tests/unit/catalog_deployments.rs`
+- [x] T043 [P] [US5] Integration test list + refresh epoch in `tests/integration/catalog_pods.spec.ts`
 
 ### Implementation
 
-- [ ] T044 [US5] K8s list deployments/pods (RO) into session cache in `src-tauri/src/k8s/catalog.rs`
-- [ ] T045 [US5] Implement `k8s_list_deployments` + `catalog_refresh` in `src-tauri/src/commands/catalog.rs`
-- [ ] T046 [P] [US5] Deployments/Pods rail UI in `src/components/catalog/DeploymentsRail.tsx` (wireframe 04)
-- [ ] T047 [US5] Name filter control in `src/components/catalog/CatalogFilter.tsx`
-- [ ] T048 [US5] Wire refresh action to IPC in `src/hooks/useCatalog.ts`
+- [x] T044 [US5] K8s list deployments/pods (RO) into session cache in `src-tauri/src/k8s/catalog.rs`
+- [x] T045 [US5] Implement `k8s_list_deployments` + `catalog_refresh` in `src-tauri/src/commands/catalog.rs`
+- [x] T046 [P] [US5] Deployments/Pods rail UI in `src/components/catalog/DeploymentsRail.tsx` (wireframe 04)
+- [x] T047 [US5] Name filter control in `src/components/catalog/CatalogFilter.tsx`
+- [x] T048 [US5] Wire refresh action to IPC in `src/hooks/useCatalog.ts`
 
 **Checkpoint**: US5 browsable offline after hydrate
 
@@ -173,15 +173,15 @@
 
 ### Tests
 
-- [ ] T049 [P] [US6] Unit tests for safe truncation of ConfigMap values in `tests/unit/configmap_truncate.rs`
-- [ ] T050 [P] [US6] Integration test list + get ConfigMap in `tests/integration/catalog_configmaps.spec.ts`
+- [x] T049 [P] [US6] Unit tests for safe truncation of ConfigMap values in `tests/unit/configmap_truncate.rs`
+- [x] T050 [P] [US6] Integration test list + get ConfigMap in `tests/integration/catalog_configmaps.spec.ts`
 
 ### Implementation
 
-- [ ] T051 [US6] Extend hydrate/list ConfigMaps in `src-tauri/src/k8s/catalog.rs` + session tables
-- [ ] T052 [US6] Implement `k8s_list_configmaps` / `k8s_get_configmap` in `src-tauri/src/commands/catalog.rs`
-- [ ] T053 [P] [US6] ConfigMaps rail + Raw viewer tab in `src/components/catalog/ConfigMapsPanel.tsx` (wireframe 05)
-- [ ] T054 [US6] Bind open/get to IPC in `src/hooks/useConfigMaps.ts`
+- [x] T051 [US6] Extend hydrate/list ConfigMaps in `src-tauri/src/k8s/catalog.rs` + session tables
+- [x] T052 [US6] Implement `k8s_list_configmaps` / `k8s_get_configmap` in `src-tauri/src/commands/catalog.rs`
+- [x] T053 [P] [US6] ConfigMaps rail + Raw viewer tab in `src/components/catalog/ConfigMapsPanel.tsx` (wireframe 05)
+- [x] T054 [US6] Bind open/get to IPC in `src/hooks/useConfigMaps.ts`
 
 **Checkpoint**: US6 RO ConfigMaps usable
 
@@ -195,18 +195,18 @@
 
 ### Tests
 
-- [ ] T055 [P] [US7] Unit tests for write-group aggregation (Structured) in `tests/unit/write_groups.spec.ts`
-- [ ] T056 [P] [US7] Integration test logs_open → listen `logs_chunk` / `logs_status` in `tests/integration/logs_stream.spec.ts`
+- [x] T055 [P] [US7] Unit tests for write-group aggregation (Structured) in `tests/unit/write_groups.spec.ts`
+- [x] T056 [P] [US7] Integration test logs_open → listen `logs_chunk` / `logs_status` in `tests/integration/logs_stream.spec.ts`
 
 ### Implementation
 
-- [ ] T057 [US7] Implement `logs_open` / `logs_close` / kube follow in `src-tauri/src/commands/logs.rs` + `src-tauri/src/k8s/logs.rs`
-- [ ] T058 [US7] Emit `logs_chunk` and `logs_status` events from Rust per IPC contract
-- [ ] T059 [P] [US7] Implement `logs_set_view` (or UI-only view state) documented in `src/lib/ipc.ts` + `src-tauri/src/commands/logs.rs` if needed
-- [ ] T060 [P] [US7] Structured log view in `src/components/logs/StructuredLogView.tsx`
-- [ ] T061 [P] [US7] Raw log view (no manipulation) in `src/components/logs/RawLogView.tsx`
-- [ ] T062 [US7] Log window shell (tabs, search, follow indicator) in `src/views/LogWindow.tsx`
-- [ ] T063 [US7] Multi-window open from Deployments rail in `src/hooks/useLogWindows.ts`
+- [x] T057 [US7] Implement `logs_open` / `logs_close` / kube follow in `src-tauri/src/commands/logs.rs` + `src-tauri/src/k8s/logs.rs`
+- [x] T058 [US7] Emit `logs_chunk` and `logs_status` events from Rust per IPC contract
+- [x] T059 [P] [US7] Implement `logs_set_view` (or UI-only view state) documented in `src/lib/ipc.ts` + `src-tauri/src/commands/logs.rs` if needed
+- [x] T060 [P] [US7] Structured log view in `src/components/logs/StructuredLogView.tsx`
+- [x] T061 [P] [US7] Raw log view (no manipulation) in `src/components/logs/RawLogView.tsx`
+- [x] T062 [US7] Log window shell (tabs, search, follow indicator) in `src/views/LogWindow.tsx`
+- [x] T063 [US7] Multi-window open from Deployments rail in `src/hooks/useLogWindows.ts`
 
 **Checkpoint**: US7 live dual-view logs work
 
@@ -220,17 +220,17 @@
 
 ### Tests
 
-- [ ] T064 [P] [US8] Unit tests for Spring Boot rule pack matching in `tests/unit/rules_springboot.rs`
-- [ ] T065 [P] [US8] Integration test analyze_write_group IPC in `tests/integration/analyze_click.spec.ts`
+- [x] T064 [P] [US8] Unit tests for Spring Boot rule pack matching in `tests/unit/rules_springboot.rs`
+- [x] T065 [P] [US8] Integration test analyze_write_group IPC in `tests/integration/analyze_click.spec.ts`
 
 ### Implementation
 
-- [ ] T066 [P] [US8] Ship rule pack JSON/YAML under `rules/springboot/`
-- [ ] T067 [US8] Rules engine in `src-tauri/src/rules/engine.rs` + `analyze_write_group` in `src-tauri/src/commands/analyze.rs`
-- [ ] T068 [P] [US8] Lightweight detection markers in Structured view `src/components/logs/StructuredLogView.tsx`
-- [ ] T069 [US8] Finding detail panel in `src/components/analysis/FindingPanel.tsx` (wireframe 06)
-- [ ] T070 [US8] Optional light history insert into `analysis_finding_history` in `src-tauri/src/db/analysis_history.rs` (metadata only)
-- [ ] T071 [US8] Confirm chrome has **no** Analizar-todo / Export controls in `src/components/menus/` and log chrome
+- [x] T066 [P] [US8] Ship rule pack JSON/YAML under `rules/springboot/`
+- [x] T067 [US8] Rules engine in `src-tauri/src/rules/engine.rs` + `analyze_write_group` in `src-tauri/src/commands/analyze.rs`
+- [x] T068 [P] [US8] Lightweight detection markers in Structured view `src/components/logs/StructuredLogView.tsx`
+- [x] T069 [US8] Finding detail panel in `src/components/analysis/FindingPanel.tsx` (wireframe 06)
+- [x] T070 [US8] Optional light history insert into `analysis_finding_history` in `src-tauri/src/db/analysis_history.rs` (metadata only)
+- [x] T071 [US8] Confirm chrome has **no** Analizar-todo / Export controls in `src/components/menus/` and log chrome
 
 **Checkpoint**: US8 click-to-analyze complete
 
@@ -244,13 +244,13 @@
 
 ### Tests
 
-- [ ] T072 [P] [US9] Integration test prefs theme persistence in `tests/integration/theme_prefs.spec.ts`
+- [x] T072 [P] [US9] Integration test prefs theme persistence in `tests/integration/theme_prefs.spec.ts`
 
 ### Implementation
 
-- [ ] T073 [US9] Ver menu Modo claro / Modo oscuro in `src/components/menus/VerMenu.tsx`
-- [ ] T074 [US9] Apply theme class from `prefs_get`/`prefs_set` in `src/hooks/useTheme.ts` + `src/styles/theme.css`
-- [ ] T075 [US9] Keep Raw terminal contrast readable under both themes in `src/components/logs/RawLogView.tsx`
+- [x] T073 [US9] Ver menu Modo claro / Modo oscuro in `src/components/menus/VerMenu.tsx`
+- [x] T074 [US9] Apply theme class from `prefs_get`/`prefs_set` in `src/hooks/useTheme.ts` + `src/styles/theme.css`
+- [x] T075 [US9] Keep Raw terminal contrast readable under both themes in `src/components/logs/RawLogView.tsx`
 
 **Checkpoint**: US9 Should complete (may ship after MVP P1)
 
@@ -264,13 +264,13 @@
 
 ### Tests
 
-- [ ] T076 [P] [US10] Smoke script/docs for package launch in `tests/e2e/package_smoke.md` (or CI job notes)
+- [x] T076 [P] [US10] Smoke script/docs for package launch in `tests/e2e/package_smoke.md` (or CI job notes)
 
 ### Implementation
 
-- [ ] T077 [US10] Configure Tauri bundle targets in `src-tauri/tauri.conf.json` (nsis/dmg/appimage or equivalent)
-- [ ] T078 [US10] Document build commands in `README.md` / `quickstart.md` cross-link
-- [ ] T079 [US10] Produce at least Windows demo build first; verify macOS/Linux build configs compile
+- [x] T077 [US10] Configure Tauri bundle targets in `src-tauri/tauri.conf.json` (nsis/dmg/appimage or equivalent)
+- [x] T078 [US10] Document build commands in `README.md` / `quickstart.md` cross-link
+- [x] T079 [US10] Produce at least Windows demo build first; verify macOS/Linux build configs compile
 
 **Checkpoint**: US10 packaging demonstrable
 
@@ -280,12 +280,12 @@
 
 **Purpose**: E2E primary flow, docs sync, security pass
 
-- [ ] T080 Implement primary E2E: splash → CRUD env → load/active → connect → pods → logs → analyze in `tests/e2e/primary_flow.spec.ts`
-- [ ] T081 [P] Sync AI4Devs `6-tickets-de-trabajo.md` task ID references after implement waves
-- [ ] T082 [P] Run [quickstart.md](./quickstart.md) validation checklist and note results in `TESTING.md`
-- [ ] T083 Security pass: grep for secret persistence / egress; confirm constitution VI in `src-tauri/` and `src/`
-- [ ] T084 [P] Wireframe sign-off follow-up (`/speckit-wireframe-review`) if still pending
-- [ ] T085 Performance: drop oldest buffer lines under load; verify SC-003 timing notes in `tests/integration/logs_perf.md`
+- [x] T080 Implement primary E2E: splash → CRUD env → load/active → connect → pods → logs → analyze in `tests/e2e/primary_flow.spec.ts`
+- [x] T081 [P] Sync AI4Devs `6-tickets-de-trabajo.md` task ID references after implement waves
+- [x] T082 [P] Run [quickstart.md](./quickstart.md) validation checklist and note results in `TESTING.md`
+- [x] T083 Security pass: grep for secret persistence / egress; confirm constitution VI in `src-tauri/` and `src/`
+- [x] T084 [P] Wireframe sign-off follow-up (`/speckit-wireframe-review`) if still pending
+- [x] T085 Performance: drop oldest buffer lines under load; verify SC-003 timing notes in `tests/integration/logs_perf.md`
 
 ---
 

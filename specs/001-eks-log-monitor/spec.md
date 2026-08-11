@@ -210,9 +210,9 @@ Faro ships as installable/runnable desktop apps for Windows, macOS, and Linux; n
 - **FR-010**: Users MUST be able to search or filter text within an open log window.
 - **FR-011**: For ConfigMaps, users MUST list accessible ConfigMaps and open a **read-only** view of their data.
 - **FR-012**: Users MUST obtain Spring Boot rules-engine analysis by **clicking a complete stacktrace** marked as a likely error in Structured view. A buffer-wide **Analyze** button is **OUT OF SCOPE** for MVP.
-- **FR-013**: Each analysis finding MUST include severity, plain-language explanation (suitable for non-technical readers), and a recommended action.
+- **FR-013**: Each analysis finding MUST include severity (`critical` | `warn` | `info`), plain-language explanation (suitable for non-technical readers), and a recommended action.
 - **FR-014**: Analysis MUST run locally on content already available in the app; it MUST NOT send log content or credentials to external AI/telemetry services.
-- **FR-015**: The product MUST be distributable as desktop executables/installers for Windows, macOS, and Linux.
+- **FR-015**: The product MUST be distributable as desktop executables/installers for Windows, macOS, and Linux (concrete formats e.g. NSIS/MSI, DMG, AppImage/deb resolved at packaging; SC-007 is the measurable bar).
 - **FR-016**: On connection/list/log failures, the system MUST show actionable errors without exposing secret material.
 - **FR-017**: Log **export to files** is **OUT OF SCOPE** for this MVP; Faro MUST NOT advertise export as a feature in v1 (users who copy text themselves do so outside the product’s responsibility).
 - **FR-018**: Each log window MUST provide a **Raw** view that shows the live stream **exactly as terminal output** — **no** reformatting, grouping, severity columns, or other manipulation.
@@ -223,7 +223,7 @@ Faro ships as installable/runnable desktop apps for Windows, macOS, and Linux; n
 - **FR-023**: On application launch, Faro MUST first show a **minimal splash window** with the product name **Faro**, a **background image** (lighthouse / brand visual, full-bleed within the splash window; concrete image asset is supplied at implementation), the tagline *Herramienta de monitoreo infraestructura para ambiente AWS*, and a preparing status (*…preparando aplicación*) before the main workspace appears.
 - **FR-024**: During the splash, Faro MUST purge leftover **ephemeral session / log-related** local data from a prior run (including dirty exit). Faro MUST **NOT** delete durable data needed across sessions: connection instances (environments), UI preferences, light analysis history metadata, or schema metadata. After purge completes, the main window MAY open.
 - **FR-025**: Users MUST be able to switch application chrome between **light** and **dark** theme via the **Ver** menu; the choice MUST persist across restarts in local prefs (US9).
-
+- **FR-026**: If pods of an open Deployment restart, scale, or are replaced while follow is active, Faro MUST surface stream status (`following` | `idle` | `error` | `no_pods` via IPC) and MUST attempt to resume follow for current replicas without requiring the user to close/reopen the window when pods become available again.
 ### Key Entities
 
 - **Connection instance**: Named environment access profile (bastion SSH + PEM path + IAM credentials file path + `region_name` + `cluster_name`).
@@ -266,10 +266,11 @@ Faro ships as installable/runnable desktop apps for Windows, macOS, and Linux; n
 - Users already have network/VPN access policies of their company; Faro does not replace corporate network access.
 - Users possess a valid SSH PEM file and a local IAM credentials file (Access Key + Secret) managed outside Faro, plus bastion reachability.
 - Cluster RBAC grants at least list/get on relevant pods, pod logs, and ConfigMaps for the namespaces they use.
-- “Artifact” for live logs means a **Deployment** (or equivalent workload) grouping pods that share that Deployment.
+- “Artifact” for live logs means a **Deployment** (or equivalent workload) grouping pods that share that Deployment. Discovery: list Deployments via the Kubernetes Apps API in namespaces the credentials can access; associate Pods via `ownerReferences` / standard replica-set ownership (exact client calls belong in plan/implement, not alternate product meanings).
 - One **active** connection instance at a time for browsing; switching instances closes or invalidates prior live windows.
 - Namespace scope defaults to what the user’s credentials can list; the UI may offer namespace filter without requiring a single hard-coded namespace.
 - Multi-container pods: default container is used unless the user picks another when more than one exists.
 - “Spring Boot” rules apply when the user clicks an error write-group/stacktrace (not via mandatory auto-detection of every workload’s language).
 - Structured grouping assumes the runtime emits a stacktrace (or other multi-line error) typically as **one write**; if a stacktrace were split across writes, each write is still one Structured entry (edge case).
 - Desktop demo without a public URL is acceptable for academic/evaluator review.
+- Analysis panel copy prioritizes plain language for non-technical readers (FR-013 / SC-005); broader WCAG accessibility is desirable but not a separate MVP acceptance gate.

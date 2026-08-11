@@ -1,0 +1,616 @@
+{
+  "id": "springboot",
+  "displayName": "Spring Boot / JVM",
+  "rules": [
+    {
+      "id": "springboot.npe",
+      "severity": "critical",
+      "match_contains": [
+        "NullPointerException",
+        "Cannot invoke"
+      ],
+      "match_all_contains": [],
+      "title": "NullPointerException",
+      "summary": "La aplicación intentó usar un objeto vacío (null).",
+      "why": "Suele ser un fallo de código o de datos de entrada no validados.",
+      "whatToLookFor": [
+        "NullPointerException",
+        "Cannot invoke",
+        "at com…"
+      ],
+      "recommendation": [
+        "Revisa el stacktrace (clase/método).",
+        "Valida entradas nulas antes de usarlas.",
+        "Vuelve a desplegar tras el fix."
+      ],
+      "tags": [
+        "jvm"
+      ]
+    },
+    {
+      "id": "springboot.oom",
+      "severity": "critical",
+      "match_contains": [
+        "OutOfMemoryError",
+        "Java heap space"
+      ],
+      "match_all_contains": [],
+      "title": "OutOfMemoryError",
+      "summary": "El proceso Java se quedó sin memoria heap.",
+      "why": "Fugas, cargas grandes o heap demasiado pequeño.",
+      "whatToLookFor": [
+        "OutOfMemoryError",
+        "Java heap space"
+      ],
+      "recommendation": [
+        "Revisa uso de memoria del pod.",
+        "Ajusta heap o reduce carga (fuera de Faro)."
+      ],
+      "tags": [
+        "jvm",
+        "memory"
+      ]
+    },
+    {
+      "id": "springboot.bean_creation",
+      "severity": "critical",
+      "match_contains": [
+        "BeanCreationException"
+      ],
+      "match_all_contains": [],
+      "title": "Fallo al crear bean",
+      "summary": "Falló la creación de un bean al arrancar o al inyectar dependencias.",
+      "why": "Config faltante, bean circular o dependencia no disponible.",
+      "whatToLookFor": [
+        "BeanCreationException",
+        "Error creating bean"
+      ],
+      "recommendation": [
+        "Lee la causa anidada (Caused by).",
+        "Revisa properties/yamls del ConfigMap."
+      ],
+      "tags": [
+        "boot"
+      ]
+    },
+    {
+      "id": "springboot.datasource",
+      "severity": "critical",
+      "match_contains": [
+        "CannotGetJdbcConnectionException",
+        "Failed to configure a DataSource"
+      ],
+      "match_all_contains": [],
+      "title": "DataSource / JDBC",
+      "summary": "No se pudo obtener o configurar el DataSource JDBC.",
+      "why": "BD caída, red, credenciales o URL incorrecta.",
+      "whatToLookFor": [
+        "CannotGetJdbcConnectionException",
+        "DataSource"
+      ],
+      "recommendation": [
+        "Verifica conectividad a la BD desde el cluster.",
+        "Confirma URL/usuario fuera de Faro."
+      ],
+      "tags": [
+        "db"
+      ]
+    },
+    {
+      "id": "springboot.hikari",
+      "severity": "critical",
+      "match_contains": [
+        "HikariPool",
+        "Connection is not available"
+      ],
+      "match_all_contains": [],
+      "title": "Pool Hikari agotado",
+      "summary": "El pool Hikari no pudo entregar una conexión a tiempo.",
+      "why": "Pool agotado, queries lentas o BD saturada.",
+      "whatToLookFor": [
+        "HikariPool",
+        "Connection is not available"
+      ],
+      "recommendation": [
+        "Revisa tamaño del pool y queries lentas.",
+        "Mira latencia hacia la BD."
+      ],
+      "tags": [
+        "db"
+      ]
+    },
+    {
+      "id": "springboot.sql",
+      "severity": "critical",
+      "match_contains": [
+        "SQLException",
+        "DataAccessException",
+        "PSQLException"
+      ],
+      "match_all_contains": [],
+      "title": "Error de acceso a datos",
+      "summary": "Error al hablar con la base de datos (SQL, conexión o mapeo).",
+      "why": "Consulta inválida, constraint, timeout o driver.",
+      "whatToLookFor": [
+        "SQLException",
+        "DataAccessException"
+      ],
+      "recommendation": [
+        "Lee el SQLException anidado.",
+        "Verifica esquema y conectividad BD."
+      ],
+      "tags": [
+        "db"
+      ]
+    },
+    {
+      "id": "springboot.security_denied",
+      "severity": "warn",
+      "match_contains": [
+        "AccessDeniedException",
+        "Access is denied"
+      ],
+      "match_all_contains": [],
+      "title": "Acceso denegado",
+      "summary": "Un acceso fue denegado por Spring Security.",
+      "why": "Roles insuficientes o regla de autorización.",
+      "whatToLookFor": [
+        "AccessDeniedException",
+        "403"
+      ],
+      "recommendation": [
+        "Confirma roles del principal.",
+        "Revisa reglas SecurityFilterChain."
+      ],
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "id": "springboot.unauthorized",
+      "severity": "warn",
+      "match_contains": [
+        "AuthenticationException",
+        "Unauthorized",
+        "401"
+      ],
+      "match_all_contains": [],
+      "title": "No autorizado",
+      "summary": "Fallo de autenticación o llamada no autorizada.",
+      "why": "Token/credencial inválida o ausente.",
+      "whatToLookFor": [
+        "401",
+        "Unauthorized",
+        "AuthenticationException"
+      ],
+      "recommendation": [
+        "Verifica token/sesión del cliente.",
+        "Revisa configuración OAuth/JWT fuera de Faro."
+      ],
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "id": "springboot.webclient",
+      "severity": "warn",
+      "match_contains": [
+        "WebClientResponseException",
+        "WebClientRequestException"
+      ],
+      "match_all_contains": [],
+      "title": "WebClient falló",
+      "summary": "Falló una llamada HTTP reactiva (WebClient).",
+      "why": "Downstream caído, timeout o 4xx/5xx.",
+      "whatToLookFor": [
+        "WebClientResponseException",
+        "WebClientRequestException"
+      ],
+      "recommendation": [
+        "Mira status y body de la respuesta.",
+        "Revisa URL y timeouts del cliente."
+      ],
+      "tags": [
+        "network"
+      ]
+    },
+    {
+      "id": "springboot.feign",
+      "severity": "warn",
+      "match_contains": [
+        "FeignException",
+        "RetryableException"
+      ],
+      "match_all_contains": [],
+      "title": "Cliente Feign",
+      "summary": "Falló un cliente Feign hacia otro servicio.",
+      "why": "Downstream, serialización o reintentos agotados.",
+      "whatToLookFor": [
+        "FeignException",
+        "RetryableException"
+      ],
+      "recommendation": [
+        "Identifica el servicio destino en el mensaje.",
+        "Revisa circuit breaker / retries."
+      ],
+      "tags": [
+        "network"
+      ]
+    },
+    {
+      "id": "springboot.timeout",
+      "severity": "warn",
+      "match_contains": [
+        "SocketTimeoutException",
+        "Read timed out",
+        "TimeoutException",
+        "Timeout",
+        "timed out"
+      ],
+      "match_all_contains": [],
+      "title": "Timeout",
+      "summary": "Una llamada tardó demasiado y se canceló.",
+      "why": "Latencia de red o dependencia lenta.",
+      "whatToLookFor": [
+        "timed out",
+        "SocketTimeout",
+        "TimeoutException"
+      ],
+      "recommendation": [
+        "Revisa latencia de dependencias.",
+        "Ajusta timeouts con cuidado."
+      ],
+      "tags": [
+        "network"
+      ]
+    },
+    {
+      "id": "springboot.validation",
+      "severity": "warn",
+      "match_contains": [
+        "MethodArgumentNotValidException",
+        "ConstraintViolationException"
+      ],
+      "match_all_contains": [],
+      "title": "Validación de entrada",
+      "summary": "Falló la validación de entrada (Bean Validation).",
+      "why": "Payload incompleto o inválido.",
+      "whatToLookFor": [
+        "MethodArgumentNotValidException",
+        "ConstraintViolation"
+      ],
+      "recommendation": [
+        "Revisa campos marcados en el error.",
+        "Corrige el cliente o las anotaciones @Valid."
+      ],
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "id": "springboot.bind",
+      "severity": "warn",
+      "match_contains": [
+        "Failed to bind",
+        "Failed to convert property"
+      ],
+      "match_all_contains": [],
+      "title": "Bind de configuración",
+      "summary": "Falló el binding de propiedades de configuración.",
+      "why": "Tipo incorrecto o property faltante.",
+      "whatToLookFor": [
+        "Failed to bind",
+        "BindException"
+      ],
+      "recommendation": [
+        "Revisa application.yml / env vars.",
+        "Compara tipos esperados vs valores."
+      ],
+      "tags": [
+        "boot"
+      ]
+    },
+    {
+      "id": "springboot.kafka",
+      "severity": "warn",
+      "match_contains": [
+        "KafkaException",
+        "SerializationException",
+        "CommitFailedException"
+      ],
+      "match_all_contains": [],
+      "title": "Error Kafka",
+      "summary": "Error en productor/consumidor Kafka.",
+      "why": "Broker, serialización o commit de offsets.",
+      "whatToLookFor": [
+        "KafkaException",
+        "SerializationException"
+      ],
+      "recommendation": [
+        "Revisa conectividad a brokers.",
+        "Valida serializers y topic."
+      ],
+      "tags": [
+        "messaging"
+      ]
+    },
+    {
+      "id": "springboot.class_not_found",
+      "severity": "critical",
+      "match_contains": [
+        "ClassNotFoundException",
+        "NoClassDefFoundError"
+      ],
+      "match_all_contains": [],
+      "title": "Clase no encontrada",
+      "summary": "Falta una clase en el classpath en runtime.",
+      "why": "Dependencia no empaquetada o versión incompatible.",
+      "whatToLookFor": [
+        "ClassNotFoundException",
+        "NoClassDefFoundError"
+      ],
+      "recommendation": [
+        "Revisa el fat-jar / imagen.",
+        "Alinea versiones de librerías."
+      ],
+      "tags": [
+        "jvm"
+      ]
+    },
+    {
+      "id": "springboot.illegal_state",
+      "severity": "warn",
+      "match_contains": [
+        "IllegalStateException"
+      ],
+      "match_all_contains": [],
+      "title": "IllegalStateException",
+      "summary": "El código entró en un estado ilegal.",
+      "why": "Secuencia de llamadas incorrecta o recurso cerrado.",
+      "whatToLookFor": [
+        "IllegalStateException"
+      ],
+      "recommendation": [
+        "Lee el mensaje y el frame de aplicación.",
+        "Revisa ciclo de vida del componente."
+      ],
+      "tags": [
+        "jvm"
+      ]
+    },
+    {
+      "id": "springboot.rest_client",
+      "severity": "warn",
+      "match_contains": [
+        "ResourceAccessException",
+        "HttpServerErrorException",
+        "HttpClientErrorException"
+      ],
+      "match_all_contains": [],
+      "title": "Error HTTP cliente",
+      "summary": "Falló RestTemplate / HTTP client de Spring.",
+      "why": "4xx/5xx o error de E/S hacia downstream.",
+      "whatToLookFor": [
+        "HttpServerErrorException",
+        "HttpClientErrorException",
+        "ResourceAccessException"
+      ],
+      "recommendation": [
+        "Mira el status HTTP.",
+        "Verifica el servicio remoto."
+      ],
+      "tags": [
+        "network"
+      ]
+    },
+    {
+      "id": "springboot.transaction",
+      "severity": "warn",
+      "match_contains": [
+        "UnexpectedRollbackException",
+        "TransactionSystemException"
+      ],
+      "match_all_contains": [],
+      "title": "Transacción fallida",
+      "summary": "Falló o se revirtió una transacción.",
+      "why": "Excepción en el boundary @Transactional o recurso TX.",
+      "whatToLookFor": [
+        "UnexpectedRollbackException",
+        "TransactionSystemException"
+      ],
+      "recommendation": [
+        "Busca la causa raíz bajo Caused by.",
+        "Revisa excepciones en el servicio."
+      ],
+      "tags": [
+        "db"
+      ]
+    },
+    {
+      "id": "springboot.json",
+      "severity": "warn",
+      "match_contains": [
+        "HttpMessageNotReadableException",
+        "JsonParseException",
+        "UnrecognizedPropertyException"
+      ],
+      "match_all_contains": [],
+      "title": "JSON inválido",
+      "summary": "No se pudo leer/escribir JSON del request/response.",
+      "why": "Payload malformado o propiedad desconocida.",
+      "whatToLookFor": [
+        "HttpMessageNotReadableException",
+        "JsonParseException"
+      ],
+      "recommendation": [
+        "Valida el body enviado por el cliente.",
+        "Revisa DTOs Jackson."
+      ],
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "id": "springboot.multipart",
+      "severity": "warn",
+      "match_contains": [
+        "MaxUploadSizeExceededException",
+        "MultipartException"
+      ],
+      "match_all_contains": [],
+      "title": "Upload multipart",
+      "summary": "Falló la subida multipart (tamaño o parseo).",
+      "why": "Archivo demasiado grande o request corrupto.",
+      "whatToLookFor": [
+        "MaxUploadSizeExceededException",
+        "MultipartException"
+      ],
+      "recommendation": [
+        "Revisa límites spring.servlet.multipart.",
+        "Pide al cliente un archivo menor."
+      ],
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "id": "springboot.circular",
+      "severity": "critical",
+      "match_contains": [
+        "BeanCurrentlyInCreationException",
+        "requested bean is currently in creation"
+      ],
+      "match_all_contains": [],
+      "title": "Dependencia circular",
+      "summary": "Dependencia circular entre beans.",
+      "why": "Inyección mutua sin lazy/@Lazy.",
+      "whatToLookFor": [
+        "BeanCurrentlyInCreationException"
+      ],
+      "recommendation": [
+        "Rompe el ciclo con @Lazy o rediseño.",
+        "Revisa el grafo de beans en el mensaje."
+      ],
+      "tags": [
+        "boot"
+      ]
+    },
+    {
+      "id": "springboot.port",
+      "severity": "critical",
+      "match_contains": [
+        "Address already in use",
+        "Port already in use"
+      ],
+      "match_all_contains": [],
+      "title": "Puerto en uso",
+      "summary": "No se pudo bindear el puerto del servidor.",
+      "why": "Otro proceso usa el mismo puerto.",
+      "whatToLookFor": [
+        "Address already in use",
+        "Port already in use"
+      ],
+      "recommendation": [
+        "Cambia server.port o libera el puerto.",
+        "En K8s revisa contenedores duplicados."
+      ],
+      "tags": [
+        "boot"
+      ]
+    },
+    {
+      "id": "springboot.ssl",
+      "severity": "warn",
+      "match_contains": [
+        "SSLHandshakeException",
+        "PKIX path building failed"
+      ],
+      "match_all_contains": [],
+      "title": "TLS/SSL",
+      "summary": "Falló el handshake TLS/SSL.",
+      "why": "Certificado no confiable o hostname mismatch.",
+      "whatToLookFor": [
+        "SSLHandshakeException",
+        "PKIX"
+      ],
+      "recommendation": [
+        "Revisa truststore/CA.",
+        "No deshabilites TLS en producción."
+      ],
+      "tags": [
+        "network",
+        "security"
+      ]
+    },
+    {
+      "id": "springboot.reactor",
+      "severity": "warn",
+      "match_contains": [
+        "Connection prematurely closed BEFORE response",
+        "ReactorNetty"
+      ],
+      "match_all_contains": [],
+      "title": "Reactor Netty",
+      "summary": "Error de red en stack Reactor Netty.",
+      "why": "Conexión cerrada por peer o idle timeout.",
+      "whatToLookFor": [
+        "Connection prematurely closed",
+        "ReactorNetty"
+      ],
+      "recommendation": [
+        "Revisa timeouts del cliente WebFlux.",
+        "Verifica estabilidad del peer."
+      ],
+      "tags": [
+        "network"
+      ]
+    },
+    {
+      "id": "springboot.oauth",
+      "severity": "warn",
+      "match_contains": [
+        "AccessDenied",
+        "OAuth2"
+      ],
+      "match_all_contains": [],
+      "title": "OAuth2 / acceso",
+      "summary": "Problema de acceso OAuth2 / denegación.",
+      "why": "Scopes o token inválido.",
+      "whatToLookFor": [
+        "OAuth2",
+        "AccessDenied"
+      ],
+      "recommendation": [
+        "Confirma scopes del cliente.",
+        "Revisa authorization server."
+      ],
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "id": "springboot.generic_error",
+      "severity": "info",
+      "match_contains": [
+        "ERROR",
+        "Exception",
+        "EXCEPTION"
+      ],
+      "match_all_contains": [],
+      "title": "Error genérico",
+      "summary": "Se registró un evento de error o excepción genérico.",
+      "why": "Puede ser síntoma; prioriza reglas específicas si también matchean.",
+      "whatToLookFor": [
+        "ERROR",
+        "Exception"
+      ],
+      "recommendation": [
+        "Lee el mensaje completo y el stack.",
+        "Busca un Caused by más específico."
+      ],
+      "tags": [
+        "ops"
+      ]
+    }
+  ]
+}
