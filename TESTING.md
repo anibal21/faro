@@ -89,3 +89,27 @@ Notas:
 - Conectar un perfil con `fixtures/demo.pem` hidrata el catálogo demo para ese `instance_id` (multi-env de prueba).
 - “Pegar al final”: grupo compacto alineado a la derecha del toolbar.
 - RAM/CPU/Uptime en el strip solo si hay valor (sin `N/D`).
+
+## 025-github-release-update
+
+Automatizado:
+
+```bash
+npx vitest run tests/unit/update_offer_ui.spec.tsx tests/unit/use_app_update_check.spec.tsx tests/unit/update_install_accept.spec.tsx tests/unit/app_menubar_check_updates.spec.tsx
+```
+
+Release / `latest.json` (Windows):
+
+1. Generate signing keys once (`npx tauri signer generate -w .tauri/faro.key --ci`); put **private** key in GitHub secret `TAURI_SIGNING_PRIVATE_KEY`; keep **pubkey** in `src-tauri/tauri.conf.json`.
+2. Publish a GitHub Release → workflow `.github/workflows/release-updater.yml` builds NSIS + `.sig` and uploads `latest.json` to `anibal21/faro` latest download URL.
+3. Feed URL used by the app: `https://github.com/anibal21/faro/releases/latest/download/latest.json`.
+
+Manual (Windows):
+
+| Scenario | Expect |
+|----------|--------|
+| Startup with older install vs feed | Dialog after main workspace (not during splash) |
+| Accept | Download progress → NSIS/UAC; prior install usable if fail |
+| Ahora no | Dismiss for session; next cold start re-offers if still newer |
+| Ayuda → Buscar actualizaciones… | Offer / “Ya estás en la última versión” / clear error |
+| Non-Windows | Informational copy; **Actualizar** disabled |

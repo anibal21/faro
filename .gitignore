@@ -31,6 +31,7 @@ Thumbs.db
 *.crt
 kubeconfig*
 .kube/
+.tauri/
 
 # Logs (root only — do not ignore src/components/logs/)
 /logs/

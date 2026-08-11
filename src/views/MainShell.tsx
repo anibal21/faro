@@ -3,6 +3,7 @@ import { prefsGet, prefsSet, type ConnectionInstance, type EnvUpsertInput } from
 import { TitleBar } from "../components/chrome/TitleBar";
 import { AppMenubar } from "../components/chrome/AppMenubar";
 import { SecurityDialog } from "../components/help/SecurityDialog";
+import { UpdateAvailableDialog } from "../components/update/UpdateAvailableDialog";
 import { NewEnvironmentModal } from "../components/env/NewEnvironmentModal";
 import { ConnectionLimitModal } from "../components/env/ConnectionLimitModal";
 import { EnvTreeNav } from "../components/catalog/EnvTreeNav";
@@ -12,6 +13,7 @@ import { useConnectionHealth } from "../hooks/useConnectionHealth";
 import type { useCatalog } from "../hooks/useCatalog";
 import type { useConfigMaps } from "../hooks/useConfigMaps";
 import type { useWorkspaceTabs } from "../hooks/useWorkspaceTabs";
+import { useAppUpdateCheck } from "../hooks/useAppUpdateCheck";
 import "./MainShell.css";
 import {
   clampSidebarWidth,
@@ -59,6 +61,7 @@ export function MainShell({
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const health = useConnectionHealth(true);
   const { connectedIds, markDisconnected } = connection;
+  const update = useAppUpdateCheck(true);
 
   useEffect(() => {
     void prefsGet().then((prefs) => {
@@ -79,6 +82,12 @@ export function MainShell({
       }
     }
   }, [health.byId, connectedIds, markDisconnected]);
+
+  useEffect(() => {
+    if (!update.manualMessage) return;
+    window.alert(update.manualMessage);
+    update.clearManualMessage();
+  }, [update.manualMessage, update.clearManualMessage]);
 
   function openNew() {
     setEditing(null);
@@ -133,6 +142,7 @@ export function MainShell({
     environments.find((e) => e.id === activeId) ??
     null;
   const errorId = connection.errorInstanceId;
+  const offer = update.offer;
 
   return (
     <div className="main-shell flex h-screen min-h-0 flex-col overflow-hidden bg-background text-foreground text-[13px]">
@@ -145,8 +155,29 @@ export function MainShell({
           void disconnectAll();
         }}
         onOpenSecurity={() => setSecurityOpen(true)}
+        onCheckUpdates={() => {
+          void update.checkManual();
+        }}
       />
       <SecurityDialog open={securityOpen} onOpenChange={setSecurityOpen} />
+      {offer ? (
+        <UpdateAvailableDialog
+          open={update.dialogOpen}
+          currentVersion={offer.current}
+          availableVersion={offer.available ?? ""}
+          notes={offer.notes}
+          canInstall={offer.canInstall}
+          installing={update.installing}
+          progressPercent={update.progressPercent}
+          installMessage={update.installMessage}
+          error={update.installError}
+          onAccept={() => {
+            void update.accept();
+          }}
+          onReject={update.reject}
+          onOpenChange={update.setDialogOpen}
+        />
+      ) : null}
 
       <div className="main-shell__body flex min-h-0 flex-1">
         <EnvTreeNav
