@@ -9,10 +9,11 @@
  * Requires: git, gh (authenticated), clean-enough working tree for tagging.
  * CI builds Win/macOS/Linux when the release is published.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
+import { homedir } from "node:os";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dryRun = process.argv.includes("--dry-run");
@@ -22,22 +23,79 @@ const notesArg =
     ? process.argv[notesIdx + 1]
     : null;
 
+/** Resolve `gh` even when npm's PATH omits "GitHub CLI" (common on Windows). */
+function resolveGh() {
+  const candidates = [];
+  if (process.platform === "win32") {
+    const pf = process.env["ProgramFiles"] || "C:\\Program Files";
+    const pf86 = process.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)";
+    const local =
+      process.env.LOCALAPPDATA || resolve(homedir(), "AppData", "Local");
+    candidates.push(
+      resolve(pf, "GitHub CLI", "gh.exe"),
+      resolve(pf86, "GitHub CLI", "gh.exe"),
+      resolve(local, "Programs", "GitHub CLI", "gh.exe"),
+    );
+  } else {
+    candidates.push("/opt/homebrew/bin/gh", "/usr/local/bin/gh", "/usr/bin/gh");
+  }
+  for (const p of candidates) {
+    if (existsSync(p)) return p;
+  }
+  try {
+    const which = process.platform === "win32" ? "where.exe gh" : "command -v gh";
+    const found = execSync(which, { encoding: "utf8" }).trim().split(/\r?\n/)[0];
+    if (found && existsSync(found)) return found;
+  } catch {
+    /* not on PATH */
+  }
+  return null;
+}
+
+const ghBin = resolveGh();
+
 function readJson(rel) {
   return JSON.parse(readFileSync(resolve(root, rel), "utf8"));
 }
 
-function sh(cmd, opts = {}) {
+function sh(cmd) {
   console.log(`$ ${cmd}`);
   if (dryRun) return "";
   return execSync(cmd, {
     cwd: root,
-    stdio: opts.stdio ?? "inherit",
+    stdio: "inherit",
     encoding: "utf8",
+    shell: true,
   });
 }
 
 function shCapture(cmd) {
-  return execSync(cmd, { cwd: root, encoding: "utf8" }).trim();
+  return execSync(cmd, {
+    cwd: root,
+    encoding: "utf8",
+    shell: true,
+  }).trim();
+}
+
+function gh(args) {
+  if (!ghBin) {
+    console.error(`
+No se encontró GitHub CLI (gh).
+
+Instálalo y reinicia la terminal:
+  winget install --id GitHub.cli -e
+  # o: https://cli.github.com/
+
+Luego autentica una vez:
+  gh auth login
+`);
+    process.exit(1);
+  }
+  const quoted =
+    process.platform === "win32" && ghBin.includes(" ")
+      ? `"${ghBin}"`
+      : ghBin;
+  return `${quoted} ${args}`;
 }
 
 const pkg = readJson("package.json");
@@ -62,12 +120,14 @@ if (tauriVersion !== version || cargoVersion !== version) {
 }
 
 console.log(`Release target: Faro ${version} (tag ${tag})`);
+console.log(`Using gh: ${ghBin}`);
 if (dryRun) console.log("(dry-run — no git/gh changes)\n");
 
 try {
-  shCapture("gh --version");
-} catch {
-  console.error("gh CLI is required (https://cli.github.com/).");
+  shCapture(gh("--version"));
+} catch (e) {
+  console.error("No se pudo ejecutar gh. ¿Está instalado?");
+  console.error(String(e));
   process.exit(1);
 }
 
@@ -92,7 +152,9 @@ const notes =
 sh(`git tag -a ${tag} -m ${JSON.stringify(title)}`);
 sh(`git push origin ${tag}`);
 sh(
-  `gh release create ${tag} --title ${JSON.stringify(title)} --notes ${JSON.stringify(notes)} --latest`,
+  gh(
+    `release create ${tag} --title ${JSON.stringify(title)} --notes ${JSON.stringify(notes)} --latest`,
+  ),
 );
 
 console.log(`\nPublished ${tag}. Watch Actions: Release multi-platform packages.`);
