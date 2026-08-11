@@ -1,0 +1,202 @@
+{
+  "id": "react",
+  "displayName": "React",
+  "rules": [
+    {
+      "id": "react.chunk_load",
+      "severity": "critical",
+      "match_contains": [
+        "ChunkLoadError",
+        "Loading chunk"
+      ],
+      "match_all_contains": [],
+      "title": "ChunkLoadError",
+      "summary": "Falló la carga de un chunk JS del frontend.",
+      "why": "Deploy parcial, CDN o red; hash de chunk desactualizado.",
+      "whatToLookFor": [
+        "ChunkLoadError",
+        "Loading chunk"
+      ],
+      "recommendation": [
+        "Pide hard refresh al usuario.",
+        "Verifica que todos los assets del release estén publicados."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "react.hydration",
+      "severity": "warn",
+      "match_contains": [
+        "Hydration failed",
+        "Text content did not match",
+        "Did not expect server HTML"
+      ],
+      "match_all_contains": [],
+      "title": "Hydration mismatch",
+      "summary": "Falló la hidratación React (SSR vs cliente).",
+      "why": "Markup distinto entre servidor y cliente.",
+      "whatToLookFor": [
+        "Hydration failed",
+        "did not match"
+      ],
+      "recommendation": [
+        "Busca HTML condicional por Date/random.",
+        "Revisa suppressHydrationWarning solo si es consciente."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "react.minified",
+      "severity": "critical",
+      "match_contains": [
+        "Minified React error"
+      ],
+      "match_all_contains": [],
+      "title": "Minified React error",
+      "summary": "Error React minificado en producción.",
+      "why": "Bug de render o hooks; el número apunta al decoder de React.",
+      "whatToLookFor": [
+        "Minified React error"
+      ],
+      "recommendation": [
+        "Abre el decoder oficial con el # del error.",
+        "Reproduce en build no minificado si puedes."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "react.invalid_hook",
+      "severity": "critical",
+      "match_contains": [
+        "Invalid hook call",
+        "Hooks can only be called"
+      ],
+      "match_all_contains": [],
+      "title": "Invalid hook call",
+      "summary": "Uso inválido de Hooks.",
+      "why": "Duplicado de React o hook fuera de componente función.",
+      "whatToLookFor": [
+        "Invalid hook call"
+      ],
+      "recommendation": [
+        "Asegura una sola copia de react.",
+        "No llames hooks en condicionales."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "react.fetch_chunk",
+      "severity": "warn",
+      "match_contains": [
+        "Failed to fetch dynamically imported module",
+        "error loading dynamically imported module"
+      ],
+      "match_all_contains": [],
+      "title": "Dynamic import falló",
+      "summary": "Falló un import() dinámico.",
+      "why": "Red o asset 404 tras deploy.",
+      "whatToLookFor": [
+        "dynamically imported module"
+      ],
+      "recommendation": [
+        "Verifica URL del módulo.",
+        "Revisa caché/CDN del release."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "react.keys",
+      "severity": "warn",
+      "match_contains": [
+        "unique \"key\" prop",
+        "Each child in a list should have a unique"
+      ],
+      "match_all_contains": [],
+      "title": "Keys de lista",
+      "summary": "Faltan keys únicas en una lista.",
+      "why": "Rendimiento y bugs de reconciliación.",
+      "whatToLookFor": [
+        "unique key"
+      ],
+      "recommendation": [
+        "Asigna key estable por ítem.",
+        "Evita index como key si la lista muta."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "react.dom",
+      "severity": "warn",
+      "match_contains": [
+        "Target container is not a DOM element"
+      ],
+      "match_all_contains": [],
+      "title": "Contenedor DOM",
+      "summary": "React no encontró el contenedor DOM.",
+      "why": "root element ausente o mal id.",
+      "whatToLookFor": [
+        "Target container is not a DOM element"
+      ],
+      "recommendation": [
+        "Verifica index.html #root.",
+        "Confirma orden de scripts."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "react.router",
+      "severity": "warn",
+      "match_contains": [
+        "No routes matched location"
+      ],
+      "match_all_contains": [],
+      "title": "Router sin match",
+      "summary": "Ruta no matcheada en React Router.",
+      "why": "Path incorrecto o basename.",
+      "whatToLookFor": [
+        "No routes matched location"
+      ],
+      "recommendation": [
+        "Revisa definición de routes.",
+        "Confirma basename del deploy."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    },
+    {
+      "id": "react.generic",
+      "severity": "info",
+      "match_contains": [
+        "react-dom"
+      ],
+      "match_all_contains": [],
+      "title": "React (genérico)",
+      "summary": "Mensaje relacionado con React sin regla más específica.",
+      "why": "Puede ser warning informativo.",
+      "whatToLookFor": [
+        "react-dom"
+      ],
+      "recommendation": [
+        "Busca ChunkLoad/Hydration/Minified si coexisten."
+      ],
+      "tags": [
+        "frontend"
+      ]
+    }
+  ]
+}

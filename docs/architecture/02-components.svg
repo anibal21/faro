@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="520" viewBox="0 0 1120 520" role="img" aria-labelledby="title desc">
+  <title id="title">Faro Components</title>
+  <desc id="desc">React UI, Tauri IPC, Rust backend, SQLite, user externals.</desc>
+  <rect width="1120" height="520" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <rect x="30" y="16" width="480" height="36" rx="6" fill="#1B2A4A"/>
+  <text x="42" y="40" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">Faro - Componentes internos (v1)</text>
+
+  <rect x="40" y="70" width="280" height="280" rx="4" fill="#DBEAFE" stroke="#1E3A5F"/>
+  <text x="55" y="92" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0F172A">Frontend (React + TS + Vite)</text>
+  <rect x="60" y="110" width="240" height="36" rx="6" fill="#FFFFFF" stroke="#1E3A5F"/><text x="180" y="132" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">Menus Ambiente / Ver</text>
+  <rect x="60" y="156" width="240" height="40" rx="6" fill="#FFFFFF" stroke="#1E3A5F"/><text x="180" y="180" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#0F172A">Selector + rail Deployments/Pods/CM</text>
+  <rect x="60" y="206" width="240" height="36" rx="6" fill="#FFFFFF" stroke="#1E3A5F"/><text x="180" y="228" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">Pestanas: Structured / Raw</text>
+  <rect x="60" y="252" width="240" height="36" rx="6" fill="#FFFFFF" stroke="#1E3A5F"/><text x="180" y="274" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">Panel hallazgo (click ERROR)</text>
+  <rect x="60" y="298" width="240" height="32" rx="6" fill="#FFFFFF" stroke="#1E3A5F"/><text x="180" y="318" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">Theme light/dark</text>
+
+  <rect x="360" y="170" width="140" height="70" rx="8" fill="#1B2A4A" stroke="#0F172A"/>
+  <text x="430" y="200" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">Tauri IPC</text>
+  <text x="430" y="218" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#FFFFFF">commands + events</text>
+
+  <rect x="540" y="70" width="320" height="280" rx="4" fill="#BAE6FD" stroke="#0369A1"/>
+  <text x="555" y="92" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0C4A6E">Backend Rust (src-tauri)</text>
+  <rect x="560" y="105" width="280" height="40" rx="6" fill="#FFFFFF" stroke="#0369A1"/><text x="700" y="129" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#0F172A">env_* � k8s_* � logs_* � analyze � prefs</text>
+  <rect x="560" y="155" width="130" height="40" rx="6" fill="#FFFFFF" stroke="#0369A1"/><text x="625" y="179" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">ssh/ tunel</text>
+  <rect x="710" y="155" width="130" height="40" rx="6" fill="#FFFFFF" stroke="#0369A1"/><text x="775" y="179" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">k8s/ RO</text>
+  <rect x="560" y="210" width="130" height="40" rx="6" fill="#FFFFFF" stroke="#0369A1"/><text x="625" y="234" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">aws token</text>
+  <rect x="710" y="210" width="130" height="40" rx="6" fill="#FFFFFF" stroke="#0369A1"/><text x="775" y="234" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">db/ SQLite</text>
+  <rect x="560" y="265" width="280" height="40" rx="6" fill="#FFFFFF" stroke="#0369A1"/><text x="700" y="289" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">rules/ Spring Boot (local)</text>
+  <rect x="560" y="315" width="280" height="24" rx="4" fill="#E0F2FE" stroke="#0369A1"/><text x="700" y="331" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#0C4A6E">events: logs_chunk � logs_status</text>
+
+  <ellipse cx="690" cy="430" rx="95" ry="38" fill="#FEF3C7" stroke="#92400E"/>
+  <text x="690" y="426" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#78350F">SQLite</text>
+  <text x="690" y="444" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#78350F">ambientes � prefs � history</text>
+
+  <rect x="900" y="70" width="200" height="280" rx="4" fill="#BBF7D0" stroke="#15803D"/>
+  <text x="915" y="92" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#14532D">Externos (usuario)</text>
+  <rect x="920" y="110" width="160" height="40" rx="6" fill="#FFFFFF" stroke="#15803D"/><text x="1000" y="134" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">Bastion SSH</text>
+  <rect x="920" y="165" width="160" height="40" rx="6" fill="#FFFFFF" stroke="#15803D"/><text x="1000" y="189" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">EKS API</text>
+  <rect x="920" y="220" width="160" height="40" rx="6" fill="#FFFFFF" stroke="#15803D"/><text x="1000" y="244" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">IAM credentials file</text>
+  <rect x="920" y="275" width="160" height="50" rx="6" fill="#FFFFFF" stroke="#15803D"/><text x="1000" y="297" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0F172A">PEM + region + cluster</text><text x="1000" y="313" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#0F172A">(paths / ids)</text>
+
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0F172A"/></marker></defs>
+  <line x1="320" y1="205" x2="360" y2="205" stroke="#0F172A" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="500" y1="205" x2="540" y2="205" stroke="#0F172A" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="860" y1="205" x2="900" y2="205" stroke="#15803D" stroke-width="2"/>
+  <line x1="775" y1="250" x2="775" y2="392" stroke="#B45309" stroke-width="2"/>
+</svg>

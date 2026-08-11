@@ -1,0 +1,340 @@
+{
+  "id": "nodejs",
+  "displayName": "Node.js",
+  "rules": [
+    {
+      "id": "nodejs.unhandled_rejection",
+      "severity": "critical",
+      "match_contains": [
+        "UnhandledPromiseRejection",
+        "unhandledRejection"
+      ],
+      "match_all_contains": [],
+      "title": "Promesa no manejada",
+      "summary": "Una promesa falló sin manejador.",
+      "why": "Falta catch/await try o listener de rechazo.",
+      "whatToLookFor": [
+        "UnhandledPromiseRejection",
+        "unhandledRejection"
+      ],
+      "recommendation": [
+        "Añade .catch o try/await.",
+        "Registra process.on('unhandledRejection') para diagnosticar."
+      ],
+      "tags": [
+        "node"
+      ]
+    },
+    {
+      "id": "nodejs.typeerror",
+      "severity": "critical",
+      "match_contains": [
+        "TypeError:"
+      ],
+      "match_all_contains": [],
+      "title": "TypeError",
+      "summary": "TypeError: valor con tipo incorrecto (null/undefined o API mal usada).",
+      "why": "Acceso a propiedad de undefined o argumentos inválidos.",
+      "whatToLookFor": [
+        "TypeError:"
+      ],
+      "recommendation": [
+        "Revisa el frame at Object. / archivo.",
+        "Valida argumentos antes de usarlos."
+      ],
+      "tags": [
+        "node"
+      ]
+    },
+    {
+      "id": "nodejs.reference",
+      "severity": "critical",
+      "match_contains": [
+        "ReferenceError:"
+      ],
+      "match_all_contains": [],
+      "title": "ReferenceError",
+      "summary": "Se usó una variable no definida.",
+      "why": "Typo o import faltante.",
+      "whatToLookFor": [
+        "ReferenceError:"
+      ],
+      "recommendation": [
+        "Busca el identificador en el mensaje.",
+        "Revisa imports/scope."
+      ],
+      "tags": [
+        "node"
+      ]
+    },
+    {
+      "id": "nodejs.enoent",
+      "severity": "warn",
+      "match_contains": [
+        "ENOENT",
+        "no such file or directory"
+      ],
+      "match_all_contains": [],
+      "title": "ENOENT",
+      "summary": "No se encontró un archivo o ruta.",
+      "why": "Path incorrecto o working directory distinto.",
+      "whatToLookFor": [
+        "ENOENT"
+      ],
+      "recommendation": [
+        "Comprueba rutas de config/assets.",
+        "Verifica cwd del proceso en el pod."
+      ],
+      "tags": [
+        "fs"
+      ]
+    },
+    {
+      "id": "nodejs.econn",
+      "severity": "warn",
+      "match_contains": [
+        "ECONNREFUSED",
+        "ECONNRESET",
+        "ETIMEDOUT"
+      ],
+      "match_all_contains": [],
+      "title": "Error de conexión",
+      "summary": "Falló una conexión de red.",
+      "why": "Servicio destino caído o no alcanzable.",
+      "whatToLookFor": [
+        "ECONNREFUSED",
+        "ECONNRESET",
+        "ETIMEDOUT"
+      ],
+      "recommendation": [
+        "Verifica host/puerto del servicio.",
+        "Revisa NetworkPolicy/DNS del cluster."
+      ],
+      "tags": [
+        "network"
+      ]
+    },
+    {
+      "id": "nodejs.eaddrinuse",
+      "severity": "critical",
+      "match_contains": [
+        "EADDRINUSE"
+      ],
+      "match_all_contains": [],
+      "title": "Puerto en uso",
+      "summary": "El puerto ya está en uso.",
+      "why": "Otro proceso escucha el mismo port.",
+      "whatToLookFor": [
+        "EADDRINUSE"
+      ],
+      "recommendation": [
+        "Cambia PORT o evita réplicas chocando en hostNetwork."
+      ],
+      "tags": [
+        "node"
+      ]
+    },
+    {
+      "id": "nodejs.syntax",
+      "severity": "critical",
+      "match_contains": [
+        "SyntaxError:"
+      ],
+      "match_all_contains": [],
+      "title": "SyntaxError",
+      "summary": "Error de sintaxis en JS cargado en runtime.",
+      "why": "Archivo corrupto o transpile incompleto.",
+      "whatToLookFor": [
+        "SyntaxError:"
+      ],
+      "recommendation": [
+        "Revisa el build/artifact.",
+        "Confirma que el bundle es el esperado."
+      ],
+      "tags": [
+        "node"
+      ]
+    },
+    {
+      "id": "nodejs.express",
+      "severity": "warn",
+      "match_contains": [
+        "Cannot GET",
+        "Cannot POST"
+      ],
+      "match_all_contains": [
+        "express"
+      ],
+      "title": "Express routing",
+      "summary": "Error típico de ruta Express no encontrada.",
+      "why": "Ruta no registrada o method incorrecto.",
+      "whatToLookFor": [
+        "Cannot GET",
+        "Cannot POST"
+      ],
+      "recommendation": [
+        "Revisa definición de rutas.",
+        "Confirma method y path."
+      ],
+      "tags": [
+        "http"
+      ]
+    },
+    {
+      "id": "nodejs.nest",
+      "severity": "warn",
+      "match_contains": [
+        "NestFactory",
+        "ExceptionsHandler"
+      ],
+      "match_all_contains": [],
+      "title": "NestJS",
+      "summary": "Error reportado por NestJS.",
+      "why": "Excepción en handler o bootstrap.",
+      "whatToLookFor": [
+        "NestFactory",
+        "ExceptionsHandler"
+      ],
+      "recommendation": [
+        "Lee el exception filter output.",
+        "Revisa el módulo/provider implicado."
+      ],
+      "tags": [
+        "node"
+      ]
+    },
+    {
+      "id": "nodejs.mongodb",
+      "severity": "warn",
+      "match_contains": [
+        "MongoServerError",
+        "MongoNetworkError"
+      ],
+      "match_all_contains": [],
+      "title": "MongoDB",
+      "summary": "Error de cliente MongoDB.",
+      "why": "Auth, red o query inválida.",
+      "whatToLookFor": [
+        "MongoServerError",
+        "MongoNetworkError"
+      ],
+      "recommendation": [
+        "Verifica URI y red al cluster Mongo.",
+        "Revisa auth fuera de Faro."
+      ],
+      "tags": [
+        "db"
+      ]
+    },
+    {
+      "id": "nodejs.jwt",
+      "severity": "warn",
+      "match_contains": [
+        "JsonWebTokenError",
+        "TokenExpiredError"
+      ],
+      "match_all_contains": [],
+      "title": "JWT",
+      "summary": "JWT inválido o expirado.",
+      "why": "Firma incorrecta o TTL vencido.",
+      "whatToLookFor": [
+        "JsonWebTokenError",
+        "TokenExpiredError"
+      ],
+      "recommendation": [
+        "Revisa secret/issuer.",
+        "Pide al cliente renovar token."
+      ],
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "id": "nodejs.payload",
+      "severity": "warn",
+      "match_contains": [
+        "PayloadTooLargeError"
+      ],
+      "match_all_contains": [],
+      "title": "Payload grande",
+      "summary": "Body demasiado grande.",
+      "why": "Límite body-parser/express excedido.",
+      "whatToLookFor": [
+        "PayloadTooLargeError"
+      ],
+      "recommendation": [
+        "Ajusta limit del parser.",
+        "Reduce payload del cliente."
+      ],
+      "tags": [
+        "http"
+      ]
+    },
+    {
+      "id": "nodejs.cors",
+      "severity": "warn",
+      "match_contains": [
+        "Not allowed by CORS"
+      ],
+      "match_all_contains": [],
+      "title": "CORS",
+      "summary": "Bloqueo CORS.",
+      "why": "Origen no permitido en el servidor.",
+      "whatToLookFor": [
+        "Not allowed by CORS"
+      ],
+      "recommendation": [
+        "Ajusta Access-Control-Allow-Origin.",
+        "Verifica preflight OPTIONS."
+      ],
+      "tags": [
+        "http"
+      ]
+    },
+    {
+      "id": "nodejs.heap",
+      "severity": "critical",
+      "match_contains": [
+        "JavaScript heap out of memory",
+        "FATAL ERROR: Reached heap limit"
+      ],
+      "match_all_contains": [],
+      "title": "Heap OOM",
+      "summary": "Node se quedó sin heap.",
+      "why": "Memory leak o dataset grande.",
+      "whatToLookFor": [
+        "heap out of memory",
+        "Reached heap limit"
+      ],
+      "recommendation": [
+        "Revisa leaks.",
+        "Ajusta NODE_OPTIONS --max-old-space-size con cuidado (fuera de Faro)."
+      ],
+      "tags": [
+        "memory"
+      ]
+    },
+    {
+      "id": "nodejs.generic_error",
+      "severity": "info",
+      "match_contains": [
+        "Error:",
+        "ERROR"
+      ],
+      "match_all_contains": [],
+      "title": "Error genérico Node",
+      "summary": "Error genérico en log Node.",
+      "why": "Puede ser síntoma; prioriza reglas específicas.",
+      "whatToLookFor": [
+        "Error:"
+      ],
+      "recommendation": [
+        "Lee el stack completo.",
+        "Busca códigos errno específicos."
+      ],
+      "tags": [
+        "ops"
+      ]
+    }
+  ]
+}

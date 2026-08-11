@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-label="Faro IPC commands versus events">
+  <rect width="1400" height="900" fill="#FFFFFF"/>
+  <rect x="10" y="10" width="1380" height="880" fill="#FFFFFF" stroke="#CBD5E1"/>
+
+  <rect x="30" y="24" width="560" height="36" rx="6" fill="#1B2A4A"/>
+  <text x="42" y="48" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Faro  IPC: Commands (invoke) vs Events (emit)</text>
+
+  <rect x="610" y="24" width="380" height="36" rx="6" fill="#F8FAFC" stroke="#64748B"/>
+  <text x="622" y="47" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="12">Sin HTTP. CRUD = commands. Stream logs = events.</text>
+
+  <rect x="60" y="90" width="180" height="70" rx="8" fill="#DBEAFE" stroke="#1E3A5F"/>
+  <text x="150" y="120" text-anchor="middle" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">React UI</text>
+  <text x="150" y="140" text-anchor="middle" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="11">(invoke / listen)</text>
+
+  <rect x="320" y="90" width="160" height="70" rx="8" fill="#1B2A4A" stroke="#0F172A"/>
+  <text x="400" y="120" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Tauri IPC</text>
+  <text x="400" y="140" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="11">bridge</text>
+
+  <rect x="560" y="90" width="200" height="70" rx="8" fill="#BAE6FD" stroke="#0369A1"/>
+  <text x="660" y="120" text-anchor="middle" fill="#0C4A6E" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Rust backend</text>
+  <text x="660" y="140" text-anchor="middle" fill="#0C4A6E" font-family="Segoe UI, Arial, sans-serif" font-size="11">(commands + emit)</text>
+
+  <line x1="240" y1="125" x2="320" y2="125" stroke="#0369A1" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="270" y="115" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="700">invoke</text>
+  <line x1="480" y1="125" x2="560" y2="125" stroke="#0369A1" stroke-width="2"/>
+  <path d="M660 170 L660 200 L150 200 L150 170" fill="none" stroke="#047857" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="280" y="195" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="700">Result / Error</text>
+  <path d="M700 170 L700 230 L150 230 L150 170" fill="none" stroke="#B45309" stroke-width="2"/>
+  <text x="300" y="250" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="700">emit(event)</text>
+
+  <rect x="40" y="280" width="640" height="400" fill="#ECFDF5" stroke="#047857"/>
+  <text x="55" y="305" fill="#064E3B" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">COMMANDS (invoke)  request/response</text>
+
+  <rect x="60" y="320" width="280" height="80" rx="6" fill="#FFFFFF" stroke="#047857"/>
+  <text x="70" y="345" fill="#0F172A" font-family="Consolas, monospace" font-size="11">Startup</text>
+  <text x="70" y="365" fill="#0F172A" font-family="Consolas, monospace" font-size="11">session_purge_ephemeral</text>
+  <text x="70" y="385" fill="#0F172A" font-family="Consolas, monospace" font-size="11">prefs_get / prefs_set</text>
+
+  <rect x="360" y="320" width="300" height="100" rx="6" fill="#FFFFFF" stroke="#047857"/>
+  <text x="370" y="345" fill="#0F172A" font-family="Consolas, monospace" font-size="11">Ambientes CRUD + sesion</text>
+  <text x="370" y="365" fill="#0F172A" font-family="Consolas, monospace" font-size="11">env_list / upsert / delete</text>
+  <text x="370" y="385" fill="#0F172A" font-family="Consolas, monospace" font-size="11">env_load / set_active</text>
+  <text x="370" y="405" fill="#0F172A" font-family="Consolas, monospace" font-size="11">env_connect / disconnect</text>
+
+  <rect x="60" y="430" width="280" height="120" rx="6" fill="#FFFFFF" stroke="#047857"/>
+  <text x="70" y="455" fill="#0F172A" font-family="Consolas, monospace" font-size="11">Catalogo (RO)</text>
+  <text x="70" y="475" fill="#0F172A" font-family="Consolas, monospace" font-size="11">k8s_list_deployments</text>
+  <text x="70" y="495" fill="#0F172A" font-family="Consolas, monospace" font-size="11">k8s_list_configmaps</text>
+  <text x="70" y="515" fill="#0F172A" font-family="Consolas, monospace" font-size="11">k8s_get_configmap</text>
+  <text x="70" y="535" fill="#0F172A" font-family="Consolas, monospace" font-size="11">catalog_refresh</text>
+
+  <rect x="360" y="450" width="300" height="100" rx="6" fill="#FFFFFF" stroke="#047857"/>
+  <text x="370" y="475" fill="#0F172A" font-family="Consolas, monospace" font-size="11">Logs + analisis</text>
+  <text x="370" y="495" fill="#0F172A" font-family="Consolas, monospace" font-size="11">logs_open / close / set_view</text>
+  <text x="370" y="515" fill="#0F172A" font-family="Consolas, monospace" font-size="11">analyze_write_group</text>
+
+  <rect x="60" y="580" width="600" height="36" rx="6" fill="#D1FAE5" stroke="#047857"/>
+  <text x="70" y="603" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="11">CRUD ambientes = solo commands. logs_open abre; caudal = events.</text>
+
+  <rect x="720" y="280" width="640" height="180" fill="#FEF3C7" stroke="#B45309"/>
+  <text x="735" y="305" fill="#78350F" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">EVENTS (emit)  push 0..N</text>
+
+  <rect x="740" y="320" width="280" height="70" rx="6" fill="#FFFFFF" stroke="#B45309"/>
+  <text x="750" y="350" fill="#0F172A" font-family="Consolas, monospace" font-size="12">logs_chunk</text>
+  <text x="750" y="370" fill="#0F172A" font-family="Consolas, monospace" font-size="11">write + pod + timestamp?</text>
+
+  <rect x="1040" y="320" width="280" height="70" rx="6" fill="#FFFFFF" stroke="#B45309"/>
+  <text x="1050" y="350" fill="#0F172A" font-family="Consolas, monospace" font-size="12">logs_status</text>
+  <text x="1050" y="370" fill="#0F172A" font-family="Consolas, monospace" font-size="11">following | idle | error | no_pods</text>
+
+  <rect x="740" y="410" width="580" height="36" rx="6" fill="#FFEDD5" stroke="#B45309"/>
+  <text x="750" y="433" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="11">Solo stream de logs. No events de env_* / prefs / analyze.</text>
+
+  <rect x="720" y="490" width="640" height="170" fill="#F1F5F9" stroke="#64748B"/>
+  <text x="735" y="515" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Flujo tipico logs</text>
+  <text x="740" y="545" fill="#0F172A" font-family="Consolas, monospace" font-size="12">1. UI invoke logs_open</text>
+  <text x="740" y="565" fill="#0F172A" font-family="Consolas, monospace" font-size="12">2. Rust responde window_id</text>
+  <text x="740" y="585" fill="#0F172A" font-family="Consolas, monospace" font-size="12">3. Rust emit logs_status(following)</text>
+  <text x="740" y="605" fill="#0F172A" font-family="Consolas, monospace" font-size="12">4. Rust emit logs_chunk (N veces)</text>
+  <text x="740" y="625" fill="#0F172A" font-family="Consolas, monospace" font-size="12">5. UI invoke analyze_write_group (opcional)</text>
+  <text x="740" y="645" fill="#0F172A" font-family="Consolas, monospace" font-size="12">6. UI invoke logs_close</text>
+
+  <text x="40" y="760" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="11">Contrato: specs/001-eks-log-monitor/contracts/ipc-commands-events.md</text>
+</svg>

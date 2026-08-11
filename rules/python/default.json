@@ -1,0 +1,358 @@
+{
+  "id": "python",
+  "displayName": "Python",
+  "rules": [
+    {
+      "id": "python.traceback",
+      "severity": "critical",
+      "match_contains": [
+        "Traceback (most recent call last)"
+      ],
+      "match_all_contains": [],
+      "title": "Traceback",
+      "summary": "Hay un traceback de Python: una excepción no controlada llegó arriba.",
+      "why": "Bug, dependencia o config incorrecta.",
+      "whatToLookFor": [
+        "Traceback (most recent call last)",
+        "File \""
+      ],
+      "recommendation": [
+        "Lee la última excepción del traceback.",
+        "Abre el File/line indicado."
+      ],
+      "tags": [
+        "python"
+      ]
+    },
+    {
+      "id": "python.module_not_found",
+      "severity": "critical",
+      "match_contains": [
+        "ModuleNotFoundError",
+        "No module named"
+      ],
+      "match_all_contains": [],
+      "title": "ModuleNotFoundError",
+      "summary": "Falta un módulo Python en el entorno.",
+      "why": "Dependencia no instalada en la imagen o PYTHONPATH.",
+      "whatToLookFor": [
+        "ModuleNotFoundError",
+        "No module named"
+      ],
+      "recommendation": [
+        "Añade el paquete al requirements/image.",
+        "Verifica el virtualenv del contenedor."
+      ],
+      "tags": [
+        "python"
+      ]
+    },
+    {
+      "id": "python.import",
+      "severity": "critical",
+      "match_contains": [
+        "ImportError:"
+      ],
+      "match_all_contains": [],
+      "title": "ImportError",
+      "summary": "Falló un import.",
+      "why": "Versión incompatible o símbolo ausente.",
+      "whatToLookFor": [
+        "ImportError:"
+      ],
+      "recommendation": [
+        "Lee el símbolo faltante.",
+        "Alinea versiones de dependencias."
+      ],
+      "tags": [
+        "python"
+      ]
+    },
+    {
+      "id": "python.attribute",
+      "severity": "critical",
+      "match_contains": [
+        "AttributeError:"
+      ],
+      "match_all_contains": [],
+      "title": "AttributeError",
+      "summary": "Se accedió a un atributo inexistente.",
+      "why": "None inesperado o API cambiada.",
+      "whatToLookFor": [
+        "AttributeError:"
+      ],
+      "recommendation": [
+        "Revisa el objeto en el frame.",
+        "Valida None antes de usar."
+      ],
+      "tags": [
+        "python"
+      ]
+    },
+    {
+      "id": "python.key",
+      "severity": "warn",
+      "match_contains": [
+        "KeyError:"
+      ],
+      "match_all_contains": [],
+      "title": "KeyError",
+      "summary": "Clave ausente en dict.",
+      "why": "Payload incompleto o typo de key.",
+      "whatToLookFor": [
+        "KeyError:"
+      ],
+      "recommendation": [
+        "Usa .get con default o valida schema.",
+        "Revisa la key en el mensaje."
+      ],
+      "tags": [
+        "python"
+      ]
+    },
+    {
+      "id": "python.type",
+      "severity": "critical",
+      "match_contains": [
+        "TypeError:"
+      ],
+      "match_all_contains": [],
+      "title": "TypeError",
+      "summary": "TypeError en runtime Python.",
+      "why": "Tipos incompatibles en una operación.",
+      "whatToLookFor": [
+        "TypeError:"
+      ],
+      "recommendation": [
+        "Lee operandos del mensaje.",
+        "Añade validación de tipos."
+      ],
+      "tags": [
+        "python"
+      ]
+    },
+    {
+      "id": "python.value",
+      "severity": "warn",
+      "match_contains": [
+        "ValueError:"
+      ],
+      "match_all_contains": [],
+      "title": "ValueError",
+      "summary": "ValueError: valor inválido.",
+      "why": "Parseo o rango incorrecto.",
+      "whatToLookFor": [
+        "ValueError:"
+      ],
+      "recommendation": [
+        "Valida inputs.",
+        "Revisa conversiones int/str/date."
+      ],
+      "tags": [
+        "python"
+      ]
+    },
+    {
+      "id": "python.django",
+      "severity": "warn",
+      "match_contains": [
+        "django."
+      ],
+      "match_all_contains": [],
+      "title": "Django",
+      "summary": "Error en stack Django.",
+      "why": "Vista, ORM o settings.",
+      "whatToLookFor": [
+        "django."
+      ],
+      "recommendation": [
+        "Lee la excepción Django específica.",
+        "Revisa settings y migraciones."
+      ],
+      "tags": [
+        "django"
+      ]
+    },
+    {
+      "id": "python.flask",
+      "severity": "warn",
+      "match_contains": [
+        "werkzeug",
+        "flask.app"
+      ],
+      "match_all_contains": [],
+      "title": "Flask",
+      "summary": "Error en Flask/Werkzeug.",
+      "why": "Ruta, request o servidor.",
+      "whatToLookFor": [
+        "werkzeug",
+        "flask"
+      ],
+      "recommendation": [
+        "Revisa el handler de la ruta.",
+        "Mira el request path en el log."
+      ],
+      "tags": [
+        "flask"
+      ]
+    },
+    {
+      "id": "python.fastapi",
+      "severity": "warn",
+      "match_contains": [
+        "fastapi",
+        "uvicorn.error"
+      ],
+      "match_all_contains": [],
+      "title": "FastAPI/Uvicorn",
+      "summary": "Error en FastAPI/Uvicorn.",
+      "why": "Validación Pydantic o excepción en endpoint.",
+      "whatToLookFor": [
+        "fastapi",
+        "uvicorn"
+      ],
+      "recommendation": [
+        "Revisa el endpoint y el validation error.",
+        "Confirma dependencies."
+      ],
+      "tags": [
+        "fastapi"
+      ]
+    },
+    {
+      "id": "python.sqlalchemy",
+      "severity": "critical",
+      "match_contains": [
+        "sqlalchemy",
+        "OperationalError",
+        "IntegrityError"
+      ],
+      "match_all_contains": [],
+      "title": "SQLAlchemy",
+      "summary": "Error SQLAlchemy / integridad o conexión.",
+      "why": "BD caída, constraint o SQL inválido.",
+      "whatToLookFor": [
+        "sqlalchemy",
+        "OperationalError",
+        "IntegrityError"
+      ],
+      "recommendation": [
+        "Lee el DBAPI error anidado.",
+        "Verifica conexión y constraints."
+      ],
+      "tags": [
+        "db"
+      ]
+    },
+    {
+      "id": "python.psycopg",
+      "severity": "critical",
+      "match_contains": [
+        "psycopg2",
+        "psycopg"
+      ],
+      "match_all_contains": [],
+      "title": "psycopg",
+      "summary": "Error del driver PostgreSQL (psycopg).",
+      "why": "Auth, red o SQL.",
+      "whatToLookFor": [
+        "psycopg2",
+        "psycopg"
+      ],
+      "recommendation": [
+        "Verifica DSN y red al Postgres.",
+        "Revisa SQL/estado de la BD."
+      ],
+      "tags": [
+        "db"
+      ]
+    },
+    {
+      "id": "python.permission",
+      "severity": "warn",
+      "match_contains": [
+        "PermissionError:"
+      ],
+      "match_all_contains": [],
+      "title": "PermissionError",
+      "summary": "Permiso denegado sobre un recurso de filesystem.",
+      "why": "UID del contenedor sin acceso al path.",
+      "whatToLookFor": [
+        "PermissionError:"
+      ],
+      "recommendation": [
+        "Revisa volúmenes y user del pod.",
+        "Ajusta permisos fuera de Faro."
+      ],
+      "tags": [
+        "fs"
+      ]
+    },
+    {
+      "id": "python.timeout",
+      "severity": "warn",
+      "match_contains": [
+        "TimeoutError",
+        "timed out"
+      ],
+      "match_all_contains": [],
+      "title": "Timeout",
+      "summary": "Operación Python agotó el tiempo de espera.",
+      "why": "Red lenta o deadlock.",
+      "whatToLookFor": [
+        "TimeoutError",
+        "timed out"
+      ],
+      "recommendation": [
+        "Revisa timeouts de clientes.",
+        "Mira dependencias lentas."
+      ],
+      "tags": [
+        "network"
+      ]
+    },
+    {
+      "id": "python.asyncio",
+      "severity": "warn",
+      "match_contains": [
+        "Task exception was never retrieved"
+      ],
+      "match_all_contains": [],
+      "title": "asyncio",
+      "summary": "Problema con tareas asyncio.",
+      "why": "Task sin await/exception handler.",
+      "whatToLookFor": [
+        "Task exception was never retrieved"
+      ],
+      "recommendation": [
+        "Asegura await de tasks.",
+        "Añade exception handlers."
+      ],
+      "tags": [
+        "python"
+      ]
+    },
+    {
+      "id": "python.generic",
+      "severity": "info",
+      "match_contains": [
+        "Error:",
+        "ERROR"
+      ],
+      "match_all_contains": [],
+      "title": "Error genérico Python",
+      "summary": "Error genérico en log Python.",
+      "why": "Prioriza Traceback/reglas específicas si existen.",
+      "whatToLookFor": [
+        "Error:"
+      ],
+      "recommendation": [
+        "Busca Traceback arriba.",
+        "Lee la excepción concreta."
+      ],
+      "tags": [
+        "ops"
+      ]
+    }
+  ]
+}
