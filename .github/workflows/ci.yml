@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Unit tests
-        run: npx vitest run --pool=forks --maxWorkers=2 --reporter=verbose
+        run: npx vitest run --pool=forks --maxWorkers=2 --reporter=default --reporter=github-actions
         env:
           CI: true
       - name: Production build
