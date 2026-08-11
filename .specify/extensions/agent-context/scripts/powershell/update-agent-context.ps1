@@ -88,7 +88,10 @@ if ($null -eq $Options) {
 
     if ($pythonCmd) {
         try {
-            $jsonOut = & $pythonCmd -c @'
+            # Windows `python -c` is unreliable with multiline strings from PowerShell;
+            # write a short temp script instead.
+            $tmpPy = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("speckit-agent-context-{0}.py" -f [guid]::NewGuid().ToString('N')))
+            $pyParseConfig = @'
 import json
 import sys
 try:
@@ -114,9 +117,15 @@ if not isinstance(data, dict):
     data = {}
 
 print(json.dumps(data))
-'@ $ExtConfig
-            if ($LASTEXITCODE -eq 0 -and $jsonOut) {
-                $Options = $jsonOut | ConvertFrom-Json -ErrorAction Stop
+'@
+            [System.IO.File]::WriteAllText($tmpPy, $pyParseConfig, (New-Object System.Text.UTF8Encoding($false)))
+            try {
+                $jsonOut = & $pythonCmd $tmpPy $ExtConfig
+                if ($LASTEXITCODE -eq 0 -and $jsonOut) {
+                    $Options = $jsonOut | ConvertFrom-Json -ErrorAction Stop
+                }
+            } finally {
+                Remove-Item -LiteralPath $tmpPy -Force -ErrorAction SilentlyContinue
             }
         } catch {
             $Options = $null

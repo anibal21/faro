@@ -2,7 +2,7 @@
 
 **Monitoreo de logs EKS vía bastión** — *Ilumina los logs. Gobierna el cluster.*
 
-> App de escritorio (Windows, macOS, Linux): splash de arranque, instancias por ambiente, **Pods/Deployments** + **ConfigMaps**, logs en vivo con vista **Structured** (default) y **Raw** (terminal sin manipulación), click en stacktrace → reglas Spring Boot. Sin SSH manual. **10 HU** → **10 tickets** → `tasks.md` T001–T085. Proyecto final AI4Devs.
+> App de escritorio (Windows, macOS, Linux): splash branded compacto, instancias por ambiente, **Pods/Deployments** + **ConfigMaps**, logs en vivo con vista **Structured** (default) y **Raw**, click en stacktrace → reglas Spring Boot. Sin SSH manual. **HU1–HU15** (base + UI 002–007). Proyecto final AI4Devs.
 
 ---
 
@@ -10,13 +10,22 @@
 
 ```bash
 # Requisitos: Node.js 20+, Rust (stable), AWS CLI/credenciales, acceso SSH al bastión
-# (detalle en QUICK-START.md cuando esté disponible)
 
-# Clonar e instalar (tras scaffold Spec Kit / Tauri)
 cd faro
 npm install
 npm run tauri dev
 ```
+
+### Build instaladores (US10)
+
+```bash
+npm run tauri build
+# Artefactos: src-tauri/target/release/bundle/ (nsis / dmg / appimage)
+```
+
+Demo offline: en el modal de ambiente usa **Usar fixtures demo** (`fixtures/demo.pem` + `fixtures/demo-iam-credentials`). Para ambientes live, **Examinar** junto a PEM/IAM abre el selector nativo de archivos (ruta absoluta; sin filtros de extensión).
+
+Validación: [`TESTING.md`](TESTING.md) · [`specs/001-eks-log-monitor/quickstart.md`](specs/001-eks-log-monitor/quickstart.md)
 
 > Spec Kit (producto): [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md)  
 > Semilla / plan interno: [`docs/SPEC.md`](docs/SPEC.md)  
@@ -29,15 +38,15 @@ npm run tauri dev
 
 | Documento | Descripción | Estado |
 |-----------|-------------|--------|
-| [**0-ficha-del-proyecto.md**](0-ficha-del-proyecto.md) | Información general y datos del proyecto | Actualizado (10 HU + splash + IPC) |
-| [**1-descripcion-general-del-producto.md**](1-descripcion-general-del-producto.md) | Objetivos, funcionalidades y UX | Actualizado (US1–US10 + wireframes 01–06) |
-| [**2-arquitectura-del-sistema.md**](2-arquitectura-del-sistema.md) | Diagramas, componentes y decisiones técnicas | Actualizado (draw.io 01–05 + US1–US10) |
+| [**0-ficha-del-proyecto.md**](0-ficha-del-proyecto.md) | Información general y datos del proyecto | Actualizado (HU1–HU15 + splash 576×324) |
+| [**1-descripcion-general-del-producto.md**](1-descripcion-general-del-producto.md) | Objetivos, funcionalidades y UX | Actualizado (UX chrome + splash branded) |
+| [**2-arquitectura-del-sistema.md**](2-arquitectura-del-sistema.md) | Diagramas, componentes y decisiones técnicas | Actualizado (arranque geometría 007) |
 | [**3-modelo-de-datos.md**](3-modelo-de-datos.md) | Entidades + Mermaid + ER SQLite | Actualizado (durable + session + splash purge) |
 | [**4-comandos-y-eventos-ipc.md**](4-comandos-y-eventos-ipc.md) | Comandos + eventos IPC (mapa + secuencias) | Actualizado (IPC map + diagrama 05) |
-| [**5-historias-de-usuario.md**](5-historias-de-usuario.md) | HU con criterios de aceptación | Actualizado (**10 HU atómicas** US1–US10) |
-| [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (1 por HU + capas BD/BE/FE) | Actualizado (`tasks.md` T001–T085) |
-| [**7-pull-requests.md**](7-pull-requests.md) | PRs del desarrollo | Plantilla lista (pendiente implement) |
-| [**prompts.md**](prompts.md) | Registro de uso de IA (≤3 prompts/sección) | Actualizado (tasks + sync) |
+| [**5-historias-de-usuario.md**](5-historias-de-usuario.md) | HU con criterios de aceptación | Actualizado (**HU1–HU16**; 008 live) |
+| [**6-tickets-de-trabajo.md**](6-tickets-de-trabajo.md) | Tickets (1 por HU + capas BD/BE/FE) | Actualizado (ticket HU16) |
+| [**7-pull-requests.md**](7-pull-requests.md) | PRs del desarrollo | Actualizado (**PR #1** entrega 1) |
+| [**prompts.md**](prompts.md) | Registro de uso de IA (≤3 prompts/sección) | Actualizado (sync 006/007) |
 | [**prompts-conversacion-inicial.md**](prompts-conversacion-inicial.md) | Consultas 1ª conversación (sin respuestas) | Completo |
 | [**prompts-flujo-trabajo-speckit.md**](prompts-flujo-trabajo-speckit.md) | Flujo Spec Kit + sync readme | Completo |
 | [**specs/001-eks-log-monitor/spec.md**](specs/001-eks-log-monitor/spec.md) | Spec Kit — especificación formal | Draft (10 US atómicas + FR-023–025) |
@@ -221,9 +230,9 @@ Ver documento detallado.
 
 > Documentar ≥3 Pull Requests del desarrollo.
 
-**Pull Request 1:** \[Pendiente — scaffold + splash / T001–T021\]  
-**Pull Request 2:** \[Pendiente — ambientes + connect / HU2–HU4\]  
-**Pull Request 3:** \[Pendiente — catálogo + logs + analyze / HU5–HU8\]  
+**Pull Request 1:** [feat: Se hace entrega número 1 proyecto AI4Devs](https://github.com/anibal21/faro/pull/1) — especificación + Spec Kit + docs AI4Devs (sin código app)  
+**Pull Request 2:** \[Pendiente — implementación\]  
+**Pull Request 3:** \[Pendiente — implementación\]  
 
 **Documentación completa:** [7-pull-requests.md](7-pull-requests.md)
 

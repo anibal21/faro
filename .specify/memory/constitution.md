@@ -1,16 +1,10 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0 (MINOR: new non-negotiable principle)
-- Modified principles: none renamed
-- Added: VI. No Credential or User-Data Exfiltration
+- Version change: 1.1.0 → 1.2.0 (MINOR: Principle II — live connect via bastion; IAM file optional/legacy)
+- Modified principles: II. Credential & Secret Hygiene
+- Added: none
 - Removed sections: none
-- Templates:
-  - .specify/templates/plan-template.md — ✅ Constitution Check + version
-  - .specify/templates/spec-template.md — ⚠ no structural change
-  - .specify/templates/tasks-template.md — ⚠ no change
-  - readme.md — ✅ constitution version note
-  - prompts.md — ✅ amendment note
-  - 2-arquitectura-del-sistema.md — ✅ security bullet
+- Templates: plan Constitution Check still valid (PEM path-only / no secret persistence)
 - Follow-up TODOs: none
 -->
 
@@ -26,15 +20,16 @@ gate before advancing. Rationale: Faro is an AI4Devs E2E project; SDD keeps
 scope honest and artifacts auditable.
 
 ### II. Credential & Secret Hygiene
-The app MUST store only local **paths** (PEM path, IAM credentials file
-path) and non-secret identifiers (region, cluster name, bastion host), never
-PEM contents, AWS access keys/secrets, or tokens in repo, config commits, or
-SQLite dumps shared outside the machine. Faro MUST read IAM key material from
-the user-supplied credentials **file path at connect time** and MUST NOT
-persist those secret values. TLS to the EKS API MUST use the cluster CA;
-production use MUST NOT enable insecure TLS skip. Rationale:
-bastion + EKS credentials are high-impact; leakage is unacceptable for a
-tool meant for colleagues.
+The app MUST store only local **paths** (PEM path required for live SSH;
+IAM credentials file path is **optional/legacy** and unused for live connect)
+and non-secret identifiers (region, cluster name, bastion host), never PEM
+contents, AWS access keys/secrets, or tokens in repo, config commits, or
+SQLite dumps shared outside the machine. Live connect MUST obtain cluster
+endpoint/CA and the Kubernetes bearer token via the **bastion** identity
+(not by reading a laptop IAM credentials file). Faro MUST NOT persist those
+secret values. TLS to the EKS API MUST use the cluster CA; production use
+MUST NOT enable insecure TLS skip. Rationale: bastion + EKS credentials are
+high-impact; colleagues should need only PEM + form identifiers.
 
 ### III. Read-Only Cluster Boundary (v1)
 v1 MUST only perform read/observe operations against Kubernetes:
@@ -130,4 +125,4 @@ be justified in the plan's Complexity Tracking table (except VI).
 
 Guidance: `docs/SPEC.md`, `readme.md`, and this constitution.
 
-**Version**: 1.1.0 | **Ratified**: 2026-07-21 | **Last Amended**: 2026-07-21
+**Version**: 1.2.0 | **Ratified**: 2026-07-21 | **Last Amended**: 2026-07-30

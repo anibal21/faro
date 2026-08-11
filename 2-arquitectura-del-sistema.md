@@ -1,6 +1,6 @@
 # 2. Arquitectura del sistema
 
-> Sincronizado con Spec Kit plan + **tasks** (2026-07-23): splash + SQLite durable/session + **IPC** + **US1–US10** → tickets HU1–HU10.  
+> Sincronizado con Spec Kit plan + **tasks** (base 2026-07-23; UI sync 2026-07-27): splash branded + geometría ventana (`007`) + SQLite durable/session + **IPC** + **US1–US10** → tickets HU1–HU15.  
 > Wireframes: `specs/001-eks-log-monitor/wireframes/`. Diagramas: `docs/architecture/`.  
 > Contrato IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md).  
 > Ejecución: [`tasks.md`](specs/001-eks-log-monitor/tasks.md) · [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md).
@@ -40,7 +40,7 @@ flowchart LR
   EKS --> Pods
 ```
 
-**Arranque:** splash (ventana mínima) → `session_purge_ephemeral` → ventana principal.
+**Arranque:** splash branded (**576×324**, fija, centrada) → `session_purge_ephemeral` (+ dwell ≥5s) → principal (**900×600**, centrada, redimensionable).
 
 **Patrón:** app de escritorio (Tauri 2) con UI en webview (React/TS) y backend nativo (Rust). Comunicación UI↔Rust = **commands + events** (sin HTTP). Persistencia SQLite en dos capas (durable + session cache). Una sesión de cluster **activa** a la vez.
 
