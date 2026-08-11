@@ -17,8 +17,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(db)
         .manage(runtime)
+        .manage(commands::PendingUpdateState::default())
         .invoke_handler(tauri::generate_handler![
             commands::session_purge_ephemeral,
             commands::prefs_get,
@@ -51,6 +53,8 @@ pub fn run() {
             commands::k8s_list_pods,
             commands::k8s_list_services,
             commands::k8s_get_service,
+            commands::update_check,
+            commands::update_install,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Faro");

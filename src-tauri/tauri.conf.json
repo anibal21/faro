@@ -27,6 +27,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "publisher": "Aníbal Rodríguez",
     "copyright": "Copyright © 2026 Aníbal Rodríguez",
     "licenseFile": "../LICENSE",
@@ -46,6 +47,17 @@
         "installMode": "perMachine",
         "startMenuFolder": "Faro",
         "installerHooks": "windows/nsis-hooks.nsh"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU3NDc2OTBDNTU2MDZGNTAKUldSUWIyQlZER2xINTFOakRsck1adjhsQkQ3ZFZJZi8rcG5VMTlySzh3NXg5NWtPQ3doSTh5Qk0K",
+      "endpoints": [
+        "https://github.com/anibal21/faro/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
       }
     }
   }

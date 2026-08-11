@@ -1,0 +1,46 @@
+.update-dialog {
+  width: min(26rem, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem 0.75rem;
+}
+
+.update-dialog__body {
+  font-size: 12.5px;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.update-dialog__body p {
+  margin: 0;
+}
+
+.update-dialog__notes {
+  opacity: 0.9;
+  white-space: pre-wrap;
+  max-height: 8rem;
+  overflow-y: auto;
+}
+
+.update-dialog__info {
+  opacity: 0.9;
+}
+
+.update-dialog__progress {
+  font-weight: 600;
+}
+
+.update-dialog__error {
+  color: var(--destructive, #b91c1c);
+}
+
+.update-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border, rgba(127, 127, 127, 0.35));
+}

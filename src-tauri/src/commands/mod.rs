@@ -6,6 +6,7 @@ pub mod export;
 pub mod logs;
 pub mod prefs;
 pub mod session;
+pub mod update;
 pub mod workload;
 
 pub use analyze::*;
@@ -16,4 +17,5 @@ pub use export::*;
 pub use logs::*;
 pub use prefs::*;
 pub use session::*;
+pub use update::*;
 pub use workload::*;
