@@ -21,13 +21,17 @@ If **any** of these build packages is missing, the release pipeline **fails** an
 
 1. Ensure GitHub Actions secrets exist: `TAURI_SIGNING_PRIVATE_KEY` (+ optional `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`).
 2. Bump version in `package.json` and `src-tauri/tauri.conf.json` (same SemVer).
-3. Commit, push, tag, and publish:
+3. Commit, push, then create the tag + GitHub Release from `package.json` version:
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
-gh release create v0.2.0 --title "Faro 0.2.0" --notes "…" --latest
+npm run release
+# preview only:
+npm run release:dry
+# custom notes:
+npm run release -- --notes "Fixes and multi-platform installers"
 ```
+
+(Equivalent manual: `git tag vX.Y.Z` + `gh release create …`.)
 
 4. Wait for workflow **Release multi-platform packages** (jobs `build-windows`, `build-macos`, `build-linux`, `publish`) to go **green**.
 5. Confirm the Release page lists NSIS, DMG, AppImage, `.deb`, and `latest.json` before announcing to the team.
