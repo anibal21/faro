@@ -1,9 +1,12 @@
 # Multi-platform Faro release packages + updater feed
 #
 # Secrets required:
-#   TAURI_SIGNING_PRIVATE_KEY — contents of the private signing key (never commit)
-#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD — optional if the key has no password
+#   TAURI_SIGNING_PRIVATE_KEY — FULL contents of `.tauri/faro.key` (never commit the key)
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD — leave unset/empty if the key has no password
 #   GITHUB_TOKEN — provided by Actions (contents:write) for uploading release assets
+#
+# Common failure:
+#   "Missing comment in secret key" → secret is truncated/wrong file (.pub) or has extra quotes.
 #
 # Mandatory assets (strict gate): Windows NSIS(+sig), macOS DMG + updater tar(+sig),
 # Linux AppImage(+sig), Linux .deb, and latest.json.
@@ -35,14 +38,54 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # Tauri downloads NSIS from GitHub Releases into %LOCALAPPDATA%\tauri.
+      # Fresh runners often hit transient "Peer disconnected" on that fetch.
+      - name: Resolve Tauri NSIS cache path
+        id: tauri-cache
+        shell: bash
+        run: |
+          dir="${LOCALAPPDATA}/tauri"
+          mkdir -p "$dir"
+          echo "dir=${dir}" >> "$GITHUB_OUTPUT"
+          echo "Tauri cache dir: $dir"
+
+      - name: Cache Tauri NSIS toolchain
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.tauri-cache.outputs.dir }}
+          # Bump when Tauri pins a new NSIS zip (see bundler "Downloading …/nsis-*.zip").
+          key: tauri-nsis-3.11-${{ runner.os }}
+          restore-keys: |
+            tauri-nsis-
+
       - name: Install frontend deps
         run: npm ci
 
-      - name: Build Windows NSIS + updater artifacts
+      - name: Prepare updater signing
+        shell: bash
         env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npm run tauri build -- --bundles nsis
+          TAURI_SIGNING_PRIVATE_KEY_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          chmod +x scripts/ci/prepare-tauri-signing.sh
+          scripts/ci/prepare-tauri-signing.sh
+
+      # Retry: after attempt 1, cargo release artifacts are warm; only NSIS fetch/bundle re-runs.
+      - name: Build Windows NSIS + updater artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "tauri build attempt ${attempt}/3"
+            if npm run tauri build -- --bundles nsis; then
+              exit 0
+            fi
+            echo "tauri build failed on attempt ${attempt}"
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 20))
+          done
 
       - name: Stage Windows artifacts
         shell: pwsh
@@ -58,7 +101,8 @@ jobs:
           if-no-files-found: error
 
   build-macos:
-    runs-on: macos-13
+    # macos-13 (Intel) has long queues; build x86_64 on Apple Silicon runners.
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
@@ -68,22 +112,29 @@ jobs:
           cache: npm
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin
 
       - name: Install frontend deps
         run: npm ci
 
-      - name: Build macOS DMG + updater artifacts (no notarization)
+      - name: Prepare updater signing
         env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npm run tauri build -- --bundles dmg
+          TAURI_SIGNING_PRIVATE_KEY_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          chmod +x scripts/ci/prepare-tauri-signing.sh
+          scripts/ci/prepare-tauri-signing.sh
+
+      - name: Build macOS DMG + updater artifacts (x86_64, no notarization)
+        run: npm run tauri build -- --target x86_64-apple-darwin --bundles dmg
 
       - name: Stage macOS artifacts
         run: |
           mkdir -p dist-release
-          cp src-tauri/target/release/bundle/dmg/*.dmg dist-release/
-          cp src-tauri/target/release/bundle/macos/*.app.tar.gz dist-release/
-          cp src-tauri/target/release/bundle/macos/*.app.tar.gz.sig dist-release/
+          cp src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg dist-release/
+          cp src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz dist-release/
+          cp src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz.sig dist-release/
           ls -la dist-release
 
       - uses: actions/upload-artifact@v4
@@ -123,10 +174,15 @@ jobs:
       - name: Install frontend deps
         run: npm ci
 
-      - name: Build Linux AppImage + deb + updater artifacts
+      - name: Prepare updater signing
         env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          TAURI_SIGNING_PRIVATE_KEY_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          chmod +x scripts/ci/prepare-tauri-signing.sh
+          scripts/ci/prepare-tauri-signing.sh
+
+      - name: Build Linux AppImage + deb + updater artifacts
         run: npm run tauri build -- --bundles appimage,deb
 
       - name: Stage Linux artifacts

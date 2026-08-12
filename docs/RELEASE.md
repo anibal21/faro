@@ -19,8 +19,14 @@ If **any** of these build packages is missing, the release pipeline **fails** an
 
 ## Maintainer: cut a release
 
-1. Ensure GitHub Actions secrets exist: `TAURI_SIGNING_PRIVATE_KEY` (+ optional `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`).
-2. Bump version in `package.json` and `src-tauri/tauri.conf.json` (same SemVer).
+1. **Signing secret (required — this is what failed CI):**
+   - Local key file: `.tauri/faro.key` (generated with `npx tauri signer generate …`)
+   - GitHub → Settings → Secrets and variables → Actions → `TAURI_SIGNING_PRIVATE_KEY`
+   - Value = **entire file contents** of `.tauri/faro.key` (usually one long line).  
+     Do **not** paste `.pub`, do **not** wrap in quotes, do **not** truncate.
+   - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`: leave **empty / unset** if the key has no password.
+   - Error `Missing comment in secret key` = secret is wrong/incomplete.
+2. Bump version in `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml` (same SemVer).
 3. Commit, push, then create the tag + GitHub Release from `package.json` version:
 
 ```bash
@@ -35,6 +41,14 @@ npm run release -- --notes "Fixes and multi-platform installers"
 
 4. Wait for workflow **Release multi-platform packages** (jobs `build-windows`, `build-macos`, `build-linux`, `publish`) to go **green**.
 5. Confirm the Release page lists NSIS, DMG, AppImage, `.deb`, and `latest.json` before announcing to the team.
+
+### Common CI failures (Windows)
+
+| Symptom | Cause | What to do |
+|---------|--------|------------|
+| `failed to bundle … Peer disconnected` while `Downloading …/nsis-3.11.zip` | Transient GitHub download of the NSIS toolchain after a successful Rust compile | Re-run the failed `build-windows` job (workflow caches NSIS + retries the build) |
+| Rust `warning: … is never used` / `dead_code` | Unused items in the lib crate | Harmless — does **not** fail the job |
+| `Missing comment in secret key` | Bad/truncated `TAURI_SIGNING_PRIVATE_KEY` | Fix the secret (see step 1 above) |
 
 Workflow: `.github/workflows/release-updater.yml`  
 Verify script: `scripts/ci/verify-release-assets.sh`
