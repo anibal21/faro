@@ -5,8 +5,10 @@
 #   TAURI_SIGNING_PRIVATE_KEY_PASSWORD — leave unset/empty if the key has no password
 #   GITHUB_TOKEN — provided by Actions (contents:write) for uploading release assets
 #
-# Common failure:
+# Common failures:
 #   "Missing comment in secret key" → secret is truncated/wrong file (.pub) or has extra quotes.
+#   "Invalid symbol 10" → base64 key had newlines; prepare-tauri-signing.sh strips whitespace.
+#   macOS missing *.app.tar.gz → build must use --bundles app,dmg (not dmg alone).
 #
 # Mandatory assets (strict gate): Windows NSIS(+sig), macOS DMG + updater tar(+sig),
 # Linux AppImage(+sig), Linux .deb, and latest.json.
@@ -126,15 +128,20 @@ jobs:
           chmod +x scripts/ci/prepare-tauri-signing.sh
           scripts/ci/prepare-tauri-signing.sh
 
+      # `app` is required for updater .app.tar.gz; `dmg` alone does not emit it.
       - name: Build macOS DMG + updater artifacts (x86_64, no notarization)
-        run: npm run tauri build -- --target x86_64-apple-darwin --bundles dmg
+        run: npm run tauri build -- --target x86_64-apple-darwin --bundles app,dmg
 
       - name: Stage macOS artifacts
         run: |
+          set -euo pipefail
           mkdir -p dist-release
-          cp src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg dist-release/
-          cp src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz dist-release/
-          cp src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz.sig dist-release/
+          MAC_BUNDLE="src-tauri/target/x86_64-apple-darwin/release/bundle"
+          echo "Bundle tree:"
+          find "$MAC_BUNDLE" -maxdepth 3 -type f | sort || true
+          cp "$MAC_BUNDLE"/dmg/*.dmg dist-release/
+          cp "$MAC_BUNDLE"/macos/*.app.tar.gz dist-release/
+          cp "$MAC_BUNDLE"/macos/*.app.tar.gz.sig dist-release/
           ls -la dist-release
 
       - uses: actions/upload-artifact@v4

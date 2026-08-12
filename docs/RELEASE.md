@@ -42,11 +42,13 @@ npm run release -- --notes "Fixes and multi-platform installers"
 4. Wait for workflow **Release multi-platform packages** (jobs `build-windows`, `build-macos`, `build-linux`, `publish`) to go **green**.
 5. Confirm the Release page lists NSIS, DMG, AppImage, `.deb`, and `latest.json` before announcing to the team.
 
-### Common CI failures (Windows)
+### Common CI failures
 
 | Symptom | Cause | What to do |
 |---------|--------|------------|
-| `failed to bundle … Peer disconnected` while `Downloading …/nsis-3.11.zip` | Transient GitHub download of the NSIS toolchain after a successful Rust compile | Re-run the failed `build-windows` job (workflow caches NSIS + retries the build) |
+| `failed to bundle … Peer disconnected` while `Downloading …/nsis-3.11.zip` | Transient GitHub download of the NSIS toolchain after a successful Rust compile | Re-run `build-windows` (workflow caches NSIS + retries) |
+| `*.app.tar.gz: No such file` on macOS | Build used `--bundles dmg` only; updater tar needs the `app` bundle | Workflow must use `--bundles app,dmg` |
+| `Invalid symbol 10` / `failed to decode base64 secret key` | Trailing/embedded newline in base64 private key | CI strips whitespace for base64 keys; re-copy `.tauri/faro.key` into the secret if it still fails |
 | Rust `warning: … is never used` / `dead_code` | Unused items in the lib crate | Harmless — does **not** fail the job |
 | `Missing comment in secret key` | Bad/truncated `TAURI_SIGNING_PRIVATE_KEY` | Fix the secret (see step 1 above) |
 
