@@ -3,6 +3,7 @@ import { prefsGet, prefsSet, type ConnectionInstance, type EnvUpsertInput } from
 import { TitleBar } from "../components/chrome/TitleBar";
 import { AppMenubar } from "../components/chrome/AppMenubar";
 import { SecurityDialog } from "../components/help/SecurityDialog";
+import { AboutFaroDialog } from "../components/help/AboutFaroDialog";
 import { UpdateAvailableDialog } from "../components/update/UpdateAvailableDialog";
 import { NewEnvironmentModal } from "../components/env/NewEnvironmentModal";
 import { ConnectionLimitModal } from "../components/env/ConnectionLimitModal";
@@ -58,6 +59,7 @@ export function MainShell({
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ConnectionInstance | null>(null);
   const [securityOpen, setSecurityOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const health = useConnectionHealth(true);
   const { connectedIds, markDisconnected } = connection;
@@ -155,12 +157,13 @@ export function MainShell({
           void disconnectAll();
         }}
         onOpenSecurity={() => setSecurityOpen(true)}
+        onOpenAbout={() => setAboutOpen(true)}
         onCheckUpdates={() => {
           void update.checkManual();
         }}
       />
       <SecurityDialog open={securityOpen} onOpenChange={setSecurityOpen} />
-      {offer ? (
+      <AboutFaroDialog open={aboutOpen} onOpenChange={setAboutOpen} />      {offer ? (
         <UpdateAvailableDialog
           open={update.dialogOpen}
           currentVersion={offer.current}

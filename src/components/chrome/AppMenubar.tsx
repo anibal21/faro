@@ -14,6 +14,7 @@ type AppMenubarProps = {
   onNew: () => void;
   onDisconnectAll: () => void;
   onOpenSecurity: () => void;
+  onOpenAbout?: () => void;
   onCheckUpdates?: () => void;
 };
 
@@ -23,6 +24,7 @@ export function AppMenubar({
   onNew,
   onDisconnectAll,
   onOpenSecurity,
+  onOpenAbout,
   onCheckUpdates,
 }: AppMenubarProps) {
   return (
@@ -50,6 +52,13 @@ export function AppMenubar({
         <MenubarTrigger>Ayuda</MenubarTrigger>
         <MenubarContent>
           <MenubarItem onSelect={onOpenSecurity}>Seguridad</MenubarItem>
+          <MenubarItem
+            onSelect={() => {
+              onOpenAbout?.();
+            }}
+          >
+            Acerca de Faro
+          </MenubarItem>
           <MenubarItem
             onSelect={() => {
               onCheckUpdates?.();

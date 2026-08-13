@@ -2,6 +2,8 @@
 
 **Branch**: `026-multi-platform-release` | **Date**: 2026-08-11 | **Spec**: [spec.md](./spec.md)
 
+**Status**: Delivered. Follow-on harden + splash cold start + product **1.0.0** → [027-release-harden-splash](../027-release-harden-splash/plan.md).
+
 **Input**: Feature specification from `/specs/026-multi-platform-release/spec.md`
 
 ## Summary

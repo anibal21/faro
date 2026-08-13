@@ -4,7 +4,7 @@
 
 **Created**: 2026-08-11
 
-**Status**: Draft
+**Status**: Delivered (MVP + gate; post-delivery harden/splash/1.0.0 → [027-release-harden-splash](../027-release-harden-splash/spec.md))
 
 **Input**: User description: "Estaba viendo que el release me generó el código total del proyecto, la idea es que pueda generar el build, me refiero que el release debería tener todos los exportables, windows, macos y linux."
 

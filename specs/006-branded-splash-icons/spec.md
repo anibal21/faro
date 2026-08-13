@@ -74,6 +74,7 @@ The desktop product uses the **newly provided application icons** everywhere the
 - **FR-004**: The default application window size MUST open at a **professional IDE-like** scale (comparable to IntelliJ-class defaults), and the window MUST remain resizable.
 - **FR-005**: The product MUST use the **newly supplied application icon assets** for OS/app identity and packaging as configured for Faro.
 - **FR-006**: Existing splash minimum dwell and boot readiness behavior (from prior polish) MUST continue to apply—this feature changes splash **visuals** and window **default size**/icons, not the dwell rule itself.
+- **FR-007**: On cold start, the operator MUST NOT see a blank white window before the branded splash; the first visible frame MUST be the splash (dark fallback and/or artwork). Hardened in [027](../027-release-harden-splash/spec.md).
 
 ### Key Entities
 
@@ -91,6 +92,7 @@ The desktop product uses the **newly provided application icons** everywhere the
 - **SC-003**: Default launch window area is at least in the professional IDE range (e.g. roughly ≥1280×800 or equivalent product-chosen IDE default)—clearly larger than the prior compact utility default.
 - **SC-004**: Taskbar/window icon on a demo machine matches the new Faro icon artwork (side-by-side with the supplied source).
 - **SC-005**: Splash dwell ≥5s behavior from prior feature still holds after the visual swap.
+- **SC-006**: Cold start review confirms no white flash before splash (see 027 cold-start contract).
 
 ## Assumptions
 

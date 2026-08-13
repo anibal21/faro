@@ -114,6 +114,12 @@
 
 ---
 
+## Phase 7: Post-delivery (tracked in 027)
+
+Work after the initial 026 task list (CI flaky NSIS, macOS updater tar, signing whitespace, splash white flash, product **1.0.0**) is specified and closed under [`../027-release-harden-splash/`](../027-release-harden-splash/spec.md). Do not reopen 026 tasks for those items.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
