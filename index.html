@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Faro</title>
+    <!-- Match splash #0a192f so WebView never flashes white before React paints -->
+    <style>
+      html,
+      body,
+      #root {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #0a192f;
+      }
+    </style>
   </head>
 
   <body>
