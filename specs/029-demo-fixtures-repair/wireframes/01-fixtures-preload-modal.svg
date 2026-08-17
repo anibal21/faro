@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c7ddf5"/>
+      <stop offset="100%" stop-color="#b8d4f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <text x="960" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#4b5563" letter-spacing="1">FARO - DEMO FIXTURES PRELOAD (029)</text>
+  <text x="40" y="52" fill="#8b5cf6" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">DESKTOP (16:9)</text>
+
+  <g id="desktop" transform="translate(40, 60)">
+    <rect width="1840" height="720" rx="8" fill="#e8d4b8" stroke="#b8a080"/>
+    <rect x="0" y="0" width="1840" height="36" fill="#dcc8a8"/>
+    <text x="16" y="24" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">Faro</text>
+    <text x="80" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">Ambiente</text>
+    <text x="180" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#1f2937">Ver</text>
+    <text x="240" y="24" font-family="system-ui, sans-serif" font-size="14" fill="#4b5563">Ayuda</text>
+
+    <rect x="0" y="0" width="1840" height="720" fill="#1f2937" opacity="0.45"/>
+    <rect x="520" y="40" width="800" height="640" rx="8" fill="#f5f0e6" stroke="#b8a080"/>
+    <rect x="520" y="40" width="800" height="48" rx="8" fill="#e8d4b8"/>
+    <rect x="520" y="72" width="800" height="16" fill="#e8d4b8"/>
+    <text x="544" y="72" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#1f2937">Configuración nuevo ambiente</text>
+    <text x="1296" y="72" text-anchor="end" font-family="system-ui, sans-serif" font-size="16" fill="#4b5563">×</text>
+
+    <rect x="544" y="100" width="752" height="44" rx="6" fill="#dcc8a8" stroke="#8b5cf6" stroke-width="2"/>
+    <text x="920" y="128" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">Usar fixtures demo / restaurar demo</text>
+    <g class="callout" transform="translate(1288, 122)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">1</text></g>
+
+    <text x="544" y="178" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Nombre</text>
+    <rect x="720" y="156" width="576" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+    <text x="730" y="180" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">demo-capturas</text>
+
+    <text x="544" y="232" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">PEM (Private Key)</text>
+    <rect x="720" y="210" width="576" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+    <text x="730" y="234" font-family="system-ui, sans-serif" font-size="13" fill="#1f2937">&/fixtures/demo.pem</text>
+    <g class="callout" transform="translate(1288, 228)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">2</text></g>
+
+    <text x="544" y="286" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Credenciales IAM (opcional)</text>
+    <rect x="720" y="264" width="576" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+    <text x="730" y="288" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">&/fixtures/demo-iam-credentials</text>
+
+    <text x="544" y="340" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">region_name / cluster_name</text>
+    <rect x="720" y="318" width="576" height="36" rx="4" fill="#e8d4b8" stroke="#b8a080"/>
+    <text x="730" y="342" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">us-east-1 · demo-cluster</text>
+
+    <rect x="544" y="380" width="752" height="56" rx="6" fill="#f5f0e6" stroke="#b8a080" stroke-dasharray="4 3"/>
+    <text x="556" y="404" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">Modo offline: sin túnel SSH real. El PEM apunta al fixture versionado</text>
+    <text x="556" y="424" font-family="system-ui, sans-serif" font-size="13" fill="#4b5563">o al recurso empaquetado en builds instalados.</text>
+
+    <line x1="520" y1="620" x2="1320" y2="620" stroke="#b8a080"/>
+    <rect x="1036" y="636" width="200" height="40" rx="4" fill="#8b5cf6"/>
+    <text x="1136" y="662" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Agregar Conexión</text>
+    <g class="callout" transform="translate(1244, 656)"><circle r="14" fill="#dc2626"/><text y="5" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">3</text></g>
+  </g>
+
+  <g id="annotations" transform="translate(40, 800)">
+    <rect width="1840" height="220" rx="8" fill="#dcc8a8" stroke="#b8a080"/>
+    <g transform="translate(20, 20)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US1 Precargar fixtures</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Un clic rellena rutas demo sin error en dev ni en instalador.</text>
+      <rect x="40" y="44" width="56" height="22" rx="4" fill="#0891b2"/><text x="68" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US1</text>
+      <rect x="102" y="44" width="56" height="22" rx="4" fill="#2563eb"/><text x="130" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-001</text>
+      <rect x="164" y="44" width="56" height="22" rx="4" fill="#ea580c"/><text x="192" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">SC-001</text>
+    </g>
+    <g transform="translate(920, 20)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">2</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US1 PEM fixture path</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Ruta canónica a fixtures/demo.pem reconocida como fixture-backed.</text>
+      <rect x="40" y="44" width="56" height="22" rx="4" fill="#0891b2"/><text x="68" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US1</text>
+      <rect x="102" y="44" width="56" height="22" rx="4" fill="#2563eb"/><text x="130" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-002</text>
+    </g>
+    <g transform="translate(20, 120)">
+      <circle cx="14" cy="14" r="14" fill="#dc2626"/>
+      <text x="14" y="19" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">3</text>
+      <text x="40" y="14" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#1f2937">US1 Guardar y conectar</text>
+      <text x="40" y="34" font-family="system-ui, sans-serif" font-size="14" fill="#374151">Tras guardar, connect hidrata catálogo demo para ese instance_id.</text>
+      <rect x="40" y="44" width="56" height="22" rx="4" fill="#0891b2"/><text x="68" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">US1</text>
+      <rect x="102" y="44" width="56" height="22" rx="4" fill="#2563eb"/><text x="130" y="59" fill="#fff" font-size="12" text-anchor="middle" font-family="system-ui, sans-serif">FR-007</text>
+    </g>
+  </g>
+  <text x="40" y="1060" fill="#374151" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">029:01 | Demo Fixtures Preload | SpecKit</text>
+</svg>

@@ -1,0 +1,11 @@
+{
+  "source": "specs\\001-eks-log-monitor\\wireframes\\03-new-environment-modal.svg",
+  "overview": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\03-new-environment-modal\\overview.png",
+  "quadrants": {
+    "quadrant-tl": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\03-new-environment-modal\\quadrant-tl.png",
+    "quadrant-tr": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\03-new-environment-modal\\quadrant-tr.png",
+    "quadrant-bl": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\03-new-environment-modal\\quadrant-bl.png",
+    "quadrant-br": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\03-new-environment-modal\\quadrant-br.png",
+    "quadrant-center": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\03-new-environment-modal\\quadrant-center.png"
+  }
+}

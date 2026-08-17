@@ -1,0 +1,11 @@
+{
+  "source": "specs\\029-demo-fixtures-repair\\wireframes\\02-demo-catalog-dual-env.svg",
+  "overview": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\02-demo-catalog-dual-env\\overview.png",
+  "quadrants": {
+    "quadrant-tl": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\02-demo-catalog-dual-env\\quadrant-tl.png",
+    "quadrant-tr": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\02-demo-catalog-dual-env\\quadrant-tr.png",
+    "quadrant-bl": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\02-demo-catalog-dual-env\\quadrant-bl.png",
+    "quadrant-br": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\02-demo-catalog-dual-env\\quadrant-br.png",
+    "quadrant-center": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\02-demo-catalog-dual-env\\quadrant-center.png"
+  }
+}

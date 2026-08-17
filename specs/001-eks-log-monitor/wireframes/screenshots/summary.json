@@ -1,0 +1,9 @@
+{
+  "feature": "001-eks-log-monitor",
+  "screenshots": 12,
+  "errors": 0,
+  "svgs": [
+    "03-new-environment-modal.svg",
+    "04-environment-loaded.svg"
+  ]
+}

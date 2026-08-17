@@ -27,6 +27,7 @@ Thumbs.db
 
 # Secrets / local kube
 *.pem
+!fixtures/demo.pem
 *.key
 *.crt
 kubeconfig*

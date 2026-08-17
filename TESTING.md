@@ -24,7 +24,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
 | Scenario | Result |
 |----------|--------|
 | Accordion layout | AccordionNav \| main (~grid 260px / 1fr); no CatalogFilter / Abrir logs / right rail |
-| Click Deployment | Tab + WorkloadSummaryStrip + multi-pod fan-in (`-aaa/-bbb/-ccc`) |
+| Click Deployment | Tab + WorkloadSummaryStrip + multi-pod fan-in (`-aaa/-bbb`) |
 | Tab dedupe + background | Re-click focuses; inactive tabs keep receiving `logs_chunk` |
 | ConfigMap tab | Same strip; RO keys via `k8s_get_configmap` |
 | Disconnect | `workspace.closeAll` + `logs_close` |
@@ -133,3 +133,26 @@ Quickstart: `specs/026-multi-platform-release/quickstart.md` (V0–V5).
 | Ready release | NSIS + DMG + AppImage + `.deb` + `latest.json` (Source code zip ≠ product) |
 | Missing any package | CI `publish` / verify script fails (strict gate) |
 | Notarization | None in workflow (document Gatekeeper bypass) |
+
+## 029-demo-fixtures-repair
+
+Automatizado:
+
+```bash
+cargo test --manifest-path src-tauri/Cargo.toml hydrate_demo_catalog
+npx vitest run tests/unit/demo_fixtures.spec.ts tests/unit/fixture_env_upsert.spec.ts tests/integration/logs_fanin.spec.ts
+```
+
+Notas:
+- `fixtures/demo.pem` versionado (placeholder); excepción `!fixtures/demo.pem` en `.gitignore`.
+- Bundle Tauri: `"../fixtures/": "fixtures/"` en `src-tauri/tauri.conf.json`.
+- Catálogo demo: 2 deployments (2/2 pods), 2 services, 2 configmaps; logs demo fan-in en 2 pods.
+- Perfiles con PEM fixture → `ConnectMode::Demo` + hydrate por `instance_id` (024).
+
+Validación manual (capturas / demo):
+- **Usar fixtures demo** rellena PEM sin error; conectar muestra catálogo `payments-*`.
+- Crear dos ambientes fixture, conectar ambos; abrir logs en cada uno (pestañas/colores distintos).
+- Tercera conexión → mensaje de límite de 2 sesiones.
+- Opcional post-release: build instalado (`npm run tauri build`) y precarga sin checkout del repo.
+
+Quickstart: `specs/029-demo-fixtures-repair/quickstart.md`.

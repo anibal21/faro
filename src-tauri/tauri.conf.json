@@ -41,6 +41,9 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "resources": {
+      "../fixtures/": "fixtures/"
+    },
     "windows": {
       "nsis": {
         "installerIcon": "icons/icon.ico",

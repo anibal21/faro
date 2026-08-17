@@ -27,8 +27,8 @@ pub fn hydrate_demo_catalog(
         catalog_epoch,
         "default",
         "payments-api",
-        3,
-        3,
+        2,
+        2,
         true,
     )?;
     session_cache::insert_pod(
@@ -56,8 +56,8 @@ pub fn hydrate_demo_catalog(
         catalog_epoch,
         "default",
         "payments-worker",
-        1,
-        1,
+        2,
+        2,
         true,
     )?;
     session_cache::insert_pod(
@@ -65,6 +65,14 @@ pub fn hydrate_demo_catalog(
         &Uuid::new_v4().to_string(),
         &dep_worker,
         "payments-worker-0",
+        "Running",
+        r#"["worker"]"#,
+    )?;
+    session_cache::insert_pod(
+        conn,
+        &Uuid::new_v4().to_string(),
+        &dep_worker,
+        "payments-worker-1",
         "Running",
         r#"["worker"]"#,
     )?;
@@ -111,6 +119,50 @@ pub fn hydrate_demo_catalog(
         Some("10.96.0.10"),
         r#"[{"port":8080,"targetPort":"8080","protocol":"TCP"}]"#,
         r#"{"app":"payments-api"}"#,
+    )?;
+
+    let cm_secrets = Uuid::new_v4().to_string();
+    session_cache::insert_configmap(
+        conn,
+        &cm_secrets,
+        instance_id,
+        catalog_epoch,
+        "default",
+        "payments-secrets",
+        2,
+        true,
+    )?;
+    session_cache::insert_configmap_entry(
+        conn,
+        &Uuid::new_v4().to_string(),
+        &cm_secrets,
+        "db.url",
+        "jdbc:postgresql://payments-db:5432/payments",
+        false,
+        false,
+        48,
+    )?;
+    session_cache::insert_configmap_entry(
+        conn,
+        &Uuid::new_v4().to_string(),
+        &cm_secrets,
+        "api.token",
+        "demo-token-not-real",
+        false,
+        false,
+        18,
+    )?;
+    session_cache::insert_service(
+        conn,
+        &Uuid::new_v4().to_string(),
+        instance_id,
+        catalog_epoch,
+        "default",
+        "payments-worker",
+        Some("ClusterIP"),
+        Some("10.96.0.11"),
+        r#"[{"port":9090,"targetPort":"9090","protocol":"TCP"}]"#,
+        r#"{"app":"payments-worker"}"#,
     )?;
     Ok(())
 }
@@ -394,7 +446,7 @@ pub fn get_live_configmap(client: &Client, namespace: &str, name: &str) -> FaroR
 
 /// Demo Deployment YAML fixtures (read-only).
 pub fn demo_deployment_yaml(namespace: &str, name: &str) -> String {
-    let replicas = if name == "payments-worker" { 1 } else { 3 };
+    let replicas = 2;
     let (cpu_req, cpu_lim, mem_req, mem_lim) = if name == "payments-worker" {
         ("50m", "100m", "128Mi", "256Mi")
     } else {
@@ -501,7 +553,23 @@ mod hydrate_tests {
                 |r| r.get(0),
             )
             .unwrap();
-        assert!(count >= 1);
+        assert!(count >= 2);
+        let svc: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM cached_service WHERE connection_instance_id = ?1",
+                ["custom-fixture-env"],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert!(svc >= 2);
+        let cm: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM cached_configmap WHERE connection_instance_id = ?1",
+                ["custom-fixture-env"],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert!(cm >= 2);
         let other: i64 = conn
             .query_row(
                 "SELECT COUNT(*) FROM cached_deployment WHERE connection_instance_id = ?1",

@@ -1,0 +1,11 @@
+{
+  "source": "specs\\001-eks-log-monitor\\wireframes\\04-environment-loaded.svg",
+  "overview": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\04-environment-loaded\\overview.png",
+  "quadrants": {
+    "quadrant-tl": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\04-environment-loaded\\quadrant-tl.png",
+    "quadrant-tr": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\04-environment-loaded\\quadrant-tr.png",
+    "quadrant-bl": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\04-environment-loaded\\quadrant-bl.png",
+    "quadrant-br": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\04-environment-loaded\\quadrant-br.png",
+    "quadrant-center": "specs\\001-eks-log-monitor\\wireframes\\screenshots\\04-environment-loaded\\quadrant-center.png"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "feature": "029-demo-fixtures-repair",
+  "screenshots": 12,
+  "errors": 0,
+  "svgs": [
+    "01-fixtures-preload-modal.svg",
+    "02-demo-catalog-dual-env.svg"
+  ]
+}

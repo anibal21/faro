@@ -31,22 +31,27 @@ fn ensure_connection_capacity(
     Ok(())
 }
 
-/// Resolve absolute paths to repo `fixtures/` demo files (offline connect helpers).
-#[tauri::command]
-pub fn demo_fixture_paths() -> FaroResult<Value> {
-    let mut bases = Vec::new();
+/// Resolve absolute paths to bundled or repo `fixtures/` demo files (offline connect helpers).
+pub fn resolve_demo_fixture_paths(app: &AppHandle) -> FaroResult<Value> {
+    let mut fixture_dirs: Vec<PathBuf> = Vec::new();
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        fixture_dirs.push(resource_dir.join("fixtures"));
+    }
+    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    fixture_dirs.push(manifest.join("..").join("fixtures"));
     if let Ok(cwd) = std::env::current_dir() {
-        bases.push(cwd.clone());
+        fixture_dirs.push(cwd.join("fixtures"));
         if let Some(parent) = cwd.parent() {
-            bases.push(parent.to_path_buf());
+            fixture_dirs.push(parent.join("fixtures"));
         }
     }
-    bases.push(PathBuf::from(".."));
-    bases.push(PathBuf::from("."));
-    for base in bases {
-        let pem = base.join("fixtures").join("demo.pem");
-        let iam = base.join("fixtures").join("demo-iam-credentials");
+    fixture_dirs.push(PathBuf::from("fixtures"));
+    fixture_dirs.push(PathBuf::from("../fixtures"));
+
+    for dir in fixture_dirs {
+        let pem = dir.join("demo.pem");
         if pem.is_file() {
+            let iam = dir.join("demo-iam-credentials");
             return Ok(json!({
                 "pemPath": pem.canonicalize().unwrap_or(pem).to_string_lossy(),
                 "iamCredentialsPath": if iam.is_file() {
@@ -60,6 +65,11 @@ pub fn demo_fixture_paths() -> FaroResult<Value> {
     Err(FaroError::Message(
         "demo fixtures not found — create fixtures/demo.pem".into(),
     ))
+}
+
+#[tauri::command]
+pub fn demo_fixture_paths(app: AppHandle) -> FaroResult<Value> {
+    resolve_demo_fixture_paths(&app)
 }
 
 #[derive(Debug, Serialize)]

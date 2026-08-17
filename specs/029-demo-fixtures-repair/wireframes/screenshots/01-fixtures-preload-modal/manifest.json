@@ -1,0 +1,11 @@
+{
+  "source": "specs\\029-demo-fixtures-repair\\wireframes\\01-fixtures-preload-modal.svg",
+  "overview": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\01-fixtures-preload-modal\\overview.png",
+  "quadrants": {
+    "quadrant-tl": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\01-fixtures-preload-modal\\quadrant-tl.png",
+    "quadrant-tr": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\01-fixtures-preload-modal\\quadrant-tr.png",
+    "quadrant-bl": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\01-fixtures-preload-modal\\quadrant-bl.png",
+    "quadrant-br": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\01-fixtures-preload-modal\\quadrant-br.png",
+    "quadrant-center": "specs\\029-demo-fixtures-repair\\wireframes\\screenshots\\01-fixtures-preload-modal\\quadrant-center.png"
+  }
+}
