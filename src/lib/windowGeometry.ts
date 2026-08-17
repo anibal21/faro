@@ -61,6 +61,14 @@ export async function applySplashWindowGeometry(): Promise<void> {
   });
 }
 
+/** Show the main window after splash content is ready (window starts `visible: false`). */
+export async function showMainWindow(): Promise<void> {
+  await withWindow(async (win) => {
+    await win.show();
+    await win.setFocus();
+  });
+}
+
 export async function applyMainWindowGeometry(): Promise<void> {
   await withWindow(async (win) => {
     const area = await workAreaLogical();

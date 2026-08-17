@@ -7,6 +7,21 @@ use std::process::{Child, Command, Stdio};
 use std::thread;
 use std::time::{Duration, Instant};
 
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
+
+/// Hide console window when spawning OpenSSH on Windows (GUI apps otherwise flash a terminal).
+#[cfg(windows)]
+fn hide_console(cmd: &mut Command) -> &mut Command {
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    cmd.creation_flags(CREATE_NO_WINDOW)
+}
+
+#[cfg(not(windows))]
+fn hide_console(cmd: &mut Command) -> &mut Command {
+    cmd
+}
+
 #[derive(Debug)]
 #[allow(dead_code)]
 pub struct TunnelHandle {
@@ -52,7 +67,8 @@ pub fn open_tunnel(
         .map_err(|_| FaroError::Message("unable to inspect local tunnel port".into()))?
         .port();
     drop(listener);
-    let child = Command::new("ssh")
+    let mut cmd = Command::new("ssh");
+    hide_console(&mut cmd)
         .args([
             "-i",
             pem_path,
@@ -75,13 +91,12 @@ pub fn open_tunnel(
         ])
         .stdin(Stdio::null())
         .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-        .map_err(|_| {
-            FaroError::Message(
-                "unable to start OpenSSH tunnel; install/configure the ssh client".into(),
-            )
-        })?;
+        .stderr(Stdio::null());
+    let child = cmd.spawn().map_err(|_| {
+        FaroError::Message(
+            "unable to start OpenSSH tunnel; install/configure the ssh client".into(),
+        )
+    })?;
     let mut handle = TunnelHandle {
         bastion_host: bastion_host.trim().to_string(),
         ssh_port,
@@ -147,7 +162,8 @@ pub fn ssh_exec(
     if remote_command.trim().is_empty() {
         return Err(FaroError::Message("remote command is empty".into()));
     }
-    let output = Command::new("ssh")
+    let mut cmd = Command::new("ssh");
+    let output = hide_console(&mut cmd)
         .args([
             "-i",
             pem_path,

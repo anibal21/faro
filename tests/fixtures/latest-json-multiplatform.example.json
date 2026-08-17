@@ -1,0 +1,18 @@
+{
+  "version": "1.1.0",
+  "notes": "Faro 1.1.0",
+  "platforms": {
+    "windows-x86_64": {
+      "url": "https://github.com/anibal21/faro/releases/download/v1.1.0/Faro_1.1.0_x64-setup.exe",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkK"
+    },
+    "darwin-x86_64": {
+      "url": "https://github.com/anibal21/faro/releases/download/v1.1.0/Faro_x64.app.tar.gz",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkK"
+    },
+    "linux-x86_64": {
+      "url": "https://github.com/anibal21/faro/releases/download/v1.1.0/Faro_1.1.0_amd64.AppImage",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkK"
+    }
+  }
+}

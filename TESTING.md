@@ -89,3 +89,47 @@ Notas:
 - Conectar un perfil con `fixtures/demo.pem` hidrata el catálogo demo para ese `instance_id` (multi-env de prueba).
 - “Pegar al final”: grupo compacto alineado a la derecha del toolbar.
 - RAM/CPU/Uptime en el strip solo si hay valor (sin `N/D`).
+
+## 025-github-release-update
+
+Automatizado:
+
+```bash
+npx vitest run tests/unit/update_offer_ui.spec.tsx tests/unit/use_app_update_check.spec.tsx tests/unit/update_install_accept.spec.tsx tests/unit/app_menubar_check_updates.spec.tsx
+```
+
+Release / `latest.json` (multiplatform — see also §026):
+
+1. Generate signing keys once (`npx tauri signer generate -w .tauri/faro.key --ci`); put **private** key in GitHub secret `TAURI_SIGNING_PRIVATE_KEY`; keep **pubkey** in `src-tauri/tauri.conf.json`.
+2. Publish a GitHub Release → workflow `.github/workflows/release-updater.yml` builds **Windows + macOS + Linux** packages, uploads assets, and publishes multiplatform `latest.json`.
+3. Feed URL: `https://github.com/anibal21/faro/releases/latest/download/latest.json` (`windows-x86_64`, `darwin-x86_64`, `linux-x86_64`).
+4. In-app **Accept → install** remains **Windows-first**; macOS/Linux use the feed for version checks / manual download from the Release page.
+
+Manual (Windows):
+
+| Scenario | Expect |
+|----------|--------|
+| Startup with older install vs feed | Dialog after main workspace (not during splash) |
+| Accept | Download progress → NSIS (per-user, no admin); prior install usable if fail |
+| Ahora no | Dismiss for session; next cold start re-offers if still newer |
+| Ayuda → Buscar actualizaciones… | Offer / “Ya estás en la última versión” / clear error |
+| Non-Windows | Informational copy; **Actualizar** disabled |
+
+## 026-multi-platform-release
+
+See **[docs/RELEASE.md](docs/RELEASE.md)** for maintainer cut-release and team install (Win / macOS Gatekeeper / Linux AppImage+.deb).
+
+Automatizado:
+
+```bash
+npx vitest run tests/unit/release_bundle_conf.spec.ts tests/unit/nsis_faro_config.spec.ts tests/unit/latest_json_multiplatform.spec.ts
+```
+
+Quickstart: `specs/026-multi-platform-release/quickstart.md` (V0–V5).
+
+| Check | Expect |
+|-------|--------|
+| `tauri.conf.json` | `installMode: currentUser`; targets include `nsis`, `dmg`, `appimage`, `deb` |
+| Ready release | NSIS + DMG + AppImage + `.deb` + `latest.json` (Source code zip ≠ product) |
+| Missing any package | CI `publish` / verify script fails (strict gate) |
+| Notarization | None in workflow (document Gatekeeper bypass) |

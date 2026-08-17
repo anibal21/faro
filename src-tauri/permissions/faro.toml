@@ -152,3 +152,13 @@ commands.allow = ["k8s_get_service"]
 identifier = "allow-k8s-get-deployment-yaml"
 description = "Allow k8s_get_deployment_yaml"
 commands.allow = ["k8s_get_deployment_yaml"]
+
+[[permission]]
+identifier = "allow-update-check"
+description = "Allow update_check (GitHub release version metadata only)"
+commands.allow = ["update_check"]
+
+[[permission]]
+identifier = "allow-update-install"
+description = "Allow update_install (Windows NSIS download+install of offered version)"
+commands.allow = ["update_install"]

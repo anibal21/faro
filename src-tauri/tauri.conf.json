@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Faro",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "identifier": "com.arodr.faro",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -18,7 +18,9 @@
         "height": 324,
         "resizable": false,
         "center": true,
-        "decorations": false
+        "decorations": false,
+        "visible": false,
+        "backgroundColor": "#0a192f"
       }
     ],
     "security": {
@@ -27,10 +29,11 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "publisher": "Aníbal Rodríguez",
     "copyright": "Copyright © 2026 Aníbal Rodríguez",
     "licenseFile": "../LICENSE",
-    "targets": ["nsis", "dmg", "appimage"],
+    "targets": ["nsis", "dmg", "appimage", "deb"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -43,9 +46,20 @@
         "installerIcon": "icons/icon.ico",
         "languages": ["Spanish"],
         "displayLanguageSelector": false,
-        "installMode": "perMachine",
+        "installMode": "currentUser",
         "startMenuFolder": "Faro",
         "installerHooks": "windows/nsis-hooks.nsh"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU3NDc2OTBDNTU2MDZGNTAKUldSUWIyQlZER2xINTFOakRsck1adjhsQkQ3ZFZJZi8rcG5VMTlySzh3NXg5NWtPQ3doSTh5Qk0K",
+      "endpoints": [
+        "https://github.com/anibal21/faro/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
       }
     }
   }

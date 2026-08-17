@@ -5,6 +5,20 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
+
+#[cfg(windows)]
+fn hide_console(cmd: &mut Command) -> &mut Command {
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    cmd.creation_flags(CREATE_NO_WINDOW)
+}
+
+#[cfg(not(windows))]
+fn hide_console(cmd: &mut Command) -> &mut Command {
+    cmd
+}
+
 #[derive(Debug, Clone)]
 pub struct IamFilePresence {
     pub has_access_key_id: bool,
@@ -105,7 +119,8 @@ fn sanitize_aws_stderr(raw: &str) -> String {
 fn aws_json(args: &[&str], iam_path: &str, region_name: &str) -> FaroResult<serde_json::Value> {
     let keys = read_iam_keys(iam_path)?;
     let mut cmd = Command::new("aws");
-    cmd.args(args)
+    hide_console(&mut cmd)
+        .args(args)
         .env("AWS_ACCESS_KEY_ID", &keys.access_key_id)
         .env("AWS_SECRET_ACCESS_KEY", &keys.secret_access_key)
         .env("AWS_DEFAULT_REGION", region_name.trim())

@@ -1,0 +1,287 @@
+# Multi-platform Faro release packages + updater feed
+#
+# Secrets required:
+#   TAURI_SIGNING_PRIVATE_KEY — FULL contents of `.tauri/faro.key` (never commit the key)
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD — leave unset/empty if the key has no password
+#   GITHUB_TOKEN — provided by Actions (contents:write) for uploading release assets
+#
+# Common failures:
+#   "Missing comment in secret key" → secret is truncated/wrong file (.pub) or has extra quotes.
+#   "Invalid symbol 10" → base64 key had newlines; prepare-tauri-signing.sh strips whitespace.
+#   macOS missing *.app.tar.gz → build must use --bundles app,dmg (not dmg alone).
+#
+# Mandatory assets (strict gate): Windows NSIS(+sig), macOS DMG + updater tar(+sig),
+# Linux AppImage(+sig), Linux .deb, and latest.json.
+# No Apple notarization in this workflow (internal team / Gatekeeper bypass documented).
+
+name: Release multi-platform packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # Tauri downloads NSIS from GitHub Releases into %LOCALAPPDATA%\tauri.
+      # Fresh runners often hit transient "Peer disconnected" on that fetch.
+      - name: Resolve Tauri NSIS cache path
+        id: tauri-cache
+        shell: bash
+        run: |
+          dir="${LOCALAPPDATA}/tauri"
+          mkdir -p "$dir"
+          echo "dir=${dir}" >> "$GITHUB_OUTPUT"
+          echo "Tauri cache dir: $dir"
+
+      - name: Cache Tauri NSIS toolchain
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.tauri-cache.outputs.dir }}
+          # Bump when Tauri pins a new NSIS zip (see bundler "Downloading …/nsis-*.zip").
+          key: tauri-nsis-3.11-${{ runner.os }}
+          restore-keys: |
+            tauri-nsis-
+
+      - name: Install frontend deps
+        run: npm ci
+
+      - name: Prepare updater signing
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          chmod +x scripts/ci/prepare-tauri-signing.sh
+          scripts/ci/prepare-tauri-signing.sh
+
+      # Retry: after attempt 1, cargo release artifacts are warm; only NSIS fetch/bundle re-runs.
+      - name: Build Windows NSIS + updater artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "tauri build attempt ${attempt}/3"
+            if npm run tauri build -- --bundles nsis; then
+              exit 0
+            fi
+            echo "tauri build failed on attempt ${attempt}"
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 20))
+          done
+
+      - name: Stage Windows artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist-release | Out-Null
+          Copy-Item "src-tauri/target/release/bundle/nsis/*-setup.exe" dist-release/
+          Copy-Item "src-tauri/target/release/bundle/nsis/*-setup.exe.sig" dist-release/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: dist-release/*
+          if-no-files-found: error
+
+  build-macos:
+    # macos-13 (Intel) has long queues; build x86_64 on Apple Silicon runners.
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin
+
+      - name: Install frontend deps
+        run: npm ci
+
+      - name: Prepare updater signing
+        env:
+          TAURI_SIGNING_PRIVATE_KEY_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          chmod +x scripts/ci/prepare-tauri-signing.sh
+          scripts/ci/prepare-tauri-signing.sh
+
+      # `app` is required for updater .app.tar.gz; `dmg` alone does not emit it.
+      - name: Build macOS DMG + updater artifacts (x86_64, no notarization)
+        run: npm run tauri build -- --target x86_64-apple-darwin --bundles app,dmg
+
+      - name: Stage macOS artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p dist-release
+          MAC_BUNDLE="src-tauri/target/x86_64-apple-darwin/release/bundle"
+          echo "Bundle tree:"
+          find "$MAC_BUNDLE" -maxdepth 3 -type f | sort || true
+          cp "$MAC_BUNDLE"/dmg/*.dmg dist-release/
+          cp "$MAC_BUNDLE"/macos/*.app.tar.gz dist-release/
+          cp "$MAC_BUNDLE"/macos/*.app.tar.gz.sig dist-release/
+          ls -la dist-release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-x64
+          path: dist-release/*
+          if-no-files-found: error
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tauri Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            pkg-config
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend deps
+        run: npm ci
+
+      - name: Prepare updater signing
+        env:
+          TAURI_SIGNING_PRIVATE_KEY_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD_VALUE: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          chmod +x scripts/ci/prepare-tauri-signing.sh
+          scripts/ci/prepare-tauri-signing.sh
+
+      - name: Build Linux AppImage + deb + updater artifacts
+        run: npm run tauri build -- --bundles appimage,deb
+
+      - name: Stage Linux artifacts
+        run: |
+          mkdir -p dist-release
+          cp src-tauri/target/release/bundle/appimage/*.AppImage dist-release/
+          cp src-tauri/target/release/bundle/appimage/*.AppImage.sig dist-release/
+          cp src-tauri/target/release/bundle/deb/*.deb dist-release/
+          ls -la dist-release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          path: dist-release/*
+          if-no-files-found: error
+
+  publish:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Flatten artifacts for verification
+        run: |
+          mkdir -p release-flat
+          find release-artifacts -type f -exec cp -n {} release-flat/ \;
+          ls -la release-flat
+
+      - name: Verify mandatory assets (strict gate)
+        run: |
+          chmod +x scripts/ci/verify-release-assets.sh
+          scripts/ci/verify-release-assets.sh release-flat
+
+      - name: Build multiplatform latest.json
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG_NAME="${{ github.event.release.tag_name }}"
+          else
+            TAG_NAME="v${VERSION}"
+          fi
+          case "$TAG_NAME" in
+            v*) ;;
+            *) TAG_NAME="v${TAG_NAME}" ;;
+          esac
+          BASE="https://github.com/anibal21/faro/releases/download/${TAG_NAME}"
+
+          WIN_EXE=$(basename "$(ls release-flat/*-setup.exe | head -n1)")
+          WIN_SIG_PATH=$(ls release-flat/*-setup.exe.sig | head -n1)
+          MAC_TAR=$(basename "$(ls release-flat/*.app.tar.gz | head -n1)")
+          MAC_SIG_PATH=$(ls release-flat/*.app.tar.gz.sig | head -n1)
+          LIN_APP=$(basename "$(ls release-flat/*.AppImage | head -n1)")
+          LIN_SIG_PATH=$(ls release-flat/*.AppImage.sig | head -n1)
+
+          export VERSION BASE WIN_EXE WIN_SIG_PATH MAC_TAR MAC_SIG_PATH LIN_APP LIN_SIG_PATH
+          node -e '
+            const fs = require("fs");
+            const version = process.env.VERSION;
+            const base = process.env.BASE;
+            const json = {
+              version,
+              notes: `Faro ${version}`,
+              platforms: {
+                "windows-x86_64": {
+                  url: `${base}/${process.env.WIN_EXE}`,
+                  signature: fs.readFileSync(process.env.WIN_SIG_PATH, "utf8").trim(),
+                },
+                "darwin-x86_64": {
+                  url: `${base}/${process.env.MAC_TAR}`,
+                  signature: fs.readFileSync(process.env.MAC_SIG_PATH, "utf8").trim(),
+                },
+                "linux-x86_64": {
+                  url: `${base}/${process.env.LIN_APP}`,
+                  signature: fs.readFileSync(process.env.LIN_SIG_PATH, "utf8").trim(),
+                },
+              },
+            };
+            fs.writeFileSync("latest.json", JSON.stringify(json, null, 2) + "\n");
+            console.log(JSON.stringify(json, null, 2));
+          '
+          cp latest.json release-flat/
+
+      - name: Upload release assets
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.release.tag_name }}"
+          gh release upload "$TAG" release-flat/* --clobber

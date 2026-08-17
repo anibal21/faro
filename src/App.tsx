@@ -4,7 +4,9 @@ import { getSplashMinMs, sleep } from "./lib/splashDwell";
 import {
   applyMainWindowGeometry,
   applySplashWindowGeometry,
+  showMainWindow,
 } from "./lib/windowGeometry";
+import splashLoad from "./assets/splash-load.png";
 import { useEnvironments } from "./hooks/useEnvironments";
 import { useActiveEnvironment } from "./hooks/useActiveEnvironment";
 import { useConnection } from "./hooks/useConnection";
@@ -18,6 +20,18 @@ import "./styles/theme.css";
 import "./styles/workspace.css";
 
 type Phase = "splash" | "ready" | "error";
+
+function preloadSplashImage(src: string): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const done = () => resolve();
+    img.onload = done;
+    img.onerror = done;
+    img.src = src;
+    // Slow disks: don't keep the window hidden forever
+    window.setTimeout(done, 1200);
+  });
+}
 
 function App() {
   const [phase, setPhase] = useState<Phase>("splash");
@@ -40,7 +54,22 @@ function App() {
   const { theme, setTheme } = useTheme(ready);
 
   useEffect(() => {
-    void applySplashWindowGeometry();
+    let cancelled = false;
+
+    async function revealSplash() {
+      await applySplashWindowGeometry();
+      await preloadSplashImage(splashLoad);
+      // Two frames so React has painted SplashView before the native window appears
+      await new Promise<void>((r) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => r())),
+      );
+      if (!cancelled) await showMainWindow();
+    }
+
+    void revealSplash();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
