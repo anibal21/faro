@@ -4,6 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useConnectionHealth } from "../../src/hooks/useConnectionHealth";
 import { EnvTreeNav } from "../../src/components/catalog/EnvTreeNav";
+import { catalogFor } from "../helpers/catalogByInstance";
 import type { ConnectionHealthState } from "../../src/lib/ipc";
 
 vi.mock("../../src/lib/appVersion", () => ({
@@ -115,7 +116,7 @@ describe("keepalive disable (020)", () => {
         connectedIds={["e1"]}
         connectingId={null}
         connectionErrorId={null}
-        catalogFocusId="e1"
+        catalogByInstance={catalogFor("e1")}
         healthById={{
           e1: {
             instanceId: "e1",
@@ -125,10 +126,6 @@ describe("keepalive disable (020)", () => {
           },
         }}
         onSetKeepAlive={onSetKeepAlive}
-        deployments={[]}
-        pods={[]}
-        services={[]}
-        configMaps={[]}
         onSelect={() => undefined}
         onConnect={() => undefined}
         onDisconnect={() => undefined}

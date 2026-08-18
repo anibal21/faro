@@ -12,7 +12,6 @@ import { LogWindow } from "./LogWindow";
 import type { useConnection } from "../hooks/useConnection";
 import { useConnectionHealth } from "../hooks/useConnectionHealth";
 import type { useCatalog } from "../hooks/useCatalog";
-import type { useConfigMaps } from "../hooks/useConfigMaps";
 import type { useWorkspaceTabs } from "../hooks/useWorkspaceTabs";
 import { useAppUpdateCheck } from "../hooks/useAppUpdateCheck";
 import "./MainShell.css";
@@ -28,7 +27,6 @@ type MainShellProps = {
   liveGeneration: number;
   connection: ReturnType<typeof useConnection>;
   catalog: ReturnType<typeof useCatalog>;
-  configMaps: ReturnType<typeof useConfigMaps>;
   workspace: ReturnType<typeof useWorkspaceTabs>;
   theme: "light" | "dark";
   onTheme: (t: "light" | "dark") => void;
@@ -46,7 +44,6 @@ export function MainShell({
   liveGeneration,
   connection,
   catalog,
-  configMaps,
   workspace,
   theme,
   onTheme,
@@ -107,6 +104,7 @@ export function MainShell({
       await onSetActive(id);
     }
     await connection.connect(id);
+    await catalog.refreshInstance(id);
   }
 
   async function disconnectAll() {
@@ -134,8 +132,7 @@ export function MainShell({
     await onSetActive(id);
     if (connection.connectedIds.includes(id)) {
       await connection.focus(id);
-      await catalog.refresh();
-      await configMaps.refresh();
+      await catalog.refreshInstance(id);
     }
   }
 
@@ -189,7 +186,6 @@ export function MainShell({
           connectedIds={connection.connectedIds}
           connectingId={connection.connectingId}
           connectionErrorId={errorId}
-          catalogFocusId={connection.connectedInstanceId}
           healthById={health.byId}
           onSetKeepAlive={(id, enabled) => {
             void health.setKeepAlive(id, enabled).catch((e) => {
@@ -201,11 +197,7 @@ export function MainShell({
           onReconnect={(id) => {
             void connectEnv(id);
           }}
-          deployments={catalog.deployments}
-          pods={catalog.pods}
-          services={catalog.services}
-          configMaps={configMaps.items}
-          catalogLoading={catalog.loading}
+          catalogByInstance={catalog.byInstance}
           onSelect={(id) => {
             void focusConnected(id);
           }}
@@ -238,10 +230,7 @@ export function MainShell({
             void workspace.openConfigMap(instanceId, colorIndex, ns, name);
           }}
           onRefreshCatalog={() => {
-            void connection.refreshCatalog().then(() => {
-              void catalog.refresh();
-              void configMaps.refresh();
-            });
+            void catalog.refreshAllConnected(connection.connectedIds);
           }}
           width={sidebarWidth}
           onWidthChange={(value) => {

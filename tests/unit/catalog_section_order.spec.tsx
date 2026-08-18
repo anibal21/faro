@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EnvTreeNav } from "../../src/components/catalog/EnvTreeNav";
+import { catalogFor } from "../helpers/catalogByInstance";
 
 vi.mock("../../src/lib/appVersion", () => ({
   getAppVersionDisplay: async () => "v0.1.0",
@@ -36,44 +37,45 @@ describe("catalog section order (US7)", () => {
         connectedIds={[env.id]}
         connectingId={null}
         connectionErrorId={null}
-        catalogFocusId={env.id}
-        deployments={[
-          {
-            id: "d1",
-            namespace: "payments",
-            name: "payments-api",
-            replicaCount: 1,
-            readyReplicas: 1,
-            available: true,
-            pods: [],
-          },
-        ]}
-        pods={[
-          {
-            id: "p1",
-            namespace: "payments",
-            podName: "payments-api-abc",
-            deploymentName: "payments-api",
-            phase: "Running",
-          },
-        ]}
-        services={[
-          {
-            id: "s1",
-            namespace: "payments",
-            name: "payments-api",
-            serviceType: "ClusterIP",
-            clusterIp: "10.0.0.1",
-          },
-        ]}
-        configMaps={[
-          {
-            id: "c1",
-            namespace: "payments",
-            name: "payments-config",
-            keyCount: 1,
-          },
-        ]}
+        catalogByInstance={catalogFor(env.id, {
+          deployments: [
+            {
+              id: "d1",
+              namespace: "payments",
+              name: "payments-api",
+              replicaCount: 1,
+              readyReplicas: 1,
+              available: true,
+              pods: [],
+            },
+          ],
+          pods: [
+            {
+              id: "p1",
+              namespace: "payments",
+              podName: "payments-api-abc",
+              deploymentName: "payments-api",
+              phase: "Running",
+            },
+          ],
+          services: [
+            {
+              id: "s1",
+              namespace: "payments",
+              name: "payments-api",
+              serviceType: "ClusterIP",
+              clusterIp: "10.0.0.1",
+            },
+          ],
+          configMaps: [
+            {
+              id: "c1",
+              namespace: "payments",
+              name: "payments-config",
+              keyCount: 1,
+            },
+          ],
+        })}
         onSelect={() => undefined}
         onConnect={() => undefined}
         onDisconnect={() => undefined}

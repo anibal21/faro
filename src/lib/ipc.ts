@@ -285,16 +285,21 @@ export async function demoFixturePaths(): Promise<{
 
 export async function k8sListDeployments(
   nameFilter?: string,
+  instanceId?: string,
 ): Promise<DeploymentRow[]> {
   return invokeCommand<DeploymentRow[]>("k8s_list_deployments", {
     namespace: null,
     nameFilter: nameFilter ?? null,
+    instanceId: instanceId ?? null,
   });
 }
 
-export async function k8sListConfigmaps(): Promise<ConfigMapRow[]> {
+export async function k8sListConfigmaps(
+  instanceId?: string,
+): Promise<ConfigMapRow[]> {
   return invokeCommand<ConfigMapRow[]>("k8s_list_configmaps", {
     namespace: null,
+    instanceId: instanceId ?? null,
   });
 }
 
@@ -308,12 +313,16 @@ export async function k8sGetConfigmap(
   });
 }
 
-export async function k8sListPods(): Promise<FlatPodRow[]> {
-  return invokeCommand<FlatPodRow[]>("k8s_list_pods");
+export async function k8sListPods(instanceId?: string): Promise<FlatPodRow[]> {
+  return invokeCommand<FlatPodRow[]>("k8s_list_pods", {
+    instanceId: instanceId ?? null,
+  });
 }
 
-export async function k8sListServices(): Promise<ServiceRow[]> {
-  return invokeCommand<ServiceRow[]>("k8s_list_services");
+export async function k8sListServices(instanceId?: string): Promise<ServiceRow[]> {
+  return invokeCommand<ServiceRow[]>("k8s_list_services", {
+    instanceId: instanceId ?? null,
+  });
 }
 
 export async function k8sGetService(

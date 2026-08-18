@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EnvTreeNav } from "../../src/components/catalog/EnvTreeNav";
+import { catalogFor } from "../helpers/catalogByInstance";
 
 vi.mock("../../src/lib/appVersion", () => ({
   getAppVersionDisplay: async () => "v0.1.0",
@@ -44,33 +45,31 @@ describe("pods menu combined (US1)", () => {
         connectedIds={[env.id]}
         connectingId={null}
         connectionErrorId={null}
-        catalogFocusId={env.id}
-        deployments={[]}
-        pods={[
-          {
-            id: "p1",
-            namespace: "payments",
-            podName: "payments-api-aaa",
-            deploymentName: "payments-api",
-            phase: "Running",
-          },
-          {
-            id: "p2",
-            namespace: "payments",
-            podName: "payments-api-bbb",
-            deploymentName: "payments-api",
-            phase: "Running",
-          },
-          {
-            id: "p3",
-            namespace: "payments",
-            podName: "orphan-1",
-            deploymentName: null,
-            phase: "Running",
-          },
-        ]}
-        services={[]}
-        configMaps={[]}
+        catalogByInstance={catalogFor(env.id, {
+          pods: [
+            {
+              id: "p1",
+              namespace: "payments",
+              podName: "payments-api-aaa",
+              deploymentName: "payments-api",
+              phase: "Running",
+            },
+            {
+              id: "p2",
+              namespace: "payments",
+              podName: "payments-api-bbb",
+              deploymentName: "payments-api",
+              phase: "Running",
+            },
+            {
+              id: "p3",
+              namespace: "payments",
+              podName: "orphan-1",
+              deploymentName: null,
+              phase: "Running",
+            },
+          ],
+        })}
         onSelect={() => undefined}
         onConnect={() => undefined}
         onDisconnect={() => undefined}

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { EnvTreeNav } from "../../src/components/catalog/EnvTreeNav";
+import { emptyCatalogByInstance } from "../helpers/catalogByInstance";
 
 vi.mock("../../src/lib/appVersion", () => ({
   getAppVersionDisplay: async () => "v0.1.0",
@@ -40,13 +41,9 @@ describe("demo env first (008 US2)", () => {
         environments={[live, demo] as never}
         selectedId={null}
         connectedIds={[]}
-        connectingIds={[]}
-        catalogFocusId={null}
-        deployments={[]}
-        pods={[]}
-        services={[]}
-        configMaps={[]}
-        catalogLoading={false}
+        connectingId={null}
+        connectionErrorId={null}
+        catalogByInstance={emptyCatalogByInstance()}
         onSelect={() => undefined}
         onConnect={() => undefined}
         onDisconnect={() => undefined}

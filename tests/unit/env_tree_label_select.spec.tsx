@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EnvTreeNav } from "../../src/components/catalog/EnvTreeNav";
+import { emptyCatalogByInstance } from "../helpers/catalogByInstance";
 
 vi.mock("../../src/lib/appVersion", () => ({
   getAppVersionDisplay: async () => "v0.1.0",
@@ -36,11 +37,7 @@ describe("EnvTreeNav label-only select (US2)", () => {
         connectedIds={[]}
         connectingId={null}
         connectionErrorId={null}
-        catalogFocusId={null}
-        deployments={[]}
-        pods={[]}
-        services={[]}
-        configMaps={[]}
+        catalogByInstance={emptyCatalogByInstance()}
         onSelect={onSelect}
         onConnect={() => undefined}
         onDisconnect={() => undefined}

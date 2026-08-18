@@ -1,12 +1,8 @@
 import { useEffect, useState, type ReactNode, type PointerEvent } from "react";
 import { Minus, Plus } from "lucide-react";
 import type {
-  ConfigMapRow,
   ConnectionHealthState,
   ConnectionInstance,
-  DeploymentRow,
-  FlatPodRow,
-  ServiceRow,
 } from "../../lib/ipc";
 import { getAppVersionDisplay } from "../../lib/appVersion";
 import {
@@ -24,6 +20,16 @@ import {
   combinedPodLabel,
   groupPodsByDeployment,
 } from "@/lib/podGroups";
+import type { InstanceCatalog } from "../../hooks/useCatalog";
+
+const emptyInstanceCatalog = (): InstanceCatalog => ({
+  deployments: [],
+  pods: [],
+  services: [],
+  configMaps: [],
+  loading: false,
+  error: null,
+});
 
 type EnvTreeNavProps = {
   environments: ConnectionInstance[];
@@ -31,15 +37,10 @@ type EnvTreeNavProps = {
   connectedIds: string[];
   connectingId: string | null;
   connectionErrorId: string | null;
-  catalogFocusId: string | null;
   healthById?: Record<string, ConnectionHealthState>;
   onSetKeepAlive?: (id: string, enabled: boolean) => void;
   onReconnect?: (id: string) => void;
-  deployments: DeploymentRow[];
-  pods: FlatPodRow[];
-  services: ServiceRow[];
-  configMaps: ConfigMapRow[];
-  catalogLoading?: boolean;
+  catalogByInstance: Record<string, InstanceCatalog>;
   onSelect: (id: string) => void;
   onConnect: (id: string) => void;
   onDisconnect: (id: string) => void;
@@ -67,15 +68,10 @@ export function EnvTreeNav({
   connectedIds,
   connectingId,
   connectionErrorId,
-  catalogFocusId,
   healthById = {},
   onSetKeepAlive,
   onReconnect,
-  deployments,
-  pods,
-  services,
-  configMaps,
-  catalogLoading,
+  catalogByInstance,
   onSelect,
   onConnect,
   onDisconnect,
@@ -156,6 +152,7 @@ export function EnvTreeNav({
     key: SectionKey,
     title: string,
     showCatalog: boolean,
+    catalogLoading: boolean,
     children: ReactNode,
   ) {
     const open = isSectionOpen(envId, key);
@@ -222,9 +219,16 @@ export function EnvTreeNav({
                 const isExp = expanded[env.id] ?? env.id === selectedId;
                 const st = statusFor(env.id);
                 const isSel = env.id === selectedId;
-                const showCatalog =
-                  env.id === catalogFocusId &&
-                  (st === "connected" || st === "degraded");
+                const showCatalog = st === "connected" || st === "degraded";
+                const slice =
+                  catalogByInstance[env.id] ?? emptyInstanceCatalog();
+                const {
+                  deployments,
+                  pods,
+                  services,
+                  configMaps,
+                  loading: catalogLoading,
+                } = slice;
                 const needsReconnect =
                   st === "disconnected" &&
                   healthById[env.id]?.status === "disconnected";
@@ -357,6 +361,7 @@ export function EnvTreeNav({
                           "deployments",
                           "Deployments",
                           showCatalog,
+                          catalogLoading,
                           deployments.length === 0 ? (
                             <li className="text-muted-foreground">Sin deployments</li>
                           ) : (
@@ -380,6 +385,7 @@ export function EnvTreeNav({
                           "pods",
                           "Pods",
                           showCatalog,
+                          catalogLoading,
                           (() => {
                             const { groups, orphans } =
                               groupPodsByDeployment(pods);
@@ -434,6 +440,7 @@ export function EnvTreeNav({
                           "services",
                           "Services",
                           showCatalog,
+                          catalogLoading,
                           services.length === 0 ? (
                             <li className="text-muted-foreground">Sin services</li>
                           ) : (
@@ -457,6 +464,7 @@ export function EnvTreeNav({
                           "configmaps",
                           "ConfigMaps",
                           showCatalog,
+                          catalogLoading,
                           configMaps.length === 0 ? (
                             <li className="text-muted-foreground">Sin configmaps</li>
                           ) : (

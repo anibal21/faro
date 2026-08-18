@@ -18,19 +18,44 @@ pub struct CatalogRefreshResult {
     pub catalog_epoch: String,
 }
 
+fn resolve_list_instance(
+    runtime: &State<'_, RuntimeState>,
+    instance_id: Option<String>,
+) -> FaroResult<String> {
+    let rt = runtime
+        .inner
+        .lock()
+        .map_err(|_| FaroError::Message("runtime lock".into()))?;
+    match instance_id.filter(|id| !id.trim().is_empty()) {
+        Some(id) => {
+            if !rt.sessions.contains_key(&id) {
+                return Err(FaroError::Message(format!(
+                    "el ambiente no está conectado: {id}"
+                )));
+            }
+            Ok(id)
+        }
+        None => rt
+            .focused_instance_id
+            .clone()
+            .ok_or_else(|| FaroError::Message("not connected — use Ambiente → Conectar first".into())),
+    }
+}
+
 #[tauri::command]
 pub fn k8s_list_deployments(
     db: State<'_, DbState>,
     runtime: State<'_, RuntimeState>,
     namespace: Option<String>,
     name_filter: Option<String>,
+    instance_id: Option<String>,
 ) -> FaroResult<Vec<DeploymentRow>> {
     let _ = namespace;
     let conn = db
         .conn
         .lock()
         .map_err(|_| FaroError::Message("db lock".into()))?;
-    let instance_id = connected_instance(&runtime)?;
+    let instance_id = resolve_list_instance(&runtime, instance_id)?;
     session_cache::list_deployments(&conn, &instance_id, name_filter.as_deref())
 }
 
@@ -39,13 +64,14 @@ pub fn k8s_list_configmaps(
     db: State<'_, DbState>,
     runtime: State<'_, RuntimeState>,
     namespace: Option<String>,
+    instance_id: Option<String>,
 ) -> FaroResult<Vec<ConfigMapRow>> {
     let _ = namespace;
     let conn = db
         .conn
         .lock()
         .map_err(|_| FaroError::Message("db lock".into()))?;
-    let instance_id = connected_instance(&runtime)?;
+    let instance_id = resolve_list_instance(&runtime, instance_id)?;
     session_cache::list_configmaps(&conn, &instance_id)
 }
 
@@ -53,12 +79,13 @@ pub fn k8s_list_configmaps(
 pub fn k8s_list_pods(
     db: State<'_, DbState>,
     runtime: State<'_, RuntimeState>,
+    instance_id: Option<String>,
 ) -> FaroResult<Vec<FlatPodRow>> {
     let conn = db
         .conn
         .lock()
         .map_err(|_| FaroError::Message("db lock".into()))?;
-    let instance_id = connected_instance(&runtime)?;
+    let instance_id = resolve_list_instance(&runtime, instance_id)?;
     session_cache::list_all_pods(&conn, &instance_id)
 }
 
@@ -66,12 +93,13 @@ pub fn k8s_list_pods(
 pub fn k8s_list_services(
     db: State<'_, DbState>,
     runtime: State<'_, RuntimeState>,
+    instance_id: Option<String>,
 ) -> FaroResult<Vec<ServiceRow>> {
     let conn = db
         .conn
         .lock()
         .map_err(|_| FaroError::Message("db lock".into()))?;
-    let instance_id = connected_instance(&runtime)?;
+    let instance_id = resolve_list_instance(&runtime, instance_id)?;
     session_cache::list_services(&conn, &instance_id)
 }
 

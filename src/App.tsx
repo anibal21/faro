@@ -11,7 +11,6 @@ import { useEnvironments } from "./hooks/useEnvironments";
 import { useActiveEnvironment } from "./hooks/useActiveEnvironment";
 import { useConnection } from "./hooks/useConnection";
 import { useCatalog } from "./hooks/useCatalog";
-import { useConfigMaps } from "./hooks/useConfigMaps";
 import { useWorkspaceTabs } from "./hooks/useWorkspaceTabs";
 import { useTheme } from "./hooks/useTheme";
 import { SplashView } from "./views/SplashView";
@@ -48,8 +47,11 @@ function App() {
     setActive,
   } = useActiveEnvironment(environments, ready);
   const connection = useConnection(active?.id ?? null);
-  const catalog = useCatalog(connection.connected, liveGeneration);
-  const configMaps = useConfigMaps(connection.connected, liveGeneration);
+  const catalog = useCatalog(
+    connection.connectedIds,
+    connection.connectedInstanceId,
+    liveGeneration,
+  );
   const workspace = useWorkspaceTabs(liveGeneration);
   const { theme, setTheme } = useTheme(ready);
 
@@ -120,7 +122,6 @@ function App() {
       liveGeneration={liveGeneration}
       connection={connection}
       catalog={catalog}
-      configMaps={configMaps}
       workspace={workspace}
       theme={theme}
       onTheme={(t) => {

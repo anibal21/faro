@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EnvTreeNav } from "../../src/components/catalog/EnvTreeNav";
+import { catalogFor } from "../helpers/catalogByInstance";
 import type { ConnectionHealthState } from "../../src/lib/ipc";
 
 vi.mock("../../src/lib/appVersion", () => ({
@@ -50,14 +51,10 @@ function renderTree(
       connectedIds={overrides.connectedIds ?? ["e1"]}
       connectingId={null}
       connectionErrorId={null}
-      catalogFocusId="e1"
       healthById={overrides.healthById ?? {}}
       onSetKeepAlive={overrides.onSetKeepAlive}
       onReconnect={overrides.onReconnect}
-      deployments={[]}
-      pods={[]}
-      services={[]}
-      configMaps={[]}
+      catalogByInstance={catalogFor("e1")}
       onSelect={() => undefined}
       onConnect={() => undefined}
       onDisconnect={() => undefined}
