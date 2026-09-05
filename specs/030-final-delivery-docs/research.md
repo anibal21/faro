@@ -25,7 +25,7 @@ Mapeo de **entregas formales**:
 |-----------------|-----------|-----|
 | Entrega 1 (doc) | [#1](https://github.com/anibal21/faro/pull/1) | Spec Kit + docs base |
 | Entrega 2 (producto) | [#2](https://github.com/anibal21/faro/pull/2) | App Tauri operativa |
-| Entrega 3 (cierre) | **PR nuevo** desde `finalproject-AERC` (p. ej. próximo #6) | Docs finales + DEMO + Releases |
+| Entrega 3 (cierre) | [#6](https://github.com/anibal21/faro/pull/6) | Docs finales + DEMO + Releases |
 
 Documentar en `7-pull-requests.md` una nota breve de que #3/#4/#5 fueron merges intermedios de producto/release, no las filas vacías de la plantilla.
 

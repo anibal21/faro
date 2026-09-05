@@ -90,9 +90,9 @@ Segunda entrega formal: sobre la base documental de la Entrega 1, se entrega la 
 | Campo | Valor |
 |-------|--------|
 | **Título** | Entrega 3 — Documentación final, Releases y guía DEMO |
-| **URL** | *Completar al abrir el PR desde `finalproject-AERC` (próximo número en GitHub, p. ej. #6)* |
-| **Estado** | En preparación / Open al publicar |
-| **Rama** | `finalproject-AERC` → `develop` o `main` |
+| **URL** | https://github.com/anibal21/faro/pull/6 |
+| **Estado** | Open |
+| **Rama** | `finalproject-AERC` → `main` |
 | **Alcance** | Cierre documental AI4Devs; **sin** cambio de runtime del producto (FR-010 / Spec Kit `030`) |
 | **Tickets / specs** | Spec Kit [`030-final-delivery-docs`](specs/030-final-delivery-docs/) (T001–T022) |
 
@@ -111,7 +111,7 @@ Tercera entrega formal del máster. El producto ya está publicado (versión est
 - Separar claramente **entregas AI4Devs (1–3)** de PRs históricos de GitHub con otros números.
 - No usar el zip “Source code” de Releases como instalador; apuntar a assets NSIS/DMG/AppImage/deb.
 - Guía DEMO debe ser reproducible por un evaluador sin AWS.
-- Actualizar la URL de esta fila cuando el PR de GitHub exista.
+- Actualizar esta fila si el estado del PR cambia (Merged).
 
 ### Artefactos principales
 

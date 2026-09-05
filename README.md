@@ -29,7 +29,7 @@ Faro cierra el ciclo del máster **AI4Devs** como producto de escritorio **demos
 
 1. **Entrega 1** — especificación y plan ([PR #1](https://github.com/anibal21/faro/pull/1))  
 2. **Entrega 2** — aplicación operativa ([PR #2](https://github.com/anibal21/faro/pull/2))  
-3. **Entrega 3** — documentación final, Releases y `DEMO.md` (PR desde `finalproject-AERC`; ver [`7-pull-requests.md`](7-pull-requests.md))
+3. **Entrega 3** — documentación final, Releases y `DEMO.md` ([PR #6](https://github.com/anibal21/faro/pull/6); detalle en [`7-pull-requests.md`](7-pull-requests.md))
 
 Detalle de PRs (incl. nota sobre PRs históricos #3–#5): [`7-pull-requests.md`](7-pull-requests.md).
 
@@ -234,7 +234,7 @@ App de escritorio **Tauri 2**: splash → UI React → commands Rust → SQLite 
 
 **Entrega 1 / PR #1:** [Especificación + Spec Kit](https://github.com/anibal21/faro/pull/1)  
 **Entrega 2 / PR #2:** [App Tauri operativa](https://github.com/anibal21/faro/pull/2)  
-**Entrega 3:** Documentación final + Releases + [`DEMO.md`](DEMO.md) — ver detalle y URL al publicar en [7-pull-requests.md](7-pull-requests.md)
+**Entrega 3 / PR #6:** [Documentación final + Releases + DEMO](https://github.com/anibal21/faro/pull/6)
 
 **Documentación completa:** [7-pull-requests.md](7-pull-requests.md)
 
