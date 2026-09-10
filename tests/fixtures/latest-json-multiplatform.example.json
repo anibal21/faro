@@ -4,15 +4,15 @@
   "platforms": {
     "windows-x86_64": {
       "url": "https://github.com/anibal21/faro/releases/download/v1.3.0/Faro_1.3.0_x64-setup.exe",
-      "signature": "example"
+      "signature": "example-signature-placeholder"
     },
     "darwin-x86_64": {
       "url": "https://github.com/anibal21/faro/releases/download/v1.3.0/Faro_x64.app.tar.gz",
-      "signature": "example"
+      "signature": "example-signature-placeholder"
     },
     "linux-x86_64": {
       "url": "https://github.com/anibal21/faro/releases/download/v1.3.0/Faro_1.3.0_amd64.AppImage",
-      "signature": "example"
+      "signature": "example-signature-placeholder"
     }
   }
 }

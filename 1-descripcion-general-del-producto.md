@@ -51,16 +51,30 @@
 
 ## 1.4. Instrucciones de instalación
 
-> Pendientes tras scaffold. Requisitos de usuario: red al bastión, `.pem`, credenciales cloud fuera de Faro.
+### Evaluadores / demostración (recomendado)
 
-Ver [`readme.md`](readme.md) y `QUICK-START.md` (cuando exista).
+1. Descarga instaladores desde **[GitHub Releases](https://github.com/anibal21/faro/releases)** (versión estable **1.3.0** u otra publicada).
+2. Usa el asset de tu plataforma (`*-setup.exe`, `.dmg`, `.AppImage` / `.deb`). **No** uses el zip “Source code” como instalador.
+3. Para probar **sin cluster EKS**, sigue la guía completa: [`DEMO.md`](DEMO.md) (**Usar fixtures demo**).
+
+### Desarrollo local
+
+```bash
+npm install
+npm run tauri dev
+```
+
+Requisitos live (opcional, fuera de la demo): red al bastión, `.pem` real, región/cluster configurados. Credenciales cloud **no** se guardan dentro de Faro (solo rutas).
+
+Ver también [`README.md`](README.md) y [`TESTING.md`](TESTING.md).
 
 ## Trazabilidad
 
-- Spec: [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md)  
+- Spec cierre documental: [`specs/030-final-delivery-docs/spec.md`](specs/030-final-delivery-docs/spec.md)  
+- Spec producto base: [`specs/001-eks-log-monitor/spec.md`](specs/001-eks-log-monitor/spec.md)  
 - Plan: [`specs/001-eks-log-monitor/plan.md`](specs/001-eks-log-monitor/plan.md)  
 - Tasks: [`specs/001-eks-log-monitor/tasks.md`](specs/001-eks-log-monitor/tasks.md) (T001–T085)  
 - Tickets: [`6-tickets-de-trabajo.md`](6-tickets-de-trabajo.md) (HU1–HU10)  
 - IPC: [`4-comandos-y-eventos-ipc.md`](4-comandos-y-eventos-ipc.md) · [`ipc-commands-events.md`](specs/001-eks-log-monitor/contracts/ipc-commands-events.md)  
 - HU: [`5-historias-de-usuario.md`](5-historias-de-usuario.md)  
-- Checklist: `specs/001-eks-log-monitor/checklists/requirements.md`
+- Demo: [`DEMO.md`](DEMO.md)

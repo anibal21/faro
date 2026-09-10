@@ -1,5 +1,10 @@
 # TESTING — Faro
 
+## Evaluación manual sin cluster (recomendado)
+
+Guía paso a paso con fixtures demo: **[`DEMO.md`](DEMO.md)**  
+Instaladores: [https://github.com/anibal21/faro/releases](https://github.com/anibal21/faro/releases) (Faro **1.3.0**).
+
 ## Automated
 
 ```bash
@@ -155,4 +160,5 @@ Validación manual (capturas / demo):
 - Tercera conexión → mensaje de límite de 2 sesiones.
 - Opcional post-release: build instalado (`npm run tauri build`) y precarga sin checkout del repo.
 
-Quickstart: `specs/029-demo-fixtures-repair/quickstart.md`.
+Quickstart: `specs/029-demo-fixtures-repair/quickstart.md`.  
+Guía evaluador (paso a paso): [`DEMO.md`](DEMO.md).
